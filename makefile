@@ -1,7 +1,8 @@
 NODE_MODULES_BIN = node_modules/.bin
 
-COPY_SOURCE = $(NODE_MODULES_BIN)/flow-copy-source
 BABEL = $(NODE_MODULES_BIN)/babel
+CONCURRENTLY = $(NODE_MODULES_BIN)/concurrently
+NODEMON = $(NODE_MODULES_BIN)/nodemon
 
 SOURCE = ./src
 DISTRIBUTABLE = ./dist
@@ -10,7 +11,6 @@ DISTRIBUTABLE = ./dist
 
 all:
 	$(BABEL) $(SOURCE) -d $(DISTRIBUTABLE)
-	$(COPY_SOURCE) $(SOURCE) $(DISTRIBUTABLE)
 
 dev:
-	$(BABEL) $(SOURCE) -d $(DISTRIBUTABLE) -w
+	$(BABEL) $(SOURCE) -d $(DISTRIBUTABLE) -w & $(NODEMON) ./dist
