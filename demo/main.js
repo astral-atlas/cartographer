@@ -87,7 +87,7 @@ class App extends Component {
         ]),
         createElement('section', { className: 'endpointSection' }, [
           createElement('select', { onChange: event => this.updateEndpoint(event.target.value), value: endpointPath }, [
-            createElement('option', { value: '/chapter/getActiveIds' }, 'List Chapter Ids'),
+            createElement('option', { value: '/chapter/getActiveIds' }, 'List Active Chapter Ids'),
             createElement('option', { value: '/chapter/addNewChapter' }, 'Create New Chapter'),
           ]),
           createElement('select', { onChange: event => this.updateMethod(event.target.value), value: method }, [
