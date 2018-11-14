@@ -1,7 +1,6 @@
 // @flow
 import type { ChapterID, Chapter } from '../../lib/chapters';
 import type { LockableStorageService } from '../storage';
-import { InternalServiceError } from '../index';
 import { toChapterId } from '../../lib/chapters';
 import { toArray } from '../../lib/serialization';
 
