@@ -8,6 +8,7 @@ const DEFAULT_STATE = {
   response: null,
   responseError: null,
   dirty: true,
+  body: '',
 };
 
 const tryPrettyStringify = (valueToStringify) => {
@@ -17,6 +18,28 @@ const tryPrettyStringify = (valueToStringify) => {
     return 'Invalid JSON';
   }
 }
+
+const shouldSendBody = (method) => {
+  switch (method) {
+    case 'POST':
+    case 'PUT':
+    case 'PATCH':
+      return true;
+    case 'GET':
+    case 'OPTIONS':
+    case 'HEAD':
+    default:
+      return false;
+  }
+};
+
+const getFetchOptions = (method, body) => {
+  if (shouldSendBody(method)) {
+    return { method, body };
+  } else {
+    return { method };
+  }
+};
 
 class App extends Component {
   constructor(props) {
@@ -30,8 +53,9 @@ class App extends Component {
 
   makeRequest(event) {
     event.preventDefault();
-    const { serviceDomain, endpointPath, method } = this.state;
-    fetch(`${serviceDomain}${endpointPath}`, { method })
+    const { serviceDomain, endpointPath, method, body } = this.state;
+    
+    fetch(`${serviceDomain}${endpointPath}`, getFetchOptions(method, body))
       .then(response => response.text())
       .then(textResponse => {
         try { return JSON.stringify(JSON.parse(textResponse), null, 3) }

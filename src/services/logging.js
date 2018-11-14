@@ -63,7 +63,7 @@ const createStdoutLoggingService = (): LoggingService => {
   const makeStdOutLogger = (level) => (message) => {
     const log: Log = { type: level, message };
     const serializedLog = JSON.stringify(log);
-    try { process.stdout.write(serializedLog); }
+    try { process.stdout.write(serializedLog + '\n'); }
     catch (err) { WriteFailError(err.message, 'stdout'); }
   };
   const makeStdErrLogger = (level) => (message) => {

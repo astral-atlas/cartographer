@@ -4,6 +4,7 @@ import type { ScribeConfig } from '../config';
 
 import { buildServices } from '../services';
 import { buildChapterRoutes } from './chapters';
+import { buildLifecycleRoutes } from './lifecycle';
 
 export type ScribeRoute = {
   name: string,
@@ -16,5 +17,6 @@ export const buildRoutes = async (conf: ScribeConfig): Promise<Array<ScribeRoute
 
   return [
     ...buildChapterRoutes(services),
+    ...buildLifecycleRoutes(services),
   ];
 };
