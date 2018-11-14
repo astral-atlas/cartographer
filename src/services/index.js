@@ -1,14 +1,20 @@
 //@flow
 import type { LoggingService } from './logging';
-import type { StorageService } from './storage';
+import type { ChaptersService } from './scribe/chapters';
 import type { ScribeConfig } from '../config';
+
 import { AtlasScribeError } from '../errors';
 import { buildLoggingService } from './logging';
 import { buildLocalStorageService } from './storage/localStorage';
+import { buildLockableStorage } from './storage/lockableStorage';
+import { buildMemoryLock } from './memoryLock';
+import { buildChapterService } from './scribe/chapters';
 
 export type Services = {
   logging: LoggingService,
-  storage: StorageService,
+  scribe: {
+    chapters: ChaptersService,
+  }
 };
 
 /**
@@ -39,7 +45,15 @@ export const tryBuildService = <TService>(serviceName: string, serviceBuilder: (
   }
 };
 
-export const buildServices = async (conf: ScribeConfig) => ({
-  logging: buildLoggingService(conf.services.logging),
-  storage: buildLocalStorageService(conf.services.localStorage),
-});
+export const buildServices = async (conf: ScribeConfig) => {
+  const logging = buildLoggingService(conf.services.logging);
+  const localStorage = buildLocalStorageService(conf.services.localStorage);
+  const memoryLock = buildMemoryLock();
+  const lockStore = buildLockableStorage(localStorage, memoryLock);
+  const chapters = buildChapterService(lockStore);
+
+  return {
+    scribe: { chapters },
+    logging,
+  };
+};
