@@ -1,0 +1,29 @@
+.bodySection {
+  display: flex;
+  resize: vertical;
+  height: 150;
+  overflow: auto;
+  padding: 10;
+  background-color: aliceblue;
+}
+.bodyInput {
+  flex: 1;
+  resize: none;
+}
+.bodyPreview {
+  flex: 1;
+  padding: 5;
+}
+
+.responseSection.dirty {
+  opacity: 0.5;
+}
+
+.responseSection {
+  margin: 5;
+  background-color: pink;
+}
+
+.responseSection pre {
+  padding: 5;
+}
