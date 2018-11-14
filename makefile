@@ -4,6 +4,7 @@ BABEL = $(NODE_MODULES_BIN)/babel
 CONCURRENTLY = $(NODE_MODULES_BIN)/concurrently
 NODEMON = $(NODE_MODULES_BIN)/nodemon
 SERVE = $(NODE_MODULES_BIN)/serve
+FLOW_TYPED = $(NODE_MODULES_BIN)/flow-typed
 
 SOURCE = ./src
 DISTRIBUTABLE = ./dist
@@ -19,3 +20,6 @@ dev:
 
 demo:
 	$(SERVE) $(DEMO)
+
+type:
+	$(FLOW_TYPED) install
