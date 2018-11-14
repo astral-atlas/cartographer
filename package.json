@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "stupid-rich-text": "^1.1.0",
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.5",
     "@babel/preset-env": "^7.0.0",
@@ -12,7 +13,7 @@
     "flow-copy-source": "^2.0.2",
     "flow-typed": "^2.5.1",
     "nodemon": "^1.18.6",
-    "serve": "^10.0.2"
+    "serve": "^10.1.1"
   },
   "engines": {
     "node": ">=10.13.0"
@@ -22,7 +23,6 @@
   "description": "A backend API for serialzing atlas datas",
   "main": "index.js",
   "dependencies": {
-    "stupid-rich-text": "^1.1.0",
     "uuid": "^3.3.2"
   },
   "scripts": {
