@@ -1,14 +1,16 @@
+import { QueryStringInput } from './components/QueryStringInput.js';
+
 const { React, ReactDOM } = window;
-const { Component, createElement } = React;
+const { Component, createElement: h } = React;
 
 const DEFAULT_STATE = {
   serviceDomain: 'http://localhost:8888',
-  endpointPath: '/chapter/getActiveIds',
-  method: 'GET',
+  routeIndex: 0,
   response: null,
   responseError: null,
   dirty: true,
   body: '',
+  searchParams: new URLSearchParams(),
 };
 
 const tryPrettyStringify = (valueToStringify) => {
@@ -41,6 +43,12 @@ const getFetchOptions = (method, body) => {
   }
 };
 
+const routes = [
+  { endpointPath: '/chapters/getByChapterID', method: 'GET' },
+  { endpointPath: '/chapters/listAllActiveChapterIDs', method: 'GET' },
+  { endpointPath: '/chapters/addNewChapter', method: 'POST' },
+];
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -52,8 +60,8 @@ class App extends Component {
   }
 
   makeRequest(event) {
-    event.preventDefault();
-    const { serviceDomain, endpointPath, method, body } = this.state;
+    const { serviceDomain, routeIndex, body } = this.state;
+    const { method, endpointPath } = routes[routeIndex];
     
     fetch(`${serviceDomain}${endpointPath}`, getFetchOptions(method, body))
       .then(response => response.text())
@@ -65,50 +73,50 @@ class App extends Component {
       .catch(error => this.setState({ responseError: error, dirty: false }));
   }
 
-  updateEndpoint(newEndpoint) {
-    this.setState({ endpointPath: newEndpoint, dirty: true });
-  }
-
-  updateMethod(newMethod) {
-    this.setState({ method: newMethod, dirty: true });
+  updateRouteIndex(newRouteIndex) {
+    this.setState({ routeIndex: newRouteIndex, dirty: true });
   }
 
   updateBody(newBody) {
     this.setState({ body: newBody, dirty: true });
   }
 
+  onQueryChange(searchParams) {
+    this.setState({ searchParams: searchParams });
+  }
+
   render() {
-    const { serviceDomain, endpointPath, method, response, body, responseError, dirty } = this.state;
+    const { serviceDomain, routeIndex, response, body, responseError, dirty, searchParams } = this.state;
+    const { method, endpointPath } = routes[routeIndex];
+
+    const url = new URL(endpointPath, serviceDomain);
+    url.search = searchParams.toString();
 
     return (
-      createElement('form', null, [
-        createElement('section', { className: 'serviceSection' }, [
-          createElement('input', { onChange: event => this.updateServiceDomain(event.target.value), value: serviceDomain }),
+      h('form', null, [
+        h('section', { className: 'serviceSection' }, [
+          h('input', { onChange: event => this.updateServiceDomain(event.target.value), value: serviceDomain }),
         ]),
-        createElement('section', { className: 'endpointSection' }, [
-          createElement('select', { onChange: event => this.updateEndpoint(event.target.value), value: endpointPath }, [
-            createElement('option', { value: '/chapter/getActiveIds' }, 'List Active Chapter Ids'),
-            createElement('option', { value: '/chapter/addNewChapter' }, 'Create New Chapter'),
+        h('section', { className: 'endpointSection' }, [
+          h('select', { onChange: event => this.updateRouteIndex(event.target.value), value: routeIndex }, [
+            h('option', { value: 0 }, 'Get Chapter By ID'),
+            h('option', { value: 1 }, 'Get all Chapter IDs'),
+            h('option', { value: 2 }, 'Create New Chapter'),
           ]),
-          createElement('select', { onChange: event => this.updateMethod(event.target.value), value: method }, [
-            createElement('option', { value: 'POST' }, 'Post'),
-            createElement('option', { value: 'GET' }, 'Get'),
-            createElement('option', { value: 'PUT' }, 'Put'),
-            createElement('option', { value: 'PATCH' }, 'Patch'),
-          ]),
-          createElement('pre', { className: 'urlPreview' }, `${method} => ${serviceDomain}${endpointPath}`),
+          h('pre', { className: 'urlPreview' }, `${method} => ${url.toString()}`),
         ]),
-        createElement('section', { className: 'requestSection' }, [
+        h('section', { className: 'requestSection' }, [
+          h('section', null, h(QueryStringInput, { onChange: (query) => this.onQueryChange(query) })),
           (method === 'POST' || method === 'PUT' || method === 'PATCH') &&
-            createElement('section', { className: 'bodySection' }, [
-              createElement('textarea', { onChange: event => this.updateBody(event.target.value), className: 'bodyInput' }),
-              createElement('pre', { className: 'bodyPreview' }, tryPrettyStringify(body)),
+            h('section', { className: 'bodySection' }, [
+              h('textarea', { onChange: event => this.updateBody(event.target.value), className: 'bodyInput' }),
+              h('pre', { className: 'bodyPreview' }, tryPrettyStringify(body)),
             ]),
-          createElement('button', { onClick: event => this.makeRequest(event) }, 'Request'),
+          h('button', { type: 'button', onClick: () => this.makeRequest() }, 'Request'),
         ]),
-        createElement('section', { className: `responseSection ${dirty ? 'dirty' : ''}` }, [
-          response !== null && responseError === null && createElement('pre', null, response),
-          responseError !== null && createElement('pre', null, responseError.message),
+        h('section', { className: `responseSection ${dirty ? 'dirty' : ''}` }, [
+          response !== null && responseError === null && h('pre', null, response),
+          responseError !== null && h('pre', null, responseError.message),
         ]),
       ])
     );
@@ -117,7 +125,7 @@ class App extends Component {
 
 window.addEventListener('load', () => {
   ReactDOM.render(
-    createElement(App),
+    h(App),
     document.body.appendChild(document.createElement('div'))
   )
 });
