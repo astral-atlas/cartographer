@@ -1,7 +1,10 @@
 // @flow strict
 import { writeFile, readFile } from 'fs';
 
-export const writeToFile = (path: string, contents: string): Promise<void> => new Promise((resolve, reject) => {
+export const writeToFile = (
+  path: string,
+  contents: string,
+): Promise<void> => new Promise((resolve, reject) => {
   writeFile(path, contents, err => {
     if (err) {
       reject(err);
@@ -10,7 +13,9 @@ export const writeToFile = (path: string, contents: string): Promise<void> => ne
   });
 });
 
-export const readFromFile = (path: string): Promise<string> => new Promise((resolve, reject) => {
+export const readFromFile = (
+  path: string,
+): Promise<string> => new Promise((resolve, reject) => {
   readFile(path, (err, data) => {
     if (err) {
       reject(err);

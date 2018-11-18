@@ -1,5 +1,4 @@
 // @flow
-import type { SerializableValue } from '../types';
 // $FlowFixMe
 import uuid from 'uuid/v4';
 import { InternalLibraryError } from '../lib';
@@ -17,7 +16,7 @@ function InvalidUUIDTypeError(incorrectType) {
   );
 }
 
-export const toUUID = (value: SerializableValue): UUID => {
+export const toUUID = (value: mixed): UUID => {
   if (typeof value === 'string' && value !== '') {
     return (value: UUID);
   }
