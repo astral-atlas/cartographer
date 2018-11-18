@@ -47,7 +47,7 @@ export const buildHandlerForApiRoute = (
 
       const headers = new Map(inc.rawHeaders
         .filter((_, index) => index % 2 === 0)
-        .map<[string, string]>((headerName, index) => ([headerName, inc.rawHeaders[(index * 2) + 1]]))
+        .map<[string, string]>((headerName, index) => ([headerName.toLowerCase(), inc.rawHeaders[(index * 2) + 1]]))
       );
 
       const requestInfo: RequestInfo = {
@@ -58,8 +58,8 @@ export const buildHandlerForApiRoute = (
       };
 
       setHeaders(buildCORSHeaders([route.method], route.usesCredentials), res);
-      res.statusCode = 200;
       const response = await route.handler(requestInfo);
+      res.statusCode = 200;
       try {
         const stringifiedResponse = JSON.stringify(response);
         res.write(stringifiedResponse);

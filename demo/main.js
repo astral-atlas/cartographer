@@ -35,11 +35,11 @@ const shouldSendBody = (method) => {
   }
 };
 
-const getFetchOptions = (method, body) => {
+const getFetchOptions = (method, body, headers) => {
   if (shouldSendBody(method)) {
-    return { method, body };
+    return { method, body, headers };
   } else {
-    return { method };
+    return { method, headers };
   }
 };
 
@@ -59,13 +59,16 @@ class App extends Component {
   }
 
   makeRequest(event) {
-    const { serviceDomain, routeIndex, body, searchParams } = this.state;
+    const { serviceDomain, routeIndex, body, searchParams, authorization } = this.state;
     const { method, endpointPath } = routes[routeIndex];
 
     const url = new URL(endpointPath, serviceDomain);
     url.search = searchParams.toString();
-    
-    fetch(url, getFetchOptions(method, body, searchParams))
+    const headers = new Headers();
+    if (authorization) {
+      headers.set('Authorization', authorization);
+    }
+    fetch(url, getFetchOptions(method, body, headers))
       .then(response => response.text())
       .then(textResponse => {
         try { return JSON.stringify(JSON.parse(textResponse), null, 3) }
@@ -85,6 +88,10 @@ class App extends Component {
 
   onQueryChange(searchParams) {
     this.setState({ searchParams: searchParams });
+  }
+
+  updateUserAndPass(userAndPass) {
+    this.setState({ authorization: userAndPass !== '' ? btoa(`Basic ${userAndPass}`) : null })
   }
 
   render() {
@@ -107,6 +114,7 @@ class App extends Component {
           h('pre', { className: 'urlPreview' }, `${method} => ${url.toString()}`),
         ]),
         h('section', { className: 'requestSection' }, [
+          h('input', { type: 'text', onChange: (event) => this.updateUserAndPass(event.target.value) }),
           h('section', null, h(QueryStringInput, { onChange: (query) => this.onQueryChange(query) })),
           (method === 'POST' || method === 'PUT' || method === 'PATCH') &&
             h('section', { className: 'bodySection' }, [

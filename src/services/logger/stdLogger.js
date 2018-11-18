@@ -1,12 +1,13 @@
 // @flow
 import type { Logger } from '../logger';
+import { EOL } from 'os';
 
 const buildStdLoggerFactory = (pipe: 'stdout' | 'stderr') => {
   const stdoutLog = (message) => {
-    process.stdout.write(message);
+    process.stdout.write(message + EOL);
   };
   const stderrLog = (message) => {
-    process.stdout.write(message);
+    process.stdout.write(message + EOL);
   };
 
   return {

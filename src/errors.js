@@ -5,6 +5,8 @@
  * know it to be an internal, known error that was thrown and hopefully
  * handled.
  */
-export function AtlasScribeError(message: string) {
-  return new Error(message);
+export class AtlasScribeError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
 }

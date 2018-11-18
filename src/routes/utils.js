@@ -22,6 +22,7 @@ export const buildCORSHeaders = (methods?: Array<HTTPMethod> = ['GET'], useCrede
   { headerName: 'Access-Control-Allow-Origin', headerValue: origin },
   { headerName: 'Access-Control-Allow-Methods', headerValue: methods.join(' ') },
   useCredentials ? { headerName: 'Access-Control-Allow-Credentials', headerValue: 'true' } : null,
+  useCredentials ? { headerName: 'Access-Control-Allow-Headers', headerValue: 'Authorization' } : null,
 ].filter(Boolean);
 
 export const setHeaders = (

@@ -8,15 +8,17 @@ import { buildScopedStorage } from '../storage/scopedStorage';
 import { buildTypedStorage } from '../storage/typedStorage';
 import { toUserId, toUser } from '../../lib/authentication';
 
-function InvalidTokenError(userId) {
-  throw new UserAuthenticationError(
-    `"${userId}" Attempted to log in, but the provided user`+
-    ` token did not match the recorded one`
-  );
+class InvalidTokenError extends UserAuthenticationError {
+  constructor(userId) {
+    super(
+      `"${userId}" Attempted to log in, but the provided user`+
+      ` token did not match the recorded one`
+    );
+  }
 }
 
-function UserNameNotFound(userName) {
-  throw new UserAuthenticationError(
+function UserNameNotFoundError(userName) {
+  return new UserAuthenticationError(
     `"${userName}" Attempted to log in, we have no record of that username`,
   );
 }
@@ -28,11 +30,11 @@ export const buildSimpleAuth = (
   storage: Storage<string>,
 ): Authentication => {
   const idByName = buildScopedStorage(
-    buildTypedStorage(storage, JSON.stringify, toUserId),
+    buildTypedStorage(storage, JSON.stringify, value => toUserId(JSON.parse(value))),
     USERNAME_ID_TABLE_KEY
   );
   const userById = buildScopedStorage(
-    buildTypedStorage(storage, JSON.stringify, toUser),
+    buildTypedStorage(storage, JSON.stringify, value => toUser(JSON.parse(value))),
     USERID_USER_TABLE_KEY
   );
 
@@ -42,7 +44,7 @@ export const buildSimpleAuth = (
       userId = toUserId(await idByName.get(userName));
     } catch (err) {
       if (err instanceof KeyNotFoundError) {
-        throw new UserNameNotFound(userName);
+        throw new UserNameNotFoundError(userName);
       }
       throw err;
     }

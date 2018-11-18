@@ -22,7 +22,7 @@ export type Chapters = {
 };
 
 export function CantRetrieveChapter(chapterId: string, message: string) {
-  throw new Error(`Cannot retrieve the chapter at ID: "${chapterId}"\n${message}`);
+  return new Error(`Cannot retrieve the chapter at ID: "${chapterId}"\n${message}`);
 }
 
 const chapterIdScope = buildScope('CHAPTER_ID');
@@ -32,7 +32,7 @@ const IDS_LIST_KEY = metaIdScope('IDS_LIST');
 
 export const buildChapters = (safeStorage: SafeStorage<string>): Chapters => {
   const getAllIds = async (): Promise<Array<ChapterID>> => (
-    toArray(await safeStorage.get(IDS_LIST_KEY), toChapterId)
+    toArray(JSON.parse(await safeStorage.get(IDS_LIST_KEY)), toChapterId)
   );
 
   const getChapterIds = async (userId: UserID) => {
@@ -59,7 +59,7 @@ export const buildChapters = (safeStorage: SafeStorage<string>): Chapters => {
 
   const getChapter = async (id: ChapterID, userId: UserID) => {
     try {
-      const chapter = toChapter(await safeStorage.get(chapterIdScope(id)));
+      const chapter = toChapter(JSON.parse(await safeStorage.get(chapterIdScope(id))));
       if (!canUserRead(chapter.permissions, userId)) {
         throw new CantRetrieveChapter(
           id,

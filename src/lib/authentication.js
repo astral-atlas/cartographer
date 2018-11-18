@@ -39,17 +39,17 @@ export const toUser = (value: mixed): User => (
 export const getUserAuth = (
   headers: Map<string, string>,
 ): ?UserAuth => {
-  const authHeader = headers.get('Authorization');
+  const authHeader = headers.get('authorization');
   if (typeof authHeader !== 'string') {
     return null;
   }
-  const [authType, credentials] = authHeader.split(' ');
+  const [authType, credentials] = Buffer.from(authHeader, 'base64')
+    .toString()
+    .split(' ');
   if (authType !== 'Basic') {
     return null;
   }
-  const [name, token] = Buffer.from(credentials, 'base64')
-    .toString()
-    .split(':');
+  const [name, token] = credentials.split(':');
   if (!name || !token) {
     return null;
   }

@@ -8,38 +8,48 @@ import { AtlasScribeError } from '../errors';
  * private or important information, only generic top level description of what
  * happened
  */
-export function RouteError(message: string) {
-  return new AtlasScribeError(message);
+export class RouteError extends AtlasScribeError {
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 /**
  * A generic error to describe when a resource is not found
  */
-export function NotFoundError(message: string) {
-  return new RouteError(message);
+export class NotFoundError extends RouteError {
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 /**
  * A generic error to indicate that the provided method is not
  * applicable for this resource
  */
-export function MethodNotAllowedError(message: string) {
-  return new RouteError(message);
+export class MethodNotAllowedError extends RouteError {
+ constructor(message: string) {
+   super(message);
+ }
 }
 
 /**
  * A generic error to indicate that the attempt to perform an action on
  * a unauthorized resource was denied
  */
-export function NotAuthorizedError(message: string) {
-  return new RouteError(message);
+export class NotAuthorizedError extends RouteError {
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 /**
  * A generic error to describe when the server has broken for some reason.
  */
-export function InternalServerError(message: string) {
-  return new RouteError(message);
+export class InternalServerError extends RouteError {
+ constructor(message: string) {
+   super(message);
+ }
 }
 
 export const handleRouteErrorResponse = (res: ServerResponse, error: mixed) => {
