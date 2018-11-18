@@ -1,6 +1,6 @@
 // @flow
 import { createServer } from 'http';
-import { buildListener } from './requestListener';
+import { buildListener } from './listener';
 import { LOCAL_CONFIG } from './config';
 
 const main = async () => {
