@@ -2,21 +2,18 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { ScribeConfig } from '../config';
 
-import { buildServices } from '../services';
+import { AtlasScribeError } from '../errors';
 import { buildChapterRoutes } from './chapters';
-import { buildLifecycleRoutes } from './lifecycle';
+
+export type ScribeRouteHandler = (inc: IncomingMessage, res: ServerResponse) => void;
+export type ScribeRouteTest = (inc: IncomingMessage) => boolean;
 
 export type ScribeRoute = {
   name: string,
-  test: (inc: IncomingMessage) => boolean,
-  handler: (inc: IncomingMessage, res: ServerResponse) => void,
+  test: ScribeRouteTest,
+  handler: ScribeRouteHandler,
 };
 
-export const buildRoutes = async (conf: ScribeConfig): Promise<Array<ScribeRoute>> => {
-  const services = await buildServices(conf);
-
-  return [
-    ...buildChapterRoutes(services),
-    ...buildLifecycleRoutes(services),
-  ];
-};
+export function ScribeRouteError (routeName: string, message: string) {
+  return new AtlasScribeError(`The current route is ${routeName}\n${message}`);
+}
