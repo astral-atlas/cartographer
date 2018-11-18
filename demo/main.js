@@ -44,9 +44,8 @@ const getFetchOptions = (method, body) => {
 };
 
 const routes = [
-  { endpointPath: '/chapters/getByChapterID', method: 'GET' },
-  { endpointPath: '/chapters/listAllActiveChapterIDs', method: 'GET' },
-  { endpointPath: '/chapters/addNewChapter', method: 'POST' },
+  { endpointPath: '/chapters', method: 'GET' },
+  { endpointPath: '/chapters', method: 'POST' },
 ];
 
 class App extends Component {
@@ -60,16 +59,19 @@ class App extends Component {
   }
 
   makeRequest(event) {
-    const { serviceDomain, routeIndex, body } = this.state;
+    const { serviceDomain, routeIndex, body, searchParams } = this.state;
     const { method, endpointPath } = routes[routeIndex];
+
+    const url = new URL(endpointPath, serviceDomain);
+    url.search = searchParams.toString();
     
-    fetch(`${serviceDomain}${endpointPath}`, getFetchOptions(method, body))
+    fetch(url, getFetchOptions(method, body, searchParams))
       .then(response => response.text())
       .then(textResponse => {
         try { return JSON.stringify(JSON.parse(textResponse), null, 3) }
         catch (err) { return textResponse }
       })
-      .then(parsedResponse => this.setState({ response: parsedResponse, dirty: false }))
+      .then(parsedResponse => this.setState({ response: parsedResponse, responseError: null, dirty: false }))
       .catch(error => this.setState({ responseError: error, dirty: false }));
   }
 
@@ -99,9 +101,8 @@ class App extends Component {
         ]),
         h('section', { className: 'endpointSection' }, [
           h('select', { onChange: event => this.updateRouteIndex(event.target.value), value: routeIndex }, [
-            h('option', { value: 0 }, 'Get Chapter By ID'),
-            h('option', { value: 1 }, 'Get all Chapter IDs'),
-            h('option', { value: 2 }, 'Create New Chapter'),
+            h('option', { value: 0 }, 'Get Chapter'),
+            h('option', { value: 1 }, 'Add New Empty Chapter'),
           ]),
           h('pre', { className: 'urlPreview' }, `${method} => ${url.toString()}`),
         ]),
