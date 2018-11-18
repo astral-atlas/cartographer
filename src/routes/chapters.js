@@ -24,7 +24,7 @@ export const buildChapterRoutes = (
       try {
         const user = await getCurrentOrGlobalUser(headers, getUser);
         const chapterId = queries.get('id');
-        if (chapterId !== null) {
+        if (chapterId !== undefined) {
           try {
             return await chapters.getChapter(
               toChapterId(chapterId),
