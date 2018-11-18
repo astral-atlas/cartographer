@@ -1,50 +1,83 @@
 // @flow
 import type { ChapterID, Chapter } from '../../lib/chapters';
-import type { LockableStorageService } from '../storage/lockableStorage';
+import type { UserID }from '../../lib/authentication';
+import type { SafeStorage } from '../storage/safeStorage';
+import {
+  canUserWrite,
+  canUserRead,
+  CantWriteAsGlobalError,
+} from '../../lib/permissions';
+import { GLOBAL_USER } from '../../lib/authentication';
+import { buildScopedStorage } from '../storage/scopedStorage';
+import { buildTypedStorage } from '../storage/typedStorage';
+import { buildScope } from '../../lib/scope';
+import { KeyNotFoundError } from '../storage';
 import { toChapterId, toChapter } from '../../lib/chapters';
 import { toArray } from '../../lib/serialization';
 
-export type ChaptersService = {
-  getActiveChapterIds: () => Promise<Array<ChapterID>>,
-  addChapter: (chapter: Chapter) => Promise<void>,
-  getChapter: (id: ChapterID) => Promise<Chapter>,
+export type Chapters = {
+  getChapterIds: (user: UserID) => Promise<Array<ChapterID>>,
+  addChapter: (chapter: Chapter, user: UserID) => Promise<void>,
+  getChapter: (id: ChapterID, user: UserID) => Promise<Chapter>,
 };
 
-const ALL_CHAPTER_IDS = 'ALL_CHAPTER_IDS';
-
-const loadAllChapterIds = async (storage) => (
-  toArray<ChapterID>(await storage.load(ALL_CHAPTER_IDS), toChapterId)
-);
-
-function CantRetrieveChapter(chapterId, message) {
+export function CantRetrieveChapter(chapterId: string, message: string) {
   throw new Error(`Cannot retrieve the chapter at ID: "${chapterId}"\n${message}`);
 }
 
-export const buildChapterService = (storage: LockableStorageService) => {
-  const getActiveChapterIds = async () => {
-    const ids = await loadAllChapterIds(storage);
-    const chapters = await Promise.all(ids.map(getChapter));
-    const activeChapters = chapters.filter(chapter => chapter.active);
-    return activeChapters.map<ChapterID>(chapter => chapter.id);
+const chapterIdScope = buildScope('CHAPTER_ID');
+const metaIdScope = buildScope('META');
+
+const IDS_LIST_KEY = metaIdScope('IDS_LIST');
+
+export const buildChapters = (safeStorage: SafeStorage<string>): Chapters => {
+  const getAllIds = async (): Promise<Array<ChapterID>> => (
+    toArray(await safeStorage.get(IDS_LIST_KEY), toChapterId)
+  );
+
+  const getChapterIds = async (userId: UserID) => {
+    const ids = await getAllIds();
+    const chapters = await Promise.all(ids.map(id => getChapter(id, userId)));
+    const visableChapters = chapters.filter(chapter =>
+      canUserRead(chapter.permissions, userId)
+    );
+    return visableChapters.map<ChapterID>(chapter => chapter.id);
   };
-  const addChapter = async (chapter: Chapter) => {
-    await storage.atomicEdit([chapter.id, ALL_CHAPTER_IDS], async (atomicStorage) => {
-      const ids = await loadAllChapterIds(atomicStorage);
-      const newIds = [...ids, chapter.id];
-      await atomicStorage.save(ALL_CHAPTER_IDS, newIds);
-      await atomicStorage.save(chapter.id, chapter);
+  const addChapter = async (chapter: Chapter, userId: UserID) => {
+    const idKey = chapterIdScope(chapter.id);
+    const keys = [idKey, IDS_LIST_KEY];
+    if (userId === GLOBAL_USER.userId) {
+      throw new CantWriteAsGlobalError();
+    }
+    await safeStorage.doWithSafeStorage(keys, async (storage) => {
+      const ids = await getAllIds();
+      const newIds = JSON.stringify([...ids, chapter.id]);
+      await storage.put(IDS_LIST_KEY, newIds);
+      await storage.put(chapterIdScope(idKey), JSON.stringify(chapter));
     });
   };
-  const getChapter = async (id: ChapterID) => {
+
+  const getChapter = async (id: ChapterID, userId: UserID) => {
     try {
-      return toChapter(await storage.load(id));
+      const chapter = toChapter(await safeStorage.get(chapterIdScope(id)));
+      if (!canUserRead(chapter.permissions, userId)) {
+        throw new CantRetrieveChapter(
+          id,
+          `The user "${userId}" attempted to read `+
+          `a chapter they did not have permission to read.`
+        );
+      }
+      return chapter;
     } catch (err) {
-      throw new CantRetrieveChapter(id, err.message);
+      if (err instanceof KeyNotFoundError) {
+        throw new CantRetrieveChapter(id, err.message);
+      }
+      throw err;
     }
   };
 
   return {
-    getActiveChapterIds,
+    getChapterIds,
     addChapter,
     getChapter,
   };

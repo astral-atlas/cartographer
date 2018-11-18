@@ -1,12 +1,17 @@
 // @flow
-import type { SerializableValue } from '../../types';
-import type { LocalStorageServiceConfig } from './localStorage';
+import { InternalServiceError } from '../../services';
 
-export type StorageService = {
-  save: (key: string, contents: SerializableValue) => Promise<void>,
-  load: (key: string) => Promise<SerializableValue>,
+export type Storage<T> = {
+  put: (key: string, contents: T) => Promise<void>,
+  get: (key: string) => Promise<T>,
 };
 
-export type StorageServiceConfig = {
-  localStorage: LocalStorageServiceConfig,
-};
+export function KeyNotFoundError(
+  serviceName: string,
+  key: string, message: string,
+) {
+  return new InternalServiceError(
+    serviceName,
+    `Could not locate the resource at the Key: "${key}".\n${message}`
+  );
+}
