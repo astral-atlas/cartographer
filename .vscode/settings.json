@@ -2,5 +2,9 @@
     "editor.tabSize": 2,
     "files.eol": "\n",
     "files.insertFinalNewline": true,
-    "editor.renderWhitespace": "all",
+    "cSpell.words": [
+        "deserialization",
+        "deserialize",
+        "deserializing"
+    ],
 }
