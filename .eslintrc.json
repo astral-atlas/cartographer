@@ -23,6 +23,7 @@
       "error",
       "unix"
     ],
+    "flowtype/generic-spacing": 0,
     "quotes": [
       "error",
       "single"
