@@ -19,7 +19,7 @@ type UnlockInfo = {
 };
 
 export const buildMemoryLocker = (): Locker => {
-  const unlockedKeys = new Map<string, UnlockInfo>();
+  const unlockedKeys: Map<string, UnlockInfo> = new Map();
 
   const closeLock = async (key) => {
     if (!unlockedKeys.has(key)) {
