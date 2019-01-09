@@ -25,8 +25,8 @@ export const buildRolePermissionServiceFromTable = (
 ): PermissionService => {
   const getValidRolesQuery = `
     SELECT role.id, role.name
-    FROM users u, roles r, permissions p
-    WHERE u.id = r.userId AND r.permissionId = p.id`;
+    FROM roles r, permissions p
+    WHERE r.userId = $0 AND r.permissionId = p.id AND p.id = $1`;
   const getUserPermissions = (userId) => executeQuery(getValidRolesQuery, userId);
   
   return buildPermissionService(getUserPermissions);
