@@ -1,6 +1,5 @@
 // @flow
 import type { IncomingMessage, ServerResponse } from 'http';
-import type { ScribeConfig } from './config';
 import { buildAppRoutes } from './app';
 import { AtlasScribeError } from './errors';
 
@@ -11,8 +10,8 @@ function UnhandledRouteError(unhandledRouteUrl) {
   );
 }
 
-export const buildListener = async (conf: ScribeConfig) => {
-  const routes = await buildAppRoutes(conf);
+export const buildListener = async () => {
+  const routes = await buildAppRoutes();
 
   return (inc: IncomingMessage, res: ServerResponse) => {
     try {
