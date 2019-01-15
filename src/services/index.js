@@ -11,3 +11,5 @@ export class InternalServiceError extends AtlasScribeError {
     );
   }
 }
+
+export const ServiceError = InternalServiceError;
