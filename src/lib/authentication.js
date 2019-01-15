@@ -1,44 +1,36 @@
 // @flow
-import type { UUID } from './uuid';
-import { toUUID } from './uuid';
-import { toString, toObject } from './serialization';
+export const AUTHORIZATION_HEADER_NAME = 'authorization';
 
-export opaque type UserID: UUID = UUID
+export type AuthorizationType =
+  | 'Basic';
 
-export type User = {
-  userId: UserID,
-  userName: string,
-  userToken: string,
+export const toAuthorizationType = (type: string): AuthorizationType => {
+  switch (type) {
+  case 'Basic':
+    return type;
+  default:
+    throw new Error('Unknown Authorization Type');
+  }
 };
 
-export type UserAuth = {
-  name: string,
-  token: string,
+export const getCredentials = (headers: Map<string, string>): { type: AuthorizationType, credentials: string } => {
+  const authHeader = headers.get(AUTHORIZATION_HEADER_NAME);
+  if (typeof authHeader !== 'string') {
+    throw new Error('No Authorization Header');
+  }
+  const [type, ...credentials] = Buffer.from(authHeader, 'base64')
+    .toString()
+    .split(' ');
+  return {
+    type: toAuthorizationType(type),
+    credentials: credentials.join(' '),
+  };
 };
 
-// By default, anybody/everybody is the global user. Dont ever
-// give them write permission to anything though
-export const GLOBAL_USER: User = {
-  userId: toUUID('3dc51074-3e73-4fb9-ad23-3dd10ef80903'),
-  userName: 'GLOBAL_USER',
-  userToken: 'KOhKethK84UrqAUkON78HKVGPSz2dy',
-};
-
-export const toUserId = (value: mixed): UserID => {
-  return toUUID(value);
-};
-
-export const toUser = (value: mixed): User => (
-  toObject(value, (objectValue) => ({
-    userId: toUserId(objectValue.userId),
-    userName: toString(objectValue.userName),
-    userToken: toString(objectValue.userToken),
-  }))
-);
-
-export const getUserAuth = (
+/*
+export const getBasicAuth = (
   headers: Map<string, string>,
-): ?UserAuth => {
+): ?{ name: string, token: string } => {
   const authHeader = headers.get('authorization');
   if (typeof authHeader !== 'string') {
     return null;
@@ -67,3 +59,4 @@ export const getCurrentOrGlobalUser = async (
   }
   return GLOBAL_USER;
 };
+*/
