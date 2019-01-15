@@ -22,6 +22,7 @@ export class StringStream extends Readable {
 
   _read() {
     this.push(this.sourceBuffer);
+    this.push(null);
   }
 
   getLength() {
