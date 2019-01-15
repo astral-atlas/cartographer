@@ -1,11 +1,10 @@
 // @flow
 import type { RichTextNode } from 'stupid-rich-text';
 import type { UUID } from './uuid';
-import type { UserID } from './authentication';
-import type { Permissions } from './permissions';
+import type { PermissionID } from './permission';
 import { generateUUID, toUUID } from './uuid';
-import { toString, toBoolean, toArray, toObject } from './serialization';
-import { toPermissions } from './permissions';
+import {  toObject } from './serialization';
+import { toPermissionId } from './permission';
 
 export opaque type ChapterID: UUID = UUID;
 export opaque type CharacterID: UUID = UUID;
@@ -17,34 +16,21 @@ export type DialogueEvent = {
 };
 
 export type Chapter = {
-  active: boolean,
   id: ChapterID,
-  title: string,
-  subjects: Array<CharacterID>,
-  events: Array<DialogueEvent>,
-  permissions: Permissions,
+  readPermission: PermissionID,
 };
 
-export const buildNewEmptyChapter = (title: string, creator: UserID): Chapter => ({
+export const buildNewEmptyChapter = (readPermission: PermissionID, writePermission: PermissionID): Chapter => ({
   id: generateUUID(),
-  active: true,
-  title,
-  subjects: [],
-  events: [],
-  permissions: {
-    readPermissions: [creator],
-    writePermissions: [creator],
-  }
+  readPermission,
+  writePermission,
 });
 
 export const toChapter = (value: mixed): Chapter => (
   toObject(value, chapter => ({
-    active: toBoolean(chapter.active),
     id: toChapterId(chapter.id),
-    title: toString(chapter.title),
-    subjects: toArray(chapter.subjects, toCharacterID),
-    events: toArray(chapter.events, toEvent),
-    permissions: toPermissions(chapter.permissions),
+    readPermission: toPermissionId(chapter.readPermission),
+    writePermission: toPermissionId(chapter.writePermission),
   }))
 );
 

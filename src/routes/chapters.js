@@ -1,20 +1,35 @@
 // @flow
-import type { Scribe } from '../services/scribe';
-import type { Logger } from '../services/logger';
-import type { Authentication } from '../services/authentication';
-import { getCurrentOrGlobalUser } from '../lib/authentication';
-import { NotFoundError, NotAuthorizedError } from './routeErrors';
-import { buildNewEmptyChapter, toChapterId } from '../lib/chapters';
-import { toString } from '../lib/serialization';
-import { CantRetrieveChapter } from '../services/scribe/chapters';
-import { UserAuthenticationError } from '../services/authentication';
-import { buildAPIRoutes } from './apiRoute';
+import type { ChapterService } from '../services/scribe/chapters4';
+import type { UserService } from '../services/user';
+import { buildApiRoutes, ok } from '../lib/apiRoute';
+import { toChapterId } from '../lib/chapter';
 
-export const buildChapterRoutes = (
-  { chapters }: Scribe,
-  logger: Logger<Error>,
-  { getUser }: Authentication,
-) => buildAPIRoutes([
+export const buildChaptersRoutes = (
+  chapterService: ChapterService,
+  userService: UserService,
+) => {
+  const getChapterHandler = async (inc) => {
+    const user = await userService.getUser(inc);
+    if (inc.queries.has('id')) {
+      const chapter = await chapterService.getChapter(user.id, toChapterId(inc.queries.get('id')));
+      return ok(chapter);
+    } else {
+      const chapters = await chapterService.getAllChapters(user.id);
+      return ok(chapters);
+    }
+  };
+  const getChapterRoute = {
+    path: '/chapters',
+    handler: getChapterHandler,
+    method: 'GET',
+    allowAuthorization: true,
+  };
+
+  return buildApiRoutes([getChapterRoute]);
+};
+
+/*
+buildAPIRoutes([
   {
     name: 'List Chapters',
     url: '/chapters',
@@ -70,3 +85,4 @@ export const buildChapterRoutes = (
     },
   }
 ], logger);
+*/

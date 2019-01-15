@@ -1,84 +1,89 @@
 // @flow
-import type { ChapterID, Chapter } from '../../lib/chapters';
-import type { UserID }from '../../lib/authentication';
-import type { SafeStorage } from '../storage/safeStorage';
-import {
-  canUserWrite,
-  canUserRead,
-  CantWriteAsGlobalError,
-} from '../../lib/permissions';
-import { GLOBAL_USER } from '../../lib/authentication';
-import { buildScopedStorage } from '../storage/scopedStorage';
-import { buildTypedStorage } from '../storage/typedStorage';
-import { buildScope } from '../../lib/scope';
-import { KeyNotFoundError } from '../storage';
-import { toChapterId, toChapter } from '../../lib/chapters';
-import { toArray } from '../../lib/serialization';
+import type { StorageService } from '../storage';
+import type { PermissionService } from '../permission';
+import type { Chapter, ChapterID } from '../../lib/chapter';
+import type { UserID } from '../../lib/user';
+import type { PermissionID } from '../../lib/permission';
+import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
 
-export type Chapters = {
-  getChapterIds: (user: UserID) => Promise<Array<ChapterID>>,
-  addChapter: (chapter: Chapter, user: UserID) => Promise<void>,
-  getChapter: (id: ChapterID, user: UserID) => Promise<Chapter>,
+export type ChapterService = {
+  getChapter: (userId: UserID, chapterId: ChapterID) => Promise<Chapter>,
+  addNewChapter: (userId: UserID, chapter: Chapter) => Promise<void>,
+  getAllChapters: (userId: UserID) => Promise<Array<Chapter>>,
+  //getChapterAndEvents: (userId: UserID, chapterId: ChapterID) => Promise<{ chapter: Chapter, events: Array<ChapterEvent>}>,
+  //addEvent: (userId: UserID, chapterId: ChapterID, event: Event) => Promise<void>,
 };
 
-export function CantRetrieveChapter(chapterId: string, message: string) {
-  return new Error(`Cannot retrieve the chapter at ID: "${chapterId}"\n${message}`);
+class InsufficientPermissionsError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
 }
 
-const chapterIdScope = buildScope('CHAPTER_ID');
-const metaIdScope = buildScope('META');
+class ChapterNotFoundError extends Error {
+  constructor(chapterId: ChapterID, cause: Error) {
+    super(`Could not find chapter '${chapterId}'\n${cause.message}`);
+    this.stack = cause.stack;
+  }
+}
 
-const IDS_LIST_KEY = metaIdScope('IDS_LIST');
-
-export const buildChapters = (safeStorage: SafeStorage<string>): Chapters => {
-  const getAllIds = async (): Promise<Array<ChapterID>> => (
-    toArray(JSON.parse(await safeStorage.get(IDS_LIST_KEY)), toChapterId)
-  );
-
-  const getChapterIds = async (userId: UserID) => {
-    const ids = await getAllIds();
-    const chapters = await Promise.all(ids.map(id => getChapter(id, userId)));
-    const visableChapters = chapters.filter(chapter =>
-      canUserRead(chapter.permissions, userId)
-    );
-    return visableChapters.map<ChapterID>(chapter => chapter.id);
-  };
-  const addChapter = async (chapter: Chapter, userId: UserID) => {
-    const idKey = chapterIdScope(chapter.id);
-    const keys = [idKey, IDS_LIST_KEY];
-    if (userId === GLOBAL_USER.userId) {
-      throw new CantWriteAsGlobalError();
-    }
-    await safeStorage.doWithSafeStorage(keys, async (storage) => {
-      const ids = await getAllIds();
-      const newIds = JSON.stringify([...ids, chapter.id]);
-      await storage.put(IDS_LIST_KEY, newIds);
-      await storage.put(chapterIdScope(idKey), JSON.stringify(chapter));
-    });
-  };
-
-  const getChapter = async (id: ChapterID, userId: UserID) => {
-    try {
-      const chapter = toChapter(JSON.parse(await safeStorage.get(chapterIdScope(id))));
-      if (!canUserRead(chapter.permissions, userId)) {
-        throw new CantRetrieveChapter(
-          id,
-          `The user "${userId}" attempted to read `+
-          `a chapter they did not have permission to read.`
-        );
-      }
-      return chapter;
-    } catch (err) {
-      if (err instanceof KeyNotFoundError) {
-        throw new CantRetrieveChapter(id, err.message);
-      }
+const enhanceGet = (get) => (chapterId) => {
+  try {
+    return get(chapterId);
+  } catch (err) {
+    switch (true) {
+    case err instanceof KeyNotFoundError:
+      throw new ChapterNotFoundError(chapterId, err);
+    default:
       throw err;
     }
+  }
+};
+
+const enhanceSet = (set) => (chapterId, chapter) => {
+  try {
+    return set(chapterId, chapter);
+  } catch (err) {
+    switch (true) {
+    case err instanceof KeyAlreadyExists:
+    default:
+      throw err;
+    }
+  }
+};
+
+export const buildChapterService = (
+  chapterStorageService: StorageService<ChapterID, Chapter>,
+  permissionService: PermissionService,
+  globalChapterAddPermissionId: PermissionID,
+  getChaptersByReadPermissions: (userId: UserID) => Promise<Array<Chapter>>,
+): ChapterService => {
+  const getChapterFromStorage = enhanceGet(chapterStorageService.read);
+  const setChapterFromStorage = enhanceSet(chapterStorageService.create);
+
+  const getChapter = async (userId, chapterId) => {
+    const chapter = await getChapterFromStorage(chapterId);
+    const roles = await permissionService.getRolesForPermission(userId, chapter.readPermission);
+    if (roles.length === 0) {
+      throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
+    }
+    return chapter;
   };
 
+  const getAllChapters = async (userId) => {
+    return getChaptersByReadPermissions(userId);
+  };
+
+  const addNewChapter = async (userId, chapter) => {
+    const roles = await permissionService.getRolesForPermission(userId, globalChapterAddPermissionId);
+    if (roles.length === 0) {
+      throw new InsufficientPermissionsError('User does not have a role that can add a chapter');
+    }
+    await setChapterFromStorage(chapter.id, chapter);
+  };
   return {
-    getChapterIds,
-    addChapter,
     getChapter,
+    getAllChapters,
+    addNewChapter,
   };
 };
