@@ -1,5 +1,5 @@
 // @flow
-import type { ChapterService } from '../services/scribe/chapters';
+import type { ChapterService } from '../services/atlas/chapters';
 import type { UserService } from '../services/user';
 import { buildApiRoutes, ok } from '../lib/apiRoute';
 import { toChapterId } from '../lib/chapter';
