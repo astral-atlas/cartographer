@@ -11,7 +11,7 @@ export const generateUUID = (): UUID => (
 function InvalidUUIDTypeError(incorrectType) {
   return new InternalLibraryError(
     'UUID',
-    `Tried to convert ${incorrectType} to UUID, which failed because it was not a string.`
+    `Tried to convert ${incorrectType} to UUID, which failed because it was not a string (or it zero characters).`
   );
 }
 
