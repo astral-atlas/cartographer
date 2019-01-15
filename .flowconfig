@@ -1,7 +1,6 @@
 [ignore]
 dist
 demo
-*legacy*
 [include]
 
 [libs]
