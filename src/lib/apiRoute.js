@@ -91,7 +91,7 @@ export const buildApiRoutes = (
 ): Array<Route> => (
   collectRoutesByUrl(apiRoutes)
     .map(([url, collectedApiRoutes]) => {
-      const preflightRoute = buildOptionsRoute(url, collectedApiRoutes.map(route => route.method));
+      const preflightRoute = buildOptionsRoute(url, collectedApiRoutes.map(route => route.method), !!collectedApiRoutes.find(route => route.allowAuthorization));
       const convertedRoutes = collectedApiRoutes.map(toRouteFromApiRoute);
       return [preflightRoute, ...convertedRoutes];
     })
