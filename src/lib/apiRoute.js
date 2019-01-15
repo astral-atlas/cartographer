@@ -34,7 +34,7 @@ export type APIRoute = {
 
 const buildHandlerForApiRoute = (route: APIRoute): RouteHandler => async (incomingMessage, serverResponse) => {
   const { rawHeaders, url } = incomingMessage;
-  const [path, queryString] = url.split('?');
+  const [path = '', queryString = ''] = url.split('?');
 
   const requestInfo = {
     path,
