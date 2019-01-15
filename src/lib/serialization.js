@@ -13,6 +13,10 @@ export function DeserializationError(
   );
 }
 
+export const fromJsonString = (jsonString: string): mixed => (
+  JSON.parse(jsonString)
+);
+
 export const toBoolean = (value: mixed): boolean => {
   if (typeof value !== 'boolean') {
     throw new DeserializationError('boolean', value, typeof value);
