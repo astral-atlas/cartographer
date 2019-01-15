@@ -28,9 +28,9 @@ export class NotFoundError extends RouteError {
  * applicable for this resource
  */
 export class MethodNotAllowedError extends RouteError {
- constructor(message: string) {
-   super(message);
- }
+  constructor(message: string) {
+    super(message);
+  }
 }
 
 /**
@@ -47,31 +47,28 @@ export class NotAuthorizedError extends RouteError {
  * A generic error to describe when the server has broken for some reason.
  */
 export class InternalServerError extends RouteError {
- constructor(message: string) {
-   super(message);
- }
+  constructor(message: string) {
+    super(message);
+  }
 }
 
-export const handleRouteErrorResponse = (res: ServerResponse, error: mixed) => {
-  if (error instanceof NotFoundError) {
-    res.statusCode = 404;
-    res.write(error.message);
-    res.end();
-  } else if (error instanceof NotAuthorizedError) {
-    res.statusCode = 401;
-    res.write(error.message);
-    res.end();
-  } else if (error instanceof MethodNotAllowedError) {
-    res.statusCode = 405;
-    res.write(error.message);
-    res.end();
-  } else if (error instanceof InternalServerError) {
-    res.statusCode = 500;
-    res.write(error.message);
-    res.end();
-  } else {
-    res.statusCode = 500;
-    res.write('An unknown error occured');
-    res.end();
+const endStreamWithStatus = (res, status, message) => {
+  res.statusCode = status;
+  res.write(message);
+  res.end();
+};
+
+export const errorResponse = (res: ServerResponse, error: Error) => {
+  switch (true) {
+  case error instanceof NotFoundError:
+    return endStreamWithStatus(res, 404, error.message);
+  case error instanceof NotAuthorizedError:
+    return endStreamWithStatus(res, 401, error.message);
+  case error instanceof MethodNotAllowedError:
+    return endStreamWithStatus(res, 405, error.message);
+  case error instanceof InternalServerError:
+    return endStreamWithStatus(res, 500, error.message);
+  default:
+    return endStreamWithStatus(res, 500, 'An unknown error occured');
   }
 };
