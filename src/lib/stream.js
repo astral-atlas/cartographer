@@ -21,6 +21,7 @@ export class StringStream extends Readable {
   }
 
   _read() {
+    // TODO: need to check the push result before pushing again
     this.push(this.sourceBuffer);
     this.push(null);
   }
