@@ -1,5 +1,4 @@
 // @flow
-// $FlowFixMe
 import uuid from 'uuid/v4';
 import { InternalLibraryError } from '../lib';
 
