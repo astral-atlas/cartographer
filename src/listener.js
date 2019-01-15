@@ -6,7 +6,7 @@ import { AtlasScribeError } from './errors';
 
 function UnhandledRouteError(unhandledRouteUrl) {
   return new AtlasScribeError(
-    `Unhandled Route Error\nThe server could not handle an incoming `+
+    'Unhandled Route Error\nThe server could not handle an incoming'+
     `request at:\n${unhandledRouteUrl}`
   );
 }
