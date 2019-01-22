@@ -1,7 +1,7 @@
 // @flow
 import type { UUID } from './uuid';
 import { toObject } from './serialization';
-import { toUUID } from './uuid';
+import { toUUID, generateUUID } from './uuid';
 
 export opaque type PermissionID: UUID = UUID;
 
@@ -14,3 +14,7 @@ export const toPermissionId = (mixed: mixed): PermissionID => toUUID(mixed);
 export const toPermission = (mixed: mixed): Permission => toObject(mixed, object => ({
   id: toPermissionId(object.id),
 }));
+
+export const buildNewPermission = (): Permission => ({
+  id: generateUUID(),
+});
