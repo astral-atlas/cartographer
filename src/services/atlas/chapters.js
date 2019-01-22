@@ -1,14 +1,16 @@
 // @flow
 import type { StorageService } from '../storage';
+import type { RoleService } from '../role';
 import type { PermissionService } from '../permission';
 import type { Chapter, ChapterID } from '../../lib/chapter';
 import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
 import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
+import { buildNewChapter } from '../../lib/chapter';
 
 export type ChapterService = {
   getChapter: (userId: UserID, chapterId: ChapterID) => Promise<Chapter>,
-  addNewChapter: (userId: UserID, chapter: Chapter) => Promise<void>,
+  addNewChapter: (userId: UserID, chapterName: string) => Promise<Chapter>,
   getAllChapters: (userId: UserID) => Promise<Array<Chapter>>,
   //getChapterAndEvents: (userId: UserID, chapterId: ChapterID) => Promise<{ chapter: Chapter, events: Array<ChapterEvent>}>,
   //addEvent: (userId: UserID, chapterId: ChapterID, event: Event) => Promise<void>,
@@ -54,6 +56,7 @@ const enhanceSet = (set) => (chapterId, chapter) => {
 
 export const buildChapterService = (
   chapterStorageService: StorageService<ChapterID, Chapter>,
+  roleService: RoleService,
   permissionService: PermissionService,
   globalChapterAddPermissionId: PermissionID,
   getChaptersByReadPermissions: (userId: UserID) => Promise<Array<Chapter>>,
@@ -63,7 +66,7 @@ export const buildChapterService = (
 
   const getChapter = async (userId, chapterId) => {
     const chapter = await getChapterFromStorage(chapterId);
-    const roles = await permissionService.getRolesForPermission(userId, chapter.readPermission);
+    const roles = await roleService.getIntersectingRolesForUserAndPermission(userId, chapter.readPermission);
     if (roles.length === 0) {
       throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
     }
@@ -74,12 +77,20 @@ export const buildChapterService = (
     return getChaptersByReadPermissions(userId);
   };
 
-  const addNewChapter = async (userId, chapter) => {
-    const roles = await permissionService.getRolesForPermission(userId, globalChapterAddPermissionId);
+  const addNewChapter = async (userId, chapterName) => {
+    const roles = await roleService.getIntersectingRolesForUserAndPermission(userId, globalChapterAddPermissionId);
     if (roles.length === 0) {
       throw new InsufficientPermissionsError('User does not have a role that can add a chapter');
     }
-    await setChapterFromStorage(chapter.id, chapter);
+    const chapterAdminRole = await roleService.addRole();
+    const chapterReadPermission = await permissionService.addNewPermission();
+    const newChapter = buildNewChapter(chapterName, chapterReadPermission.id);
+
+    roleService.addPermissionToRole(chapterReadPermission.id, chapterAdminRole.id);
+    roleService.addUserToRole(userId, chapterAdminRole.id);
+
+    await setChapterFromStorage(newChapter.id, newChapter);
+    return newChapter;
   };
   return {
     getChapter,
