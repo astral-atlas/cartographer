@@ -3,6 +3,12 @@ import type { ChapterService } from '../services/atlas/chapters';
 import type { UserService } from '../services/user';
 import { buildApiRoutes, ok } from '../lib/apiRoute';
 import { toChapterId } from '../lib/chapter';
+import { readStream } from '../lib/stream';
+import { toString, toObject, fromJsonString } from '../lib/serialization';
+
+const toPostChapterRequest = (requestBody: string) => toObject(fromJsonString(requestBody), object => ({
+  chapterName: toString(object.chapterName),
+}));
 
 export const buildChaptersRoutes = (
   chapterService: ChapterService,
@@ -25,64 +31,21 @@ export const buildChaptersRoutes = (
     allowAuthorization: true,
   };
 
-  return buildApiRoutes([getChapterRoute]);
-};
-
-/*
-buildAPIRoutes([
-  {
-    name: 'List Chapters',
-    url: '/chapters',
-    method: 'GET',
-    usesCredentials: true,
-    handler: async ({ queries, headers }) => {
-      try {
-        const user = await getCurrentOrGlobalUser(headers, getUser);
-        const chapterId = queries.get('id');
-        if (chapterId !== undefined) {
-          try {
-            return await chapters.getChapter(
-              toChapterId(chapterId),
-              user.userId,
-            );
-          } catch (err) {
-            if (err instanceof CantRetrieveChapter) {
-              throw new NotFoundError('Can\'t find any chapters with that id.');
-            }
-          }
-        } else {
-          return await chapters.getChapterIds(user.userId);
-        }
-      } catch (err) {
-        if (err instanceof UserAuthenticationError) {
-          throw new NotAuthorizedError('Your username or password is invalid');
-        }
-        throw err;
-      }
-    },
-  },
-  {
-    name: 'Create New Chapter',
-    url: '/chapters',
+  const postChapterHandler = async (inc) => {
+    const [user, requestBody] = await Promise.all([
+      userService.getUser(inc),
+      readStream(inc.requestBody),
+    ]);
+    const { chapterName } = toPostChapterRequest(requestBody);
+    const newChapter = await chapterService.addNewChapter(user.id, chapterName);
+    return ok(newChapter);
+  };
+  const postChapterRoute = {
+    path: '/chapters',
+    handler: postChapterHandler,
     method: 'POST',
-    usesCredentials: true,
-    handler: async ({ getBody, headers }) => {
-      try {
-        const user = await getCurrentOrGlobalUser(headers, getUser);
-        const rawBody = await getBody();
-        const newChapter = buildNewEmptyChapter(
-          'Untitled Chapter',
-          user.userId,
-        );
-        await chapters.addChapter(newChapter, user.userId);
-        return newChapter;
-      } catch (err) {
-        if (err instanceof UserAuthenticationError) {
-          throw new NotAuthorizedError('Your username or password is invalid');
-        }
-        throw err;
-      }
-    },
-  }
-], logger);
-*/
+    allowAuthorization: true,
+  };
+
+  return buildApiRoutes([getChapterRoute, postChapterRoute]);
+};
