@@ -1,7 +1,8 @@
 // @flow
 import type { Route } from './lib/http';
 import type { RoleID, Role } from './lib/role';
-import { toPermissionId } from './lib/permission';
+import type { PermissionID, Permission } from './lib/permission';
+import { buildNewPermission } from './lib/permission';
 import { generateUser } from './lib/user';
 
 import { buildMemoryStorageService } from './services/storage/memoryStorage';
@@ -13,8 +14,8 @@ import { buildChaptersRoutes } from './routes/chapters';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
   const chapterStorage = buildMemoryStorageService();
-
   const roleStorage = buildMemoryStorageService<RoleID, Role>();
+  const permissionStorage = buildMemoryStorageService<PermissionID, Permission>();
 
   const getUserRoles = async (userId) => (
     [...roleStorage.entries()]
@@ -28,7 +29,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
       .map(([roleId]) => roleId)
   );
 
-  const permissionService = buildBasicPermissionService(getUserRoles, getPermissionRoles);
+  const permissionService = buildBasicPermissionService(permissionStorage, getUserRoles, getPermissionRoles);
 
   const getChaptersByReadPermissions = async (userId) => {
     const userRoleIds = await getUserRoles(userId);
@@ -41,7 +42,12 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
 
   const userService = buildBasicUserService(generateUser());
 
-  const chapterService = buildChapterService(chapterStorage, permissionService, toPermissionId('000-000'), getChaptersByReadPermissions);
+  const chapterService = buildChapterService(
+    chapterStorage,
+    permissionService,
+    buildNewPermission(),
+    getChaptersByReadPermissions
+  );
 
   return buildChaptersRoutes(chapterService, userService);
 };
