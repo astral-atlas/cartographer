@@ -13,13 +13,13 @@ class MapAlreadyHasKey<TKey> extends KeyAlreadyExists {
   }
 }
 
-type MemoryStorage<TKey, TValue> = StorageService<TKey, TValue> & {
+export type MemoryStorageService<TKey, TValue> = StorageService<TKey, TValue> & {
   entries: () => Iterator<[TKey, TValue]>,
 };
 
 export const buildMemoryStorageService = <TKey, TValue>(
   store?: Map<TKey, TValue> = new Map()
-): MemoryStorage<TKey, TValue> => {
+): MemoryStorageService<TKey, TValue> => {
   const create = async (key, value) => {
     if (store.has(key)) {
       throw new MapAlreadyHasKey<TKey>(key);
