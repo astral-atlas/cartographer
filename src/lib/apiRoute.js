@@ -8,7 +8,7 @@ import { isUnique, flatten } from './array';
 import { StringStream } from './stream';
 
 /**
- * Custom Object describing an incoming message ala IncomingMessage from 'http'
+ * Custom Object describing an incoming message aka IncomingMessage from 'http'
  */
 export type APIRouteIncomingMessage = {
   path: string,
