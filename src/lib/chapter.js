@@ -2,8 +2,8 @@
 import type { RichTextNode } from 'stupid-rich-text';
 import type { UUID } from './uuid';
 import type { PermissionID } from './permission';
-import { generateUUID, toUUID } from './uuid';
-import {  toObject } from './serialization';
+import { toUUID, generateUUID } from './uuid';
+import { toObject, toString } from './serialization';
 import { toPermissionId } from './permission';
 
 export opaque type ChapterID: UUID = UUID;
@@ -17,20 +17,15 @@ export type DialogueEvent = {
 
 export type Chapter = {
   id: ChapterID,
+  name: string,
   readPermission: PermissionID,
 };
 
-export const buildNewEmptyChapter = (readPermission: PermissionID, writePermission: PermissionID): Chapter => ({
-  id: generateUUID(),
-  readPermission,
-  writePermission,
-});
-
 export const toChapter = (value: mixed): Chapter => (
-  toObject(value, chapter => ({
-    id: toChapterId(chapter.id),
-    readPermission: toPermissionId(chapter.readPermission),
-    writePermission: toPermissionId(chapter.writePermission),
+  toObject(value, object => ({
+    id: toChapterId(object.id),
+    name: toString(object.name),
+    readPermission: toPermissionId(object.readPermission),
   }))
 );
 
@@ -61,3 +56,9 @@ export const toCharacterID = (value: mixed): CharacterID => (
 export const toChapterId = (value: mixed): ChapterID => (
   toUUID(value)
 );
+
+export const buildNewChapter = (name: string, readPermission: PermissionID): Chapter => ({
+  id: generateUUID(),
+  name,
+  readPermission,
+});
