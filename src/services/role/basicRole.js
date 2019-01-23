@@ -14,6 +14,10 @@ type RoleMemoryStructure = Role & {
 export const buildMemoryRoleService = (
   roleStorageService: MemoryStorageService<RoleID, RoleMemoryStructure>,
 ): RoleService => {
+  const getRole = async (roleId) => {
+    return await roleStorageService.read(roleId);
+  };
+
   const getRolesForUser = async (userId) => (
     [...roleStorageService.entries()]
       .filter(([,role]) => role.userIds.includes(userId))
@@ -56,6 +60,7 @@ export const buildMemoryRoleService = (
   };
 
   return {
+    getRole,
     getRolesForUser,
     getRolesForPermission,
     getIntersectingRolesForUserAndPermission,
