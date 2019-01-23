@@ -4,6 +4,7 @@ import type { RoleID, Role } from '../lib/role';
 import type { PermissionID } from '../lib/permission';
 
 export type RoleService = {
+  getRole: (roleId: RoleID) => Promise<Role>,
   getRolesForUser: (userId: UserID) => Promise<Array<RoleID>>,
   getRolesForPermission: (permissionId: PermissionID) => Promise<Array<RoleID>>,
   getIntersectingRolesForUserAndPermission: (userId: UserID, permissionId: PermissionID) => Promise<Array<RoleID>>,
