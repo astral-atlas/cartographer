@@ -2,7 +2,6 @@
 import type { Route } from './lib/http';
 import type { Chapter } from './lib/chapter';
 import { generateUser } from './lib/user';
-import { getTupleSecond } from './lib/tuple';
 import { buildBasicPermissionIndex } from './lib/permission';
 
 import { buildMemoryStorageService } from './services/storage/memoryStorage';
@@ -20,7 +19,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   const userService = buildBasicUserService(generateUser());
 
   const getChaptersByReadPermissions = buildBasicPermissionIndex<Chapter>(
-    async () => [...chapterStorage.entries()].map(getTupleSecond),
+    chapterStorage.values,
     chapter => chapter.readPermission,
     roleService.getIntersectingRolesForUserAndPermission,
   );

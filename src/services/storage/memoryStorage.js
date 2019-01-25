@@ -1,6 +1,7 @@
 // @flow
 import type { StorageService } from '../storage';
 import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
+import { getTupleSecond } from '../../lib/tuple';
 
 class MapDoesNotContainKeyError<TKey> extends KeyNotFoundError {
   constructor(key: TKey) {
@@ -15,6 +16,7 @@ class MapAlreadyHasKey<TKey> extends KeyAlreadyExists {
 
 export type MemoryStorageService<TKey, TValue> = StorageService<TKey, TValue> & {
   entries: () => Iterator<[TKey, TValue]>,
+  values: () => Promise<Array<TValue>>,
 };
 
 export const buildMemoryStorageService = <TKey, TValue>(
@@ -52,5 +54,6 @@ export const buildMemoryStorageService = <TKey, TValue>(
     update,
     delete: _delete,
     entries: () => store.entries(),
+    values: async () => [...store.entries()].map(getTupleSecond),
   };
 };
