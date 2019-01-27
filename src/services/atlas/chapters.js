@@ -16,13 +16,13 @@ export type ChapterService = {
   //addEvent: (userId: UserID, chapterId: ChapterID, event: Event) => Promise<void>,
 };
 
-class InsufficientPermissionsError extends Error {
+export class InsufficientPermissionsError extends Error {
   constructor(message: string) {
     super(message);
   }
 }
 
-class ChapterNotFoundError extends Error {
+export class ChapterNotFoundError extends Error {
   constructor(chapterId: ChapterID, cause: Error) {
     super(`Could not find chapter '${chapterId}'\n${cause.message}`);
     this.stack = cause.stack;
