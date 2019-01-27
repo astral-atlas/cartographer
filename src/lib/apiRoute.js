@@ -1,6 +1,7 @@
 // @flow
 import type { HTTPMethod, RouteHandler, RouteTest, Route } from './http';
 import type { Readable } from 'stream';
+import { handlerErr } from './error';
 import { buildQueries, buildHeaders } from './http';
 import { buildCORSHeaderTuples } from './header';
 import { toObjectFromTuples } from './object';
@@ -121,8 +122,28 @@ export const ok = (response: mixed): APIRouteServerResponse => {
   };
 };
 
+export const handleApiRouteErr = (
+  routeHandler: (inc: APIRouteIncomingMessage) => Promise<APIRouteServerResponse>,
+  errorHandlerTuples: Array<[typeof Error, (err: Error) => Promise<APIRouteServerResponse>]>,
+) => handlerErr<
+  APIRouteIncomingMessage,
+  Promise<APIRouteServerResponse>
+>(routeHandler, errorHandlerTuples);
+
 export const notAuthorized = (): APIRouteServerResponse => ({
   responseBody: new NullStream(),
   status: 401,
+  headers: [['Content-Length', '0']],
+});
+
+export const notFound = (): APIRouteServerResponse => ({
+  responseBody: new NullStream(),
+  status: 404,
+  headers: [['Content-Length', '0']],
+});
+
+export const internalServerError = (): APIRouteServerResponse => ({
+  responseBody: new NullStream(),
+  status: 500,
   headers: [['Content-Length', '0']],
 });
