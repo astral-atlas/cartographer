@@ -5,7 +5,8 @@ import { buildQueries, buildHeaders } from './http';
 import { buildCORSHeaderTuples } from './header';
 import { toObjectFromTuples } from './object';
 import { isUnique, flatten } from './array';
-import { StringStream } from './stream';
+import { StringStream, NullStream } from './stream';
+import { caseInsensitiveEqualityCheck } from './string';
 
 /**
  * Custom Object describing an incoming message aka IncomingMessage from 'http'
@@ -29,7 +30,7 @@ export type APIRoute = {
   path: string,
   handler: APIRouteRequestHandler,
   method: HTTPMethod,
-  allowAuthorization: boolean,
+  allowAuthorization?: boolean,
 };
 
 const buildHandlerForApiRoute = (route: APIRoute): RouteHandler => async (incomingMessage, serverResponse) => {
@@ -45,19 +46,21 @@ const buildHandlerForApiRoute = (route: APIRoute): RouteHandler => async (incomi
 
   const response = await route.handler(requestInfo);
   const headers = [
-    ...buildCORSHeaderTuples([route.method], route.allowAuthorization, '*'),
+    ...buildCORSHeaderTuples([route.method], !!route.allowAuthorization, '*'),
     ...response.headers,
   ];
-
   serverResponse.writeHead(response.status, toObjectFromTuples(headers));
   response.responseBody.pipe(serverResponse);
 };
 
 const buildTestForApiRoute = (route: APIRoute): RouteTest => (incomingMessage) => {
-  const { url } = incomingMessage;
+  const { url, method } = incomingMessage;
   const [path] = url.split('?');
 
-  return route.path === path;
+  return (
+    caseInsensitiveEqualityCheck(method, route.method) &&
+    caseInsensitiveEqualityCheck(path, route.path)
+  );
 };
 
 const buildOptionsRoute = (
@@ -91,9 +94,15 @@ export const buildApiRoutes = (
 ): Array<Route> => (
   collectRoutesByUrl(apiRoutes)
     .map(([url, collectedApiRoutes]) => {
-      const preflightRoute = buildOptionsRoute(url, collectedApiRoutes.map(route => route.method), !!collectedApiRoutes.find(route => route.allowAuthorization));
+      const collectedApiMethods = collectedApiRoutes.map(route => route.method);
+      const anyMethodAllowsAuthorization = !!collectedApiRoutes.find(route => route.allowAuthorization);
+      const preflightRoute = buildOptionsRoute(
+        url,
+        collectedApiMethods,
+        anyMethodAllowsAuthorization,
+      );
       const convertedRoutes = collectedApiRoutes.map(toRouteFromApiRoute);
-      return [preflightRoute, ...convertedRoutes];
+      return [...convertedRoutes, preflightRoute];
     })
     .reduce(flatten, [])
 );
@@ -111,3 +120,9 @@ export const ok = (response: mixed): APIRouteServerResponse => {
     headers,
   };
 };
+
+export const notAuthorized = (): APIRouteServerResponse => ({
+  responseBody: new NullStream(),
+  status: 401,
+  headers: [['Content-Length', '0']],
+});
