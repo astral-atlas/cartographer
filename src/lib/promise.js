@@ -7,3 +7,7 @@ export const pFilter = async <T>(
   const filterResults = await Promise.all(array.map(filter));
   return array.filter((_, index) => filterResults[index]);
 };
+
+export const toPromise = <T>(func: () => T): () => Promise<T> => async () => func();
+export const p = toPromise;
+export const async = toPromise;
