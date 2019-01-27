@@ -13,10 +13,16 @@ import { buildMemoryRoleService } from './services/role/basicRole';
 import { buildChaptersRoutes } from './routes/chapters';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
+  const basicUser = generateUser();
+
   const chapterStorage = buildMemoryStorageService();
   const permissionService = buildBasicPermissionService(buildMemoryStorageService());
   const roleService = buildMemoryRoleService(buildMemoryStorageService());
-  const userService = buildBasicUserService(generateUser());
+  const userService = buildBasicUserService(basicUser);
+
+  const addChapterPermission = await permissionService.addNewPermission();
+  const adminRole = await roleService.addRole();
+  await roleService.addPermissionToRole(addChapterPermission.id, adminRole.id);
 
   const getChaptersByReadPermissions = buildBasicPermissionIndex<Chapter>(
     chapterStorage.values,
@@ -28,7 +34,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     chapterStorage,
     roleService,
     permissionService,
-    (await permissionService.addNewPermission()).id,
+    addChapterPermission.id,
     getChaptersByReadPermissions,
   );
 
