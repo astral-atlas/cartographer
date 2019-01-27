@@ -1,25 +1,11 @@
-NODE_MODULES_BIN = node_modules/.bin
+babel := node_modules/.bin/babel
 
-BABEL = $(NODE_MODULES_BIN)/babel
-CONCURRENTLY = $(NODE_MODULES_BIN)/concurrently
-NODEMON = $(NODE_MODULES_BIN)/nodemon
-SERVE = $(NODE_MODULES_BIN)/serve
-FLOW_TYPED = $(NODE_MODULES_BIN)/flow-typed
+sourceFiles = $(shell find src -name '*.js')
+distrubutionFiles = $(patsubst src/%,dist/%,$(sourceFiles))
 
-SOURCE = ./src
-DISTRIBUTABLE = ./dist
-DEMO = ./demo
+all: $(distrubutionFiles)
+.PHONY: all
 
-.PHONY: all demo dev
-
-all:
-	$(BABEL) $(SOURCE) -d $(DISTRIBUTABLE)
-
-dev:
-	$(BABEL) $(SOURCE) -d $(DISTRIBUTABLE) -w & $(NODEMON) ./dist
-
-demo:
-	$(SERVE) $(DEMO)
-
-type:
-	$(FLOW_TYPED) install
+dist/%: src/%
+	mkdir -p $(dir $@)
+	$(babel) $< --out-file $@ --source-maps
