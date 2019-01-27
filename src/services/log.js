@@ -7,5 +7,4 @@ export type LogLevel =
 
 export type LogService<TLogType> = {
   log: (message: TLogType, level?: LogLevel) => mixed,
-  logError: <T>(method: () => T) => () => T,
 }
