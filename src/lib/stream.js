@@ -30,3 +30,17 @@ export class StringStream extends Readable {
     return this.sourceBuffer.byteLength;
   }
 }
+
+export class NullStream extends Readable {
+  constructor() {
+    super();
+  }
+
+  _read() {
+    this.push(null);
+  }
+
+  getLength() {
+    return 0;
+  }
+}
