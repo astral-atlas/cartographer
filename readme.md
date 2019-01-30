@@ -16,6 +16,8 @@ npx jest
 npx jest unit # Unit tests
 npx jest int # Integration tests
 npx jest acc # Acceptance tests
+# Or test it continuously in a dev environment using watch
+npx jest --watch
 ```
 Run application using `node`.
 ```bash
@@ -29,4 +31,3 @@ Check your code using `eslint`
 ```bash
 npx eslint src
 ```
-
