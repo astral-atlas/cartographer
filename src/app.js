@@ -23,6 +23,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   const addChapterPermission = await permissionService.addNewPermission();
   const adminRole = await roleService.addRole();
   await roleService.addPermissionToRole(addChapterPermission.id, adminRole.id);
+  await roleService.addUserToRole(basicUser.id, adminRole.id);
 
   const getChaptersByReadPermissions = buildBasicPermissionIndex<Chapter>(
     chapterStorage.values,
