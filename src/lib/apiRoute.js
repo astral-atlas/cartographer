@@ -125,10 +125,10 @@ export const ok = (response: mixed): APIRouteServerResponse => {
 export const handleApiRouteErr = (
   routeHandler: (inc: APIRouteIncomingMessage) => Promise<APIRouteServerResponse>,
   errorHandlerTuples: Array<[typeof Error, (err: Error) => Promise<APIRouteServerResponse>]>,
-) => handlerErr<
-  APIRouteIncomingMessage,
-  Promise<APIRouteServerResponse>
->(routeHandler, errorHandlerTuples);
+) => handlerErr<APIRouteIncomingMessage, APIRouteServerResponse>(
+  routeHandler,
+  errorHandlerTuples,
+);
 
 export const notAuthorized = (): APIRouteServerResponse => ({
   responseBody: new NullStream(),
