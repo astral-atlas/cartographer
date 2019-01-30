@@ -1,3 +1,4 @@
 dist
 demo
 flow-typed
+*config.js
