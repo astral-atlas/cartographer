@@ -6,7 +6,8 @@ import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
 import { generateNewRole } from '../../lib/role';
 
-type RoleMemoryStructure = Role & {
+type RoleMemoryStructure = {
+  role: Role,
   permissionIds: Array<PermissionID>,
   userIds: Array<UserID>,
 };
@@ -15,7 +16,7 @@ export const buildMemoryRoleService = (
   roleStorageService: MemoryStorageService<RoleID, RoleMemoryStructure>,
 ): RoleService => {
   const getRole = async (roleId) => {
-    return await roleStorageService.read(roleId);
+    return (await roleStorageService.read(roleId)).role;
   };
 
   const getRolesForUser = async (userId) => (
@@ -55,7 +56,7 @@ export const buildMemoryRoleService = (
 
   const addRole = async () => {
     const newRole = generateNewRole();
-    await roleStorageService.create(newRole.id, { ...newRole, permissionIds: [], userIds: [] });
+    await roleStorageService.create(newRole.id, { role: newRole, permissionIds: [], userIds: [] });
     return newRole;
   };
 
