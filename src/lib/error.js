@@ -1,11 +1,11 @@
 // @flow
 
 export const enhanceWithErrorHandling = <TArg, TReturn>(
-  func: (arg: TArg) => TReturn,
-  errorHandlerTuples: Array<[typeof Error, (err: Error) => (TReturn)]>,
-): ((arg: TArg) => TReturn) => (...args) => {
+  func: (arg: TArg) => Promise<TReturn>,
+  errorHandlerTuples: Array<[typeof Error, (err: Error) => (Promise<TReturn>)]>,
+): ((arg: TArg) => Promise<TReturn>) => async (...args) => {
     try {
-      return func(...args);
+      return await func(...args);
     } catch (realError) {
       const errorHandlerTuple = errorHandlerTuples.find(
         ([potentialError,]) => realError instanceof potentialError

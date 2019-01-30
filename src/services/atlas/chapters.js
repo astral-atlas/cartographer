@@ -67,7 +67,7 @@ export const buildChapterService = (
   const getChapter = async (userId, chapterId) => {
     const chapter = await getChapterFromStorage(chapterId);
     const roles = await roleService.getIntersectingRolesForUserAndPermission(userId, chapter.readPermission);
-    if (roles.length === 0) {
+    if (roles.length < 1) {
       throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
     }
     return chapter;
@@ -79,7 +79,7 @@ export const buildChapterService = (
 
   const addNewChapter = async (userId, chapterName) => {
     const roles = await roleService.getIntersectingRolesForUserAndPermission(userId, globalChapterAddPermissionId);
-    if (roles.length === 0) {
+    if (roles.length < 1) {
       throw new InsufficientPermissionsError('User does not have a role that can add a chapter');
     }
     const chapterAdminRole = await roleService.addRole();

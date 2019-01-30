@@ -1,13 +1,11 @@
 // @flow
 import type { ChapterService } from '../services/atlas/chapters';
 import type { UserService } from '../services/user';
-import type { APIRouteIncomingMessage, APIRouteServerResponse } from '../lib/apiRoute';
 import { InsufficientPermissionsError, ChapterNotFoundError } from '../services/atlas/chapters';
 import { buildApiRoutes, ok, notAuthorized, notFound, internalServerError, handleApiRouteErr } from '../lib/apiRoute';
 import { toChapterId } from '../lib/chapter';
 import { readStream } from '../lib/stream';
 import { async } from '../lib/promise';
-import { handlerErr } from '../lib/error';
 import { toString, toObject, fromJsonString } from '../lib/serialization';
 
 const toPostChapterRequest = (requestBody: string) => toObject(fromJsonString(requestBody), object => ({
@@ -20,7 +18,9 @@ const errorHandlers = [
   [Error, async(internalServerError)],
 ];
 
-const enhanceChapterHandler = (chapterHandler) => handleApiRouteErr(chapterHandler, errorHandlers);
+const enhanceChapterHandler = (chapterHandler) => (
+  handleApiRouteErr(chapterHandler, errorHandlers)
+);
 
 export const buildChaptersRoutes = (
   chapterService: ChapterService,
