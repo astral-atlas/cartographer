@@ -5,6 +5,7 @@ import type { PermissionService } from '../permission';
 import type { Chapter, ChapterID } from '../../lib/chapter';
 import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
+import type { Indexer } from '../../lib/indexer';
 import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
 import { buildNewChapter } from '../../lib/chapter';
 
@@ -59,7 +60,7 @@ export const buildChapterService = (
   roleService: RoleService,
   permissionService: PermissionService,
   globalChapterAddPermissionId: PermissionID,
-  getChaptersByReadPermissions: (userId: UserID) => Promise<Array<Chapter>>,
+  getChaptersByReadPermissions: Indexer<Chapter, UserID>,
 ): ChapterService => {
   const getChapterFromStorage = enhanceGet(chapterStorageService.read);
   const setChapterFromStorage = enhanceSet(chapterStorageService.create);
@@ -86,8 +87,8 @@ export const buildChapterService = (
     const chapterReadPermission = await permissionService.addNewPermission();
     const newChapter = buildNewChapter(chapterName, chapterReadPermission.id);
 
-    roleService.addPermissionToRole(chapterReadPermission.id, chapterAdminRole.id);
-    roleService.addUserToRole(userId, chapterAdminRole.id);
+    await roleService.addPermissionToRole(chapterReadPermission.id, chapterAdminRole.id);
+    await roleService.addUserToRole(userId, chapterAdminRole.id);
 
     await setChapterFromStorage(newChapter.id, newChapter);
     return newChapter;

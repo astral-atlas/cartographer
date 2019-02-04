@@ -9,5 +9,4 @@ export const pFilter = async <T>(
 };
 
 export const toPromise = <T>(func: () => T): () => Promise<T> => async () => func();
-export const p = toPromise;
 export const async = toPromise;

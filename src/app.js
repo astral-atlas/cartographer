@@ -1,8 +1,7 @@
 // @flow
 import type { Route } from './lib/http';
-import type { Chapter } from './lib/chapter';
 import { generateUser } from './lib/user';
-import { buildBasicPermissionIndex } from './lib/permission';
+import { buildMemoryIndexer } from './lib/indexer';
 
 import { buildMemoryStorageService } from './services/storage/memoryStorage';
 import { buildBasicPermissionService } from './services/permission/basicPermission';
@@ -25,10 +24,10 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   await roleService.addPermissionToRole(addChapterPermission.id, adminRole.id);
   await roleService.addUserToRole(basicUser.id, adminRole.id);
 
-  const getChaptersByReadPermissions = buildBasicPermissionIndex<Chapter>(
+  const getChaptersByReadPermissions = buildMemoryIndexer(
     chapterStorage.values,
     chapter => chapter.readPermission,
-    roleService.getIntersectingRolesForUserAndPermission,
+    async (permissionId, userId) => (await roleService.getIntersectingRolesForUserAndPermission(userId, permissionId)).length > 0,
   );
 
   const chapterService = buildChapterService(
