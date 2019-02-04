@@ -15,7 +15,7 @@ class MapAlreadyHasKey<TKey> extends KeyAlreadyExists {
 
 export type MemoryStorageService<TKey, TValue> = StorageService<TKey, TValue> & {
   entries: () => Iterator<[TKey, TValue]>,
-  values: () => Promise<Array<TValue>>,
+  values: () => Array<TValue>,
 };
 
 export const buildMemoryStorageService = <TKey, TValue>(
@@ -53,6 +53,6 @@ export const buildMemoryStorageService = <TKey, TValue>(
     update,
     delete: _delete,
     entries: () => store.entries(),
-    values: async () => [...store.values()],
+    values: () => [...store.values()],
   };
 };

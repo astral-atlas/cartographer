@@ -3,6 +3,7 @@ import type { Route } from './lib/http';
 import type { Chapter } from './lib/chapter';
 import { generateUser } from './lib/user';
 import { buildBasicPermissionIndex } from './lib/permission';
+import { async } from './lib/promise';
 
 import { buildMemoryStorageService } from './services/storage/memoryStorage';
 import { buildBasicPermissionService } from './services/permission/basicPermission';
@@ -26,7 +27,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   await roleService.addUserToRole(basicUser.id, adminRole.id);
 
   const getChaptersByReadPermissions = buildBasicPermissionIndex<Chapter>(
-    chapterStorage.values,
+    async(chapterStorage.values),
     chapter => chapter.readPermission,
     roleService.getIntersectingRolesForUserAndPermission,
   );
