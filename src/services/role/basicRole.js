@@ -4,6 +4,7 @@ import type { MemoryStorageService } from '../storage/memoryStorage';
 import type { RoleID, Role } from '../../lib/role';
 import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
+import { buildMemoryStorageService } from '../storage/memoryStorage';
 import { generateNewRole } from '../../lib/role';
 
 type RoleMemoryStructure = {
@@ -13,7 +14,7 @@ type RoleMemoryStructure = {
 };
 
 export const buildMemoryRoleService = (
-  roleStorageService: MemoryStorageService<RoleID, RoleMemoryStructure>,
+  roleStorageService: MemoryStorageService<RoleID, RoleMemoryStructure> = buildMemoryStorageService(),
 ): RoleService => {
   const getRole = async (roleId) => {
     return (await roleStorageService.read(roleId)).role;
