@@ -17,7 +17,7 @@ export const toPermission = (mixed: mixed): Permission => toObject(mixed, object
   id: toPermissionId(object.id),
 }));
 
-export const buildNewPermission = (): Permission => ({
+export const generatePermission = (): Permission => ({
   id: generateUUID(),
 });
 
