@@ -24,7 +24,7 @@ describe('chapterService()', () => {
     const indexer = buildMemoryIndexer(
       chapterMemoryStorage.values,
       chapter => chapter.readPermission,
-      (chapterPermission, userId) => roleService.getIntersectingRolesForUserAndPermission(userId, chapterPermission),
+      async (chapterPermission, userId) => (await roleService.getIntersectingRolesForUserAndPermission(userId, chapterPermission)).length > 0,
     );
 
     const user = await generateMockUserWithRoleForPermission(roleService, globalChapterAddPermission);
