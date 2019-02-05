@@ -20,6 +20,7 @@
   "description": "A backend API for serialzing atlas datas",
   "main": "dist/index.js",
   "dependencies": {
+    "stupid-rich-text": "^3.0.0",
     "uuid": "^3.3.2"
   },
   "scripts": {
