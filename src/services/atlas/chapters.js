@@ -16,8 +16,6 @@ export type ChapterService = {
   getChapter: (userId: UserID, chapterId: ChapterID) => Promise<Chapter>,
   addNewChapter: (userId: UserID, chapterName: string) => Promise<Chapter>,
   getAllChapters: (userId: UserID) => Promise<Array<Chapter>>,
-  //getChapterAndEvents: (userId: UserID, chapterId: ChapterID) => Promise<{ chapter: Chapter, events: Array<ChapterEvent>}>,
-  //addEvent: (userId: UserID, chapterId: ChapterID, event: Event) => Promise<void>,
 };
 
 export class InsufficientPermissionsError extends Error {
