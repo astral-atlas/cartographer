@@ -12,7 +12,7 @@ describe('memoryStorage() instance', () => {
 
     const newValue = 'a-different-value';
 
-    await memoryStorageService.update(storedKey, newValue);
+    await memoryStorageService.update(storedKey, () => newValue);
     expect(await memoryStorageService.read(storedKey)).toEqual(newValue);
   });
   it('should read and update based on the map that was passed to the factory', async () => {

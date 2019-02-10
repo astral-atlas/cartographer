@@ -40,19 +40,17 @@ export const buildMemoryRoleService = (
   };
 
   const addUserToRole = async (userId, roleId) => {
-    const role = await roleStorageService.read(roleId);
-    await roleStorageService.update(roleId, {
+    await roleStorageService.update(roleId, role => ({
       ...role,
       userIds: [...role.userIds, userId],
-    });
+    }));
   };
 
   const addPermissionToRole = async (permissionId, roleId) => {
-    const role = await roleStorageService.read(roleId);
-    await roleStorageService.update(roleId, {
+    await roleStorageService.update(roleId, role => ({
       ...role,
       permissionIds: [...role.permissionIds, permissionId],
-    });
+    }));
   };
 
   const addRole = async () => {

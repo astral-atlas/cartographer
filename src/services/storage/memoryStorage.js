@@ -34,11 +34,13 @@ export const buildMemoryStorageService = <TKey, TValue>(
     // $FlowFixMe
     return (store.get(key): TValue);
   };
-  const update = async (key, value) => {
+  const update = async (key, updater) => {
     if (!store.has(key)) {
       throw new MapDoesNotContainKeyError<TKey>(key);
     }
-    store.set(key, value);
+    // $FlowFixMe
+    const prevValue: TValue = store.get(key);
+    store.set(key, updater(prevValue));
   };
   const _delete = async (key) => {
     if (!store.has(key)) {
