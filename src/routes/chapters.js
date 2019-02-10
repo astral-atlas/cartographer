@@ -4,12 +4,12 @@ import type { ChapterEventService } from '../services/atlas/chapterEvents';
 import type { UserService } from '../services/user';
 import type { LogService } from '../services/log';
 
-import { POSTInputError } from './routeErrors';
+import { POSTInputError, URLQueryError } from './routeErrors';
 import { InsufficientPermissionsError, ChapterNotFoundError } from '../services/atlas/chapters';
 import { buildApiRoutes, ok, notAuthorized, notFound, internalServerError, badInput } from '../lib/apiRoute';
 import { toChapterId } from '../models/atlas/chapter';
 import { readStream } from '../lib/stream';
-import { toString, toObject, fromJsonString } from '../lib/serialization';
+import { toString, toObject, fromJsonString, DeserializationError } from '../lib/serialization';
 
 class ChapterPostRequestDecodeError extends POSTInputError {
   constructor(message: string) {
@@ -17,7 +17,13 @@ class ChapterPostRequestDecodeError extends POSTInputError {
   }
 }
 
-const toPostChapterRequest = (requestBody: string) => {
+class ChapterEventMissingQueryParameter extends URLQueryError {
+  constructor(parameterName: string) {
+    super(`Request was missing query parameter "${parameterName}" in URL`);
+  }
+}
+
+const toPostChapter = (requestBody: string) => {
   try {
     return toObject(fromJsonString(requestBody), object => ({
       chapterName: toString(object.chapterName),
@@ -27,8 +33,28 @@ const toPostChapterRequest = (requestBody: string) => {
   }
 };
 
+const toPostChapterEvent = (requestBody: string) => {
+  try {
+    return toObject<{ type: 'narrate', narration: string }>(fromJsonString(requestBody), object => {
+      const type = toString(object.type);
+      switch (type) {
+      case 'narrate':
+        return {
+          type,
+          narration: toString(object.narration),
+        };
+      default:
+        throw new DeserializationError('Chapter Event Type', type, type);
+      }
+    });
+  } catch (error) {
+    throw new ChapterPostRequestDecodeError(error.message);
+  }
+};
+
 const buildRouteErrorHandler = (logService) => (error: Error) => {
   switch (true) {
+  case error instanceof URLQueryError:
   case error instanceof POSTInputError:
     logService.log(error.message, 'info');
     return badInput();
@@ -56,8 +82,15 @@ export const buildChaptersRoutes = (
     try {
       const user = await userService.getUser(inc);
       if (inc.queries.has('id')) {
-        const chapter = await chapterService.getChapter(user.id, toChapterId(inc.queries.get('id')));
-        return ok(chapter);
+        const chapterId = toChapterId(inc.queries.get('id'));
+        const [chapter, events] = await Promise.all([
+          chapterService.getChapter(user.id, chapterId),
+          chapterEventService.getEvents(user.id, chapterId),
+        ]);
+        return ok({
+          chapter,
+          events,
+        });
       } else {
         const chapters = await chapterService.getAllChapters(user.id);
         return ok(chapters);
@@ -79,7 +112,7 @@ export const buildChaptersRoutes = (
         userService.getUser(inc),
         readStream(inc.requestBody),
       ]);
-      const { chapterName } = toPostChapterRequest(requestBody);
+      const { chapterName } = toPostChapter(requestBody);
       const newChapter = await chapterService.addNewChapter(user.id, chapterName);
       return ok(newChapter);
     } catch (error) {
@@ -93,5 +126,33 @@ export const buildChaptersRoutes = (
     allowAuthorization: true,
   };
 
-  return buildApiRoutes([getChapterRoute, postChapterRoute]);
+  const postEventHandler = async (inc) => {
+    try {
+      if (!inc.queries.has('chapterId')) {
+        throw new ChapterEventMissingQueryParameter('chapterId');
+      }
+      const chapterId = toChapterId(inc.queries.get('chapterId'));
+      const [user, requestBody] = await Promise.all([
+        userService.getUser(inc),
+        readStream(inc.requestBody),
+      ]);
+      const chapterEvent = toPostChapterEvent(requestBody);
+      switch (chapterEvent.type) {
+      case 'narrate':
+        return ok(chapterEventService.addNarrateEvent(user.id, chapterId, chapterEvent.narration));
+      default:
+        throw new Error('Unknown Event Type');
+      }
+    } catch (error) {
+      return errorHandler(error);
+    }
+  };
+  const postEventRoute = {
+    path: '/chapters/events',
+    handler: postEventHandler,
+    method: 'POST',
+    allowAuthorization: true,
+  };
+
+  return buildApiRoutes([getChapterRoute, postChapterRoute, postEventRoute]);
 };
