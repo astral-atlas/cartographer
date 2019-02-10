@@ -147,3 +147,9 @@ export const internalServerError = (): APIRouteServerResponse => ({
   status: 500,
   headers: [['Content-Length', '0']],
 });
+
+export const badInput = (): APIRouteServerResponse => ({
+  responseBody: new NullStream(),
+  status: 400,
+  headers: [['Content-Length', '0']],
+});

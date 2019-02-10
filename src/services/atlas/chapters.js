@@ -1,10 +1,8 @@
 // @flow
-import type { ChapterEventService } from './chapterEvents';
 import type { StorageService } from '../storage';
 import type { RoleService } from '../role';
 import type { PermissionService } from '../permission';
 
-import type { ChapterEvent } from '../../models/atlas/chapter/chapterEvent';
 import type { Chapter, ChapterID } from '../../models/atlas/chapter';
 
 import type { UserID } from '../../lib/user';
@@ -15,7 +13,7 @@ import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
 import { buildNewChapter } from '../../models/atlas/chapter';
 
 export type ChapterService = {
-  getChapter: (userId: UserID, chapterId: ChapterID) => Promise<{ chapter: Chapter, events: Array<ChapterEvent> }>,
+  getChapter: (userId: UserID, chapterId: ChapterID) => Promise<Chapter>,
   addNewChapter: (userId: UserID, chapterName: string) => Promise<Chapter>,
   getAllChapters: (userId: UserID) => Promise<Array<Chapter>>,
   //getChapterAndEvents: (userId: UserID, chapterId: ChapterID) => Promise<{ chapter: Chapter, events: Array<ChapterEvent>}>,
@@ -35,9 +33,9 @@ export class ChapterNotFoundError extends Error {
   }
 }
 
-const enhanceGet = (get) => (chapterId) => {
+const enhanceGet = (get) => async (chapterId) => {
   try {
-    return get(chapterId);
+    return await get(chapterId);
   } catch (err) {
     switch (true) {
     case err instanceof KeyNotFoundError:
@@ -48,9 +46,9 @@ const enhanceGet = (get) => (chapterId) => {
   }
 };
 
-const enhanceSet = (set) => (chapterId, chapter) => {
+const enhanceSet = (set) => async (chapterId, chapter) => {
   try {
-    return set(chapterId, chapter);
+    return await set(chapterId, chapter);
   } catch (err) {
     switch (true) {
     case err instanceof KeyAlreadyExists:
@@ -66,7 +64,6 @@ export const buildChapterService = (
   permissionService: PermissionService,
   globalChapterAddPermissionId: PermissionID,
   getChaptersByReadPermissions: Indexer<Chapter, UserID>,
-  chapterEventService: ChapterEventService,
 ): ChapterService => {
   const getChapterFromStorage = enhanceGet(chapterStorageService.read);
   const setChapterFromStorage = enhanceSet(chapterStorageService.create);
@@ -76,11 +73,8 @@ export const buildChapterService = (
     if (!(await userHasPermission(roleService, userId, chapter.readPermission))) {
       throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
     }
-    const events = await chapterEventService.getEvents(chapterId);
-    return {
-      chapter,
-      events,
-    };
+    //const events = await chapterEventService.getEvents(chapterId);
+    return chapter;
   };
 
   const getAllChapters = async (userId) => {

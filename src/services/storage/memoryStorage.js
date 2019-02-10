@@ -4,12 +4,12 @@ import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
 
 class MapDoesNotContainKeyError<TKey> extends KeyNotFoundError {
   constructor(key: TKey) {
-    super(JSON.stringify(key));
+    super('Memory Storage', `Internal map does not contain key: ${JSON.stringify(key)}`);
   }
 }
 class MapAlreadyHasKey<TKey> extends KeyAlreadyExists {
   constructor(key: TKey) {
-    super(JSON.stringify(key));
+    super('Memory Storage', `Internal map already has key: ${JSON.stringify(key)}`);
   }
 }
 
@@ -23,20 +23,20 @@ export const buildMemoryStorageService = <TKey, TValue>(
 ): MemoryStorageService<TKey, TValue> => {
   const create = async (key, value) => {
     if (store.has(key)) {
-      throw new MapAlreadyHasKey<TKey>(key);
+      throw new MapAlreadyHasKey(key);
     }
     store.set(key, value);
   };
   const read = async (key) => {
     if (!store.has(key)) {
-      throw new MapDoesNotContainKeyError<TKey>(key);
+      throw new MapDoesNotContainKeyError(key);
     }
     // $FlowFixMe
     return (store.get(key): TValue);
   };
   const update = async (key, updater) => {
     if (!store.has(key)) {
-      throw new MapDoesNotContainKeyError<TKey>(key);
+      throw new MapDoesNotContainKeyError(key);
     }
     // $FlowFixMe
     const prevValue: TValue = store.get(key);
@@ -44,7 +44,7 @@ export const buildMemoryStorageService = <TKey, TValue>(
   };
   const _delete = async (key) => {
     if (!store.has(key)) {
-      throw new MapDoesNotContainKeyError<TKey>(key);
+      throw new MapDoesNotContainKeyError(key);
     }
     store.delete(key);
   };
