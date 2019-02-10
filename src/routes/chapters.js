@@ -3,7 +3,7 @@ import type { ChapterService } from '../services/atlas/chapters';
 import type { UserService } from '../services/user';
 import { InsufficientPermissionsError, ChapterNotFoundError } from '../services/atlas/chapters';
 import { buildApiRoutes, ok, notAuthorized, notFound, internalServerError, handleApiRouteErr } from '../lib/apiRoute';
-import { toChapterId } from '../lib/chapter';
+import { toChapterId } from '../models/atlas/chapter';
 import { readStream } from '../lib/stream';
 import { async } from '../lib/promise';
 import { toString, toObject, fromJsonString } from '../lib/serialization';

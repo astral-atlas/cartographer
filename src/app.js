@@ -4,8 +4,9 @@ import { generateUser } from './lib/user';
 import { buildMemoryIndexer } from './lib/indexer';
 
 import { buildMemoryStorageService } from './services/storage/memoryStorage';
-import { buildBasicPermissionService } from './services/permission/basicPermission';
+import { buildPermissionService } from './services/permission/basicPermission';
 import { buildChapterService } from './services/atlas/chapters';
+import { buildChapterEventService } from './services/atlas/chapterEvents';
 import { buildBasicUserService } from './services/user/basicUser';
 import { buildMemoryRoleService } from './services/role/basicRole';
 
@@ -15,7 +16,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   const basicUser = generateUser();
 
   const chapterStorage = buildMemoryStorageService();
-  const permissionService = buildBasicPermissionService(buildMemoryStorageService());
+  const permissionService = buildPermissionService(buildMemoryStorageService());
   const roleService = buildMemoryRoleService(buildMemoryStorageService());
   const userService = buildBasicUserService(basicUser);
 
@@ -29,6 +30,14 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     chapter => chapter.readPermission,
     async (permissionId, userId) => (await roleService.getIntersectingRolesForUserAndPermission(userId, permissionId)).length > 0,
   );
+  
+  const chapterEventStorage = buildMemoryStorageService();
+
+  const narrateEventByChapterIdIndex = buildMemoryIndexer(
+    chapterEventStorage.values,
+    chapterEvent => chapterEvent.chapterId,
+  );
+  const chapterEventService = buildChapterEventService(chapterEventStorage, narrateEventByChapterIdIndex);
 
   const chapterService = buildChapterService(
     chapterStorage,
@@ -36,6 +45,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     permissionService,
     addChapterPermission.id,
     getChaptersByReadPermissions,
+    chapterEventService,
   );
 
   return buildChaptersRoutes(chapterService, userService);
