@@ -73,7 +73,6 @@ export const buildChapterService = (
     if (!(await userHasPermission(roleService, userId, chapter.readPermission))) {
       throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
     }
-    //const events = await chapterEventService.getEvents(chapterId);
     return chapter;
   };
 

@@ -9,10 +9,12 @@ import { buildChapterService } from './services/atlas/chapters';
 import { buildChapterEventService } from './services/atlas/chapterEvents';
 import { buildBasicUserService } from './services/user/basicUser';
 import { buildMemoryRoleService } from './services/role/basicRole';
+import { buildStdLog } from './services/log/stdLog';
 
 import { buildChaptersRoutes } from './routes/chapters';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
+  const logService = buildStdLog();
   const basicUser = generateUser();
 
   const chapterStorage = buildMemoryStorageService();
@@ -45,8 +47,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     permissionService,
     addChapterPermission.id,
     getChaptersByReadPermissions,
-    chapterEventService,
   );
 
-  return buildChaptersRoutes(chapterService, userService);
+  return buildChaptersRoutes(chapterService, chapterEventService, userService, logService);
 };

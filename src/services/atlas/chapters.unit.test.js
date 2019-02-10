@@ -2,7 +2,6 @@ import { buildChapterService } from './chapters';
 import { buildMemoryStorageService } from '../storage/memoryStorage';
 import { buildMemoryRoleService } from '../role/basicRole';
 import { buildPermissionService } from '../permission/basicPermission';
-import { buildNarrateEvent } from '../../models/atlas/chapter/narrateEvent';
 import { generatePermission } from '../../lib/permission';
 import { buildMemoryIndexer } from '../../lib/indexer';
 import { generateUser } from '../../lib/user';
@@ -14,28 +13,6 @@ const generateMockUserWithRoleForPermission = async (roleService, permission) =>
   await roleService.addPermissionToRole(permission.id, role.id);
   await roleService.addUserToRole(user.id, role.id);
   return user;
-};
-
-const buildMockChapterEventService = () => {
-  const events = new Map();
-
-  const getEvents = async (chapterId) => {
-    return events.get(chapterId) || [];
-  };
-  
-  const addNarrateEvent = async (chapterId, narration) => {
-    events.set(
-      chapterId,
-      [
-        ...(events.get(chapterId) || []),
-        buildNarrateEvent(chapterId, narration),
-      ]);
-  };
-
-  return {
-    getEvents,
-    addNarrateEvent,
-  };
 };
 
 describe('chapterService()', () => {
@@ -58,11 +35,10 @@ describe('chapterService()', () => {
       permissionService,
       globalChapterAddPermission.id,
       indexer,
-      buildMockChapterEventService()
     );
 
     const chapter = await chapterService.addNewChapter(user.id, 'New Chapter');
-    expect(await chapterService.getChapter(user.id, chapter.id)).toEqual({ chapter, events: [] });
+    expect(await chapterService.getChapter(user.id, chapter.id)).toEqual(chapter);
     expect(await chapterService.getAllChapters(user.id)).toEqual([chapter]);
   });
 });
