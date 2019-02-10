@@ -39,7 +39,6 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     chapterEventStorage.values,
     chapterEvent => chapterEvent.chapterId,
   );
-  const chapterEventService = buildChapterEventService(chapterEventStorage, narrateEventByChapterIdIndex);
 
   const chapterService = buildChapterService(
     chapterStorage,
@@ -47,6 +46,12 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     permissionService,
     addChapterPermission.id,
     getChaptersByReadPermissions,
+  );
+  const chapterEventService = buildChapterEventService(
+    chapterService,
+    roleService,
+    chapterEventStorage,
+    narrateEventByChapterIdIndex
   );
 
   return buildChaptersRoutes(chapterService, chapterEventService, userService, logService);
