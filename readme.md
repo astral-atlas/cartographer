@@ -31,3 +31,7 @@ Check your code using `eslint`
 ```bash
 npx eslint src
 ```
+Run the demo using `serve`
+```bash
+npx serve atlas-quill
+```

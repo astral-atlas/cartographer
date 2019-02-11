@@ -1,6 +1,6 @@
 [ignore]
 dist
-demo
+atlas-quill
 [include]
 
 [libs]
