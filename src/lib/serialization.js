@@ -8,7 +8,7 @@ export function DeserializationError(
 ) {
   return new InternalLibraryError(
     'Serialization',
-    `Could not deserialize "${JSON.stringify(value)}" to `+
+    `DeserializationError: Could not deserialize "${JSON.stringify(value)}" to `+
     `${targetType} as it was actually ${valueType}.`
   );
 }

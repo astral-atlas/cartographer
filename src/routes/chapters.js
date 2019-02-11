@@ -56,16 +56,16 @@ const buildRouteErrorHandler = (logService) => (error: Error) => {
   switch (true) {
   case error instanceof URLQueryError:
   case error instanceof POSTInputError:
-    logService.log(error.message, 'info');
+    logService.log(error.stack, 'info');
     return badInput();
   case error instanceof InsufficientPermissionsError:
-    logService.log(error.message, 'info');
+    logService.log(error.stack, 'info');
     return notAuthorized();
   case error instanceof ChapterNotFoundError:
-    logService.log(error.message, 'warn');
+    logService.log(error.stack, 'warn');
     return notFound();
   default:
-    logService.log(error.message, 'error');
+    logService.log(error.stack, 'error');
     return internalServerError();
   }
 };
@@ -139,7 +139,7 @@ export const buildChaptersRoutes = (
       const chapterEvent = toPostChapterEvent(requestBody);
       switch (chapterEvent.type) {
       case 'narrate':
-        return ok(chapterEventService.addNarrateEvent(user.id, chapterId, chapterEvent.narration));
+        return ok(await chapterEventService.addNarrateEvent(user.id, chapterId, chapterEvent.narration));
       default:
         throw new Error('Unknown Event Type');
       }

@@ -3,13 +3,13 @@ import { InternalServiceError } from '.';
 
 export class KeyNotFoundError extends InternalServiceError {
   constructor(storageSubtype: string, message: string) {
-    super(`${storageSubtype} (Storage)`, `The key was not found\n${message}`);
+    super(`${storageSubtype} (Storage)`, `KeyNotFoundError: The key was not found\n${message}`);
   }
 }
 
-export class KeyAlreadyExists extends InternalServiceError {
+export class KeyAlreadyExistsError extends InternalServiceError {
   constructor(storageSubtype: string, message: string) {
-    super(`${storageSubtype} (Storage)`, `There was a key collision\n${message}`);
+    super(`${storageSubtype} (Storage)`, `KeyAlreadyExistsError: There was a key collision\n${message}`);
   }
 }
 

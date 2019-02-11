@@ -1,15 +1,15 @@
 // @flow
 import type { StorageService } from '../storage';
-import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
+import { KeyNotFoundError, KeyAlreadyExistsError } from '../storage';
 
 class MapDoesNotContainKeyError<TKey> extends KeyNotFoundError {
   constructor(key: TKey) {
-    super('Memory Storage', `Internal map does not contain key: ${JSON.stringify(key)}`);
+    super('Memory Storage', `MapDoesNotContainKeyError: Internal map does not contain key: ${JSON.stringify(key)}`);
   }
 }
-class MapAlreadyHasKey<TKey> extends KeyAlreadyExists {
+class MapAlreadyHasKey<TKey> extends KeyAlreadyExistsError {
   constructor(key: TKey) {
-    super('Memory Storage', `Internal map already has key: ${JSON.stringify(key)}`);
+    super('Memory Storage', `MapAlreadyHasKey: Internal map already has key: ${JSON.stringify(key)}`);
   }
 }
 

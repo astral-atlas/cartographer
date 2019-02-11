@@ -7,7 +7,7 @@ import { AtlasScribeError } from '../errors';
 export class InternalServiceError extends AtlasScribeError {
   constructor(serviceName: string, message: string) {
     super(
-      `The service ${serviceName} threw an exception\n${message}`
+      `InternalServiceError: The service ${serviceName} threw an exception\n${message}`
     );
   }
 }
