@@ -9,7 +9,7 @@ import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
 import type { Indexer } from '../../lib/indexer';
 import { userHasPermission, addRoleWithPermissionsAndUsers } from '../role';
-import { KeyNotFoundError, KeyAlreadyExists } from '../storage';
+import { KeyNotFoundError, KeyAlreadyExistsError } from '../storage';
 import { buildNewChapter } from '../../models/atlas/chapter';
 
 export type ChapterService = {
@@ -20,18 +20,18 @@ export type ChapterService = {
 
 export class InsufficientPermissionsError extends Error {
   constructor(message: string) {
-    super(message);
+    super(`InsufficientPermissionsError: ${message}`);
   }
 }
 
 export class ChapterNotFoundError extends Error {
   constructor(chapterId: ChapterID, cause: Error) {
-    super(`Could not find chapter '${chapterId}'\n${cause.message}`);
+    super(`ChapterNotFoundError: Could not find chapter '${chapterId}'\n${cause.message}`);
     this.stack = cause.stack;
   }
 }
 
-const enhanceGet = (get) => async (chapterId) => {
+const enhanceGet = (get) => async (chapterId: ChapterID) => {
   try {
     return await get(chapterId);
   } catch (err) {
@@ -44,17 +44,22 @@ const enhanceGet = (get) => async (chapterId) => {
   }
 };
 
-const enhanceSet = (set) => async (chapterId, chapter) => {
+const enhanceSet = (set) => async (chapterId: ChapterID, chapter: Chapter) => {
   try {
     return await set(chapterId, chapter);
   } catch (err) {
     switch (true) {
-    case err instanceof KeyAlreadyExists:
+    case err instanceof KeyAlreadyExistsError:
     default:
       throw err;
     }
   }
 };
+
+export const enhanceChapterStorage = (chapterStorageService: StorageService<ChapterID, Chapter>) => ({
+  getStoredChapter: enhanceGet(chapterStorageService.read),
+  setStoredChapter: enhanceSet(chapterStorageService.create),
+});
 
 export const buildChapterService = (
   chapterStorageService: StorageService<ChapterID, Chapter>,
@@ -63,11 +68,10 @@ export const buildChapterService = (
   globalChapterAddPermissionId: PermissionID,
   getChaptersByReadPermissions: Indexer<Chapter, UserID>,
 ): ChapterService => {
-  const getChapterFromStorage = enhanceGet(chapterStorageService.read);
-  const setChapterFromStorage = enhanceSet(chapterStorageService.create);
+  const { getStoredChapter, setStoredChapter } = enhanceChapterStorage(chapterStorageService);
 
   const getChapter = async (userId, chapterId) => {
-    const chapter = await getChapterFromStorage(chapterId);
+    const chapter = await getStoredChapter(chapterId);
     if (!(await userHasPermission(roleService, userId, chapter.readPermission))) {
       throw new InsufficientPermissionsError('User does not have a role that can read for the chapter');
     }
@@ -92,7 +96,7 @@ export const buildChapterService = (
 
     const newChapter = buildNewChapter(chapterName, readPermission.id, masterPermission.id);
 
-    await setChapterFromStorage(newChapter.id, newChapter);
+    await setStoredChapter(newChapter.id, newChapter);
     return newChapter;
   };
   return {

@@ -48,7 +48,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     getChaptersByReadPermissions,
   );
   const chapterEventService = buildChapterEventService(
-    chapterService,
+    chapterStorage,
     roleService,
     chapterEventStorage,
     narrateEventByChapterIdIndex
