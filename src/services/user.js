@@ -4,4 +4,5 @@ import type { User } from '../lib/user';
 
 export type UserService = {
   getUser: (inc: APIRouteIncomingMessage) => Promise<User>,
+  getAllUsers: () => Promise<Array<User>>,
 };

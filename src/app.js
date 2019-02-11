@@ -12,15 +12,16 @@ import { buildMemoryRoleService } from './services/role/basicRole';
 import { buildStdLog } from './services/log/stdLog';
 
 import { buildChaptersRoutes } from './routes/chapters';
+import { buildUserRoutes } from './routes/users';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
   const logService = buildStdLog();
-  const basicUser = generateUser();
+  const basicUser = generateUser('Luke');
 
   const chapterStorage = buildMemoryStorageService();
   const permissionService = buildPermissionService(buildMemoryStorageService());
   const roleService = buildMemoryRoleService(buildMemoryStorageService());
-  const userService = buildBasicUserService(basicUser);
+  const userService = buildBasicUserService(basicUser, [basicUser, generateUser('Dave'), generateUser('Morris')]);
 
   const addChapterPermission = await permissionService.addNewPermission();
   const adminRole = await roleService.addRole();
@@ -54,5 +55,8 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     narrateEventByChapterIdIndex
   );
 
-  return buildChaptersRoutes(chapterService, chapterEventService, userService, logService);
+  return [
+    ...buildChaptersRoutes(chapterService, chapterEventService, userService, logService),
+    ...buildUserRoutes(userService),
+  ];
 };

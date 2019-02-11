@@ -40,5 +40,8 @@ describe('chapterService()', () => {
     const chapter = await chapterService.addNewChapter(user.id, 'New Chapter');
     expect(await chapterService.getChapter(user.id, chapter.id)).toEqual(chapter);
     expect(await chapterService.getAllChapters(user.id)).toEqual([chapter]);
+
+    const differentUser = await generateMockUserWithRoleForPermission(roleService, generatePermission());
+    expect(await chapterService.getAllChapters(differentUser.id)).toEqual([]);
   });
 });
