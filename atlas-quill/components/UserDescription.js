@@ -1,7 +1,7 @@
 import { jsx } from '../lib/react.js';
-import { style } from '../lib/style.js';
+import { css } from '../lib/style.js';
 
-style`
+css`
   .description-article {
     border: 1px solid black;
   }

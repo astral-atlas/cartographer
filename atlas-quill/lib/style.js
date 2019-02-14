@@ -5,7 +5,7 @@ export const getStyleRules = (styleElement) => [
   .replace('.', '')
 );
 
-export const style = (styles) => {
+export const css = (styles) => {
   const styleElement = document.createElement('style');
   styleElement.textContent = styles.join('');
   document.head.appendChild(styleElement);

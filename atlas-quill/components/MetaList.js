@@ -1,7 +1,7 @@
 import { jsx } from '../lib/react.js';
-import { style } from '../lib/style.js';
+import { css } from '../lib/style.js';
 
-style`
+css`
   .meta-list {
     display: flex;
     flex-direction: row;

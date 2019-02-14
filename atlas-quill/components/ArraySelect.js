@@ -1,9 +1,9 @@
 import { jsx } from '../lib/react.js';
 import { noop } from '../lib/func.js';
-import { style } from '../lib/style.js';
+import { css } from '../lib/style.js';
 import { cx } from '../lib/classNames.js';
 
-style`
+css`
   .array-select-section {
     border: 1px solid black;
   }

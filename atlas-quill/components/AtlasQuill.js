@@ -1,23 +1,25 @@
 import { Component, jsx } from '../lib/react.js';
 import { createStore, Provider } from '../lib/redux.js';
 import { rootReducer } from '../reducers/root.js';
+import { css } from '../lib/style.js';
 
 import { MetaList } from './MetaList.js';
 import { UserSelect } from './UserSelect.js';
 import { ChapterSelect } from './ChapterSelect.js';
 import { UserDescription } from './UserDescription.js';
 
-const appStyle = {
-  width: '100%',
-  height: '100%',
-  position: 'absolute',
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const appHeadingStyle = {
-  textAlign: 'center',
-};
+css`
+  .atlas-quill {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+  }
+  .atlas-quill-heading {
+    text-align: center;
+  }
+`;
 
 const users = [
   'luke',
@@ -45,9 +47,9 @@ export class AtlasQuill extends Component {
     const selectedChapter = chapters[selectedChapterIndex];
 
     return jsx`
-      <main style=${appStyle}>
+      <main className="atlas-quill">
         <${Provider} store=${this.store}>
-          <h1 style=${appHeadingStyle}>Atlas Quill</h1>
+          <h1 className="atlas-quill-heading">Atlas Quill</h1>
           <${MetaList} listElements=${[
             jsx`
               <${UserSelect}
