@@ -9,4 +9,6 @@
         "preflight"
     ],
     "flow.useNPMPackagedFlow": true,
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false,
 }
