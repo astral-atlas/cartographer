@@ -1,4 +1,4 @@
-export const getStyleRules = (styleElement) => [
+export const parseRules = (styleElement) => [
   ...styleElement.sheet.cssRules
 ].map(rule => rule
   .selectorText
