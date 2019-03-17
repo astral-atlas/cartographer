@@ -2,7 +2,7 @@ import React from 'https://dev.jspm.io/react';
 import ReactDOM from 'https://dev.jspm.io/react-dom';
 import htm from 'https://dev.jspm.io/htm';
 
-const { Component, Fragment } = React;
+const { Component, Fragment, createContext } = React;
 const { render } = ReactDOM;
 const jsx = htm.bind(React.createElement);
 
@@ -11,4 +11,5 @@ export {
   Component,
   Fragment,
   jsx,
+  createContext,
 };
