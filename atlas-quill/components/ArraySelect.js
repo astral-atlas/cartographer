@@ -28,6 +28,9 @@ css`
     border: solid 1px black;
     border-bottom: none;
   }
+  .array-select-list-element:last-child {
+    border-bottom: solid 1px black;
+  }
   .array-select-list-element-button {
     padding: 1em;
     width: 100%;
@@ -46,26 +49,25 @@ css`
   }
 `;
 
-export const ArraySelect = ({ items = [], selectedItemIndex = -1, onItemSelect = noop, title = 'Items' }) => jsx`
-  <section className="array-select-section">
-    <h1 className=${cx('array-select-heading', { 'array-select-heading-selected': selectedItemIndex !== -1 })}>
-      ${title}
-    </h1>
-    <ul className="array-select-list">
-      ${items.map((item, index) => jsx`
-        <li key=${index} className="array-select-list-element">
-          <button
-            className=${cx(
-              'array-select-list-element-button',
-              { 'array-select-list-element-button-selected': selectedItemIndex === index }
-            )}
-            type="button"
-            onClick=${() => onItemSelect(selectedItemIndex === index ? -1 : index)}
-          >
-            ${item}
-          </button>
-        </li>
-      `)}
-    </ul>
-  </section>
+export const ArraySelect = ({
+  items = [],
+  selectedItemIndex = -1,
+  onItemSelect = noop,
+}) => jsx`
+  <ul className="array-select-list">
+    ${items.map((item, index) => jsx`
+      <li key=${index} className="array-select-list-element">
+        <button
+          className=${cx(
+            'array-select-list-element-button',
+            { 'array-select-list-element-button-selected': selectedItemIndex === index }
+          )}
+          type="button"
+          onClick=${() => onItemSelect(selectedItemIndex === index ? -1 : index)}
+        >
+          ${item}
+        </button>
+      </li>
+    `)}
+  </ul>
 `;
