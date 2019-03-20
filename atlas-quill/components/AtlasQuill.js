@@ -33,7 +33,15 @@ export class AtlasQuill extends Component {
 
   onUsersUpdate(users) {
     if (users !== this.state.users) {
-      this.setState(state => ({ ...state, users, selectedUserIndex: -1 }));
+      this.setState(state => {
+        const selectedUser = state.users[state.selectedUserIndex];
+        const newSelectedUserIndex = selectedUser && users.findIndex(user => user.id === selectedUser.id);
+        return {
+          ...state,
+          users,
+          selectedUserIndex: newSelectedUserIndex
+        };
+      });
     }
   }
 
