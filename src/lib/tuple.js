@@ -6,3 +6,5 @@ export const getTupleSecond = <TFirst, TSecond>(tuple: [TFirst, TSecond]): TSeco
 export const getTupleFirst = <TFirst, TSecond>(tuple: [TFirst, TSecond]): TFirst => (
   tuple[0]
 );
+
+export const toArity2 = <T>(array: Array<T>): [T, T] => [array[0], array[1]];
