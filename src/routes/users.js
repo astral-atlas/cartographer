@@ -1,29 +1,28 @@
 // @flow
 import type { UserService } from '../services/user';
 
-import { ok, internalServerError, addHeaders } from '../lib/routeHandlerOutput';
+import { ok, internalServerError } from '../lib/routeHandlerOutput';
 import {
   createStdRouteFromApiRoute,
   createStdRouteFromOptionsRoute,
 } from '../lib/route';
 
-export const buildUserRoutes = () => console.warn('DEPRECATED METHOD CALL: buildUserRoutes()') || []; // eslint-disable-line no-console
+const corsOptions = {
+  origin: 'http://localhost:5000',
+  allowedMethods: ['GET'],
+  exposedHeaders: ['ETag'],
+  allowedHeaders: ['USER_ID'],
+};
 
 export const createUserRoutes = (
   userService: UserService,
 ) => {
   const getUsersHandler = async () => {
     try {
-      return addHeaders(ok(await userService.getAllUsers()), new Map([['TestHeader', 'Testvalue']]));
+      return ok(await userService.getAllUsers());
     } catch (err) {
       return internalServerError();
     }
-  };
-
-  const corsOptions = {
-    origin: 'http://localhost:5000',
-    allowedMethods: ['GET'],
-    exposedHeaders: ['ETag'],
   };
 
   const getUserRoute = {
