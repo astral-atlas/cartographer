@@ -16,11 +16,11 @@ export const toGroupsOf = (
   index: number
 ): Group<T> => {
   const indexInGroup = index % groupCount;
-  const currentGroupIndex = (index / groupCount) - indexInGroup;
+  const currentGroupIndex = Math.floor(index / groupCount);
 
   const currentGroup = groupsSoFar[currentGroupIndex] || [];
-  
-  const groupsSoFarWithoutCurrent = groupsSoFar.slice(0, currentGroupIndex - 1);
+
+  const groupsSoFarWithoutCurrent = groupsSoFar.slice(0, currentGroupIndex);
 
   const newCurrentGroup = [...currentGroup];
   newCurrentGroup[indexInGroup] = currentItem;
