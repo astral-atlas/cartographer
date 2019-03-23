@@ -11,7 +11,7 @@ const corsOptions = {
   origin: 'http://localhost:5000',
   allowedMethods: ['GET'],
   exposedHeaders: ['ETag'],
-  allowedHeaders: ['USER_ID'],
+  allowedHeaders: ['user-id'],
 };
 
 export const createUserRoutes = (

@@ -20,7 +20,7 @@ export const createAtlasClient = (endpoint) => {
     const getChaptersEndpoint = new URL('/chapters', endpoint);
     const options = {
       headers: {
-        'USER_ID': userId,
+        'user-id': userId,
       },
     };
     const response = await fetch(getChaptersEndpoint, options);
@@ -34,7 +34,7 @@ export const createAtlasClient = (endpoint) => {
     const options = {
       method: 'POST',
       headers: {
-        'USER_ID': userId,
+        'user-id': userId,
       },
       body: JSON.stringify({ chapterName }),
     };

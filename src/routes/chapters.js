@@ -32,7 +32,7 @@ const corsOptions = {
   origin: 'http://localhost:5000',
   allowedMethods: ['GET', 'POST'],
   exposedHeaders: ['ETag'],
-  allowedHeaders: ['USER_ID'],
+  allowedHeaders: ['user-id'],
 };
 
 const toPostChapter = (requestBody: string) => {

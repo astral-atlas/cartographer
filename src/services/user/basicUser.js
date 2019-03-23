@@ -7,10 +7,10 @@ export const buildBasicUserService = (
   users: Array<User>,
 ): UserService => {
   const getUser = async (inc) => {
-    if (!inc.headers.has('USER_ID')) {
+    if (!inc.headers.has('user-id')) {
       return defaultUser;
     }
-    const userId = inc.headers.get('USER_ID');
+    const userId = inc.headers.get('user-id');
     const user = users.find(user => user.id === userId);
     if (!user) {
       throw new Error('User Not Found');
