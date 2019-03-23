@@ -41,6 +41,10 @@ const pauseableInterval = (onInterval, msTillInterval, startOnInit = false) => {
     }
   };
 
+  const trigger = () => {
+    onInterval();
+  };
+
   if (startOnInit) {
     start();
   }
@@ -48,6 +52,7 @@ const pauseableInterval = (onInterval, msTillInterval, startOnInit = false) => {
   return {
     start,
     stop,
+    trigger,
   }
 };
 
@@ -60,6 +65,7 @@ export const createAtlasStreamClient = (atlasClient) => {
 
   function onListenerAdd() {
     updateEndpointsInterval.start();
+    updateEndpointsInterval.trigger();
   }
 
   function onListenerRemove() {
