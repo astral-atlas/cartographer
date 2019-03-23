@@ -8,8 +8,11 @@ export const addHeaders = (out: HandlerOutput, newHeaders: Map<string, string>):
   headers: new Map([...out.headers, ...newHeaders]),
 });
 
-export const ok = (response: mixed): HandlerOutput => {
+export const ok = (response: mixed = null): HandlerOutput => {
   const stringifiedResponse = JSON.stringify(response);
+  if (stringifiedResponse === undefined) {
+    throw new Error('Cannot serialized undefined to String Stream');
+  }
   const responseBody = new StringStream(stringifiedResponse);
   const status = 200;
   const headers = new Map([

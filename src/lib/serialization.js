@@ -6,9 +6,17 @@ export function DeserializationError(
   value: mixed,
   valueType: string
 ) {
+  const serializedValue = JSON.stringify(value);
+  if (serializedValue === undefined) {
+    return new InternalLibraryError(
+      'Serialization',
+      'DeserializationError: Could not deserialize "undefined" to '+
+      `${targetType}.`
+    );
+  }
   return new InternalLibraryError(
     'Serialization',
-    `DeserializationError: Could not deserialize "${JSON.stringify(value)}" to `+
+    `DeserializationError: Could not deserialize "${serializedValue}" to `+
     `${targetType} as it was actually ${valueType}.`
   );
 }
