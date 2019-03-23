@@ -13,15 +13,15 @@ const createEventEmitter = () => {
     listeners = new Set([...listeners, listenerToAdd]);
   };
 
-  const getHasListeners = () => {
-    return listeners.size > 0;
+  const getListenerCount = () => {
+    return listeners.size;
   };
 
   return {
     emit,
     addListener,
     removeListener,
-    getHasListeners,
+    getListenerCount,
   };
 };
 
@@ -51,25 +51,36 @@ const pauseableInterval = (onInterval, msTillInterval, startOnInit = false) => {
   }
 };
 
+const sum = (acc, curr) => acc + curr;
+
 export const createAtlasStreamClient = (atlasClient) => {
   const usersEmitter = createEventEmitter();
+  const chaptersEmitters = new Map();
   const updateEndpointsInterval = pauseableInterval(onCheckUpdate, 1000, false);
 
-  async function onListenerAdd() {
-    if (usersEmitter.getHasListeners()) {
-      updateEndpointsInterval.start();
-    }
+  function onListenerAdd() {
+    updateEndpointsInterval.start();
   }
 
-  async function onListenerRemove() {
-    if (!usersEmitter.getHasListeners()) {
+  function onListenerRemove() {
+    const totalListeners = [
+      usersEmitter.getListenerCount(),
+      [...chaptersEmitters.values()]
+        .map(emitter => emitter.getListenerCount())
+        .reduce(sum, 0),
+    ].reduce(sum, 0);
+
+    if (totalListeners < 1) {
       updateEndpointsInterval.stop();
     }
   }
   
   async function onCheckUpdate() {
-    if (usersEmitter.getHasListeners()) {
-      usersEmitter.emit(await atlasClient.getUsers());
+    if (usersEmitter.getListenerCount() > 0) {
+      atlasClient.getUsers().then(users => usersEmitter.emit(users));
+    }
+    for (let [userId, emitter] of chaptersEmitters) {
+      atlasClient.getChapters(userId).then(chapters => emitter.emit(chapters));
     }
   }
 
@@ -82,7 +93,28 @@ export const createAtlasStreamClient = (atlasClient) => {
     };
   };
 
+  const addChaptersListener = (listener, userId) => {
+    if (chaptersEmitters.has(userId)) {
+      const emitter = chaptersEmitters.get(userId);
+      emitter.addListener(listener);
+    } else {
+      const emitter = createEventEmitter();
+      chaptersEmitters.set(userId, emitter);
+      emitter.addListener(listener);
+    }
+    onListenerAdd();
+    return () => {
+      const emitter = chaptersEmitters.get(userId);
+      emitter.removeListener(listener);
+      if (emitter.getListenerCount() < 1) {
+        chaptersEmitters.delete(userId);
+      }
+      onListenerRemove();
+    };
+  };
+
   return {
     addUsersListener,
+    addChaptersListener,
   };
 };
