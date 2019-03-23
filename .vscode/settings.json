@@ -3,12 +3,14 @@
     "files.eol": "\n",
     "files.insertFinalNewline": true,
     "cSpell.words": [
+        "Insertable",
         "deserialization",
         "deserialize",
         "deserializing",
         "preflight"
     ],
-    "flow.useNPMPackagedFlow": true,
     "typescript.validate.enable": false,
     "javascript.validate.enable": false,
+    "flow.logLevel": "trace",
+    "flow.useNPMPackagedFlow": true,
 }
