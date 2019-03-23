@@ -3,10 +3,17 @@ import { AtlasQuill } from './components/AtlasQuill.js';
 import { createAtlasStreamClient } from './services/atlasStreamClient.js';
 import { createAtlasClient } from './services/atlasClient.js';
 
-const atlasStreamClient = createAtlasStreamClient(createAtlasClient('http://localhost:8888'));
+const atlasClient = createAtlasClient('http://localhost:8888');
+const atlasStreamClient = createAtlasStreamClient(atlasClient);
 
 export const runAtlasQuill = (
-  rootElement = document.body.appendChild(document.createElement('span')),
+  domRoot = document.body.appendChild(document.createElement('span')),
 ) => {
-  return render(jsx`<${AtlasQuill} streamClient=${atlasStreamClient} />`, rootElement);
+  const reactRoot = jsx`
+    <${AtlasQuill}
+      streamClient=${atlasStreamClient}
+      client=${atlasClient}
+    />
+  `;
+  return render(reactRoot, domRoot);
 };
