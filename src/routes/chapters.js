@@ -4,9 +4,14 @@ import type { ChapterEventService } from '../services/atlas/chapterEvents';
 import type { UserService } from '../services/user';
 import type { LogService } from '../services/log';
 
+import {
+  createStdRouteFromApiRoute,
+  createStdRouteFromOptionsRoute,
+} from '../lib/route';
+import { ok, notAuthorized, notFound, internalServerError, badInput } from '../lib/routeHandlerOutput';
+
 import { POSTInputError, URLQueryError } from './routeErrors';
 import { InsufficientPermissionsError, ChapterNotFoundError } from '../services/atlas/chapters';
-import { buildApiRoutes, ok, notAuthorized, notFound, internalServerError, badInput } from '../lib/apiRoute';
 import { toChapterId } from '../models/atlas/chapter';
 import { readStream } from '../lib/stream';
 import { toString, toObject, fromJsonString, DeserializationError } from '../lib/serialization';
@@ -22,6 +27,13 @@ class ChapterEventMissingQueryParameter extends URLQueryError {
     super(`Request was missing query parameter "${parameterName}" in URL`);
   }
 }
+
+const corsOptions = {
+  origin: 'http://localhost:5000',
+  allowedMethods: ['GET', 'POST'],
+  exposedHeaders: ['ETag'],
+  allowedHeaders: ['USER_ID'],
+};
 
 const toPostChapter = (requestBody: string) => {
   try {
@@ -70,7 +82,7 @@ const buildRouteErrorHandler = (logService) => (error: Error) => {
   }
 };
 
-export const buildChaptersRoutes = (
+export const createChapterRoutes = (
   chapterService: ChapterService,
   chapterEventService: ChapterEventService,
   userService: UserService,
@@ -103,7 +115,7 @@ export const buildChaptersRoutes = (
     path: '/chapters',
     handler: getChapterHandler,
     method: 'GET',
-    allowAuthorization: true,
+    corsOptions,
   };
 
   const postChapterHandler = async (inc) => {
@@ -123,7 +135,7 @@ export const buildChaptersRoutes = (
     path: '/chapters',
     handler: postChapterHandler,
     method: 'POST',
-    allowAuthorization: true,
+    corsOptions,
   };
 
   const postEventHandler = async (inc) => {
@@ -151,8 +163,24 @@ export const buildChaptersRoutes = (
     path: '/chapters/events',
     handler: postEventHandler,
     method: 'POST',
-    allowAuthorization: true,
+    corsOptions,
   };
 
-  return buildApiRoutes([getChapterRoute, postChapterRoute, postEventRoute]);
+  const chapterOptionsRoute = {
+    path: '/chapters',
+    corsOptions,
+  };
+
+  const chapterEventsOptionsRoute = {
+    path: '/chapters/events',
+    corsOptions,
+  };
+
+  return [
+    createStdRouteFromApiRoute(getChapterRoute),
+    createStdRouteFromApiRoute(postChapterRoute),
+    createStdRouteFromApiRoute(postEventRoute),
+    createStdRouteFromOptionsRoute(chapterOptionsRoute),
+    createStdRouteFromOptionsRoute(chapterEventsOptionsRoute),
+  ];
 };
