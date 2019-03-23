@@ -1,51 +1,9 @@
 body {
   font-family: monospace;
-}
-
-.quill-meta-list {
-  display: flex;
-  flex-direction: row;
-  overflow-x: scroll;
-}
-
-.quill-list {
-  display: flex;
-  flex-direction: column;
-  list-style-type: none;
   margin: 0;
   padding: 0;
-  border: solid 1px black;
 }
 
-.quill-list-container {
-  display: flex;
-  flex-direction: column;
-  width: 400px;
-}
-.quill-list-title {
-  text-align: center;
-}
-.quill-list-subtitle {
-  text-align: center;
-  height: 10px;
-}
-
-.quill-list-entry {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border-bottom: solid 1px black;
-}
-.quill-list-entry:last-child {
-  border-bottom: none;
-}
-.quill-list-entry label {
-  padding: 15px;
-}
-
-/* User List */
-
-.quill-list-entry.quill-user-selected {
-  background-color: #bcdcef;
+button {
+  font-family: monospace;
 }
