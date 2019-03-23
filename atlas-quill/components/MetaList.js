@@ -15,11 +15,6 @@ css`
     max-width: 15em;
     min-width: 15em;
     flex: 1;
-    left: -1px;
-    margin-right: -1px;
-  }
-  .meta-list-element:last-child {
-    margin-right: 0px;
   }
 `;
 
