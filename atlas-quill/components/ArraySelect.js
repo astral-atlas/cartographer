@@ -121,7 +121,7 @@ export const ArraySelect = ({
             { 'array-select-list-element-button-selected': selectedItemIndex === index }
           )}
           type="button"
-          onClick=${() => onItemSelect(selectedItemIndex === index ? -1 : index)}
+          onClick=${() => onItemSelect(index)}
         >
           ${item}
         </button>
