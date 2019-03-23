@@ -2,12 +2,12 @@
 import type { StorageService } from '../storage';
 import { KeyNotFoundError, KeyAlreadyExistsError } from '../storage';
 
-class MapDoesNotContainKeyError<TKey> extends KeyNotFoundError {
+class MapDoesNotContainKeyError<TKey: string> extends KeyNotFoundError {
   constructor(key: TKey) {
     super('Memory Storage', `MapDoesNotContainKeyError: Internal map does not contain key: ${JSON.stringify(key)}`);
   }
 }
-class MapAlreadyHasKey<TKey> extends KeyAlreadyExistsError {
+class MapAlreadyHasKey<TKey: string> extends KeyAlreadyExistsError {
   constructor(key: TKey) {
     super('Memory Storage', `MapAlreadyHasKey: Internal map already has key: ${JSON.stringify(key)}`);
   }
@@ -18,7 +18,7 @@ export type MemoryStorageService<TKey, TValue> = StorageService<TKey, TValue> & 
   values: () => Array<TValue>,
 };
 
-export const buildMemoryStorageService = <TKey, TValue>(
+export const buildMemoryStorageService = <TKey: string, TValue>(
   store?: Map<TKey, TValue> = new Map()
 ): MemoryStorageService<TKey, TValue> => {
   const create = async (key, value) => {
