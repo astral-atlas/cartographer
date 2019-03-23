@@ -11,7 +11,7 @@ import { buildBasicUserService } from './services/user/basicUser';
 import { buildMemoryRoleService } from './services/role/basicRole';
 import { buildStdLog } from './services/log/stdLog';
 
-// import { buildChaptersRoutes } from './routes/chapters';
+import { createChapterRoutes } from './routes/chapters';
 import { createUserRoutes } from './routes/users';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
@@ -56,7 +56,7 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
   );
 
   return [
-    //...buildChaptersRoutes(chapterService, chapterEventService, userService, logService),
+    ...createChapterRoutes(chapterService, chapterEventService, userService, logService),
     ...createUserRoutes(userService),
   ];
 };
