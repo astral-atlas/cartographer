@@ -2,6 +2,8 @@
 import type { HTTPMethod } from './http';
 import type { ServerResponse } from 'http';
 
+import { toLowerCase } from './string';
+
 export const CORS_ORIGIN = 'Access-Control-Allow-Origin';
 export const CORS_METHODS = 'Access-Control-Allow-Methods';
 export const CORS_CREDENTIALS = 'Access-Control-Allow-Credentials';
@@ -27,12 +29,12 @@ export const writeCorsHeadersToHead = (
   }: CORSOptions
 ) => {
   res.setHeader(CORS_ORIGIN, origin);
-  res.setHeader(CORS_METHODS, allowedMethods.join(', '));
+  res.setHeader(CORS_METHODS, allowedMethods.map(toLowerCase).join(', '));
   if (allowedHeaders.length > 0) {
-    res.setHeader(CORS_HEADERS, allowedHeaders.join(', '));
+    res.setHeader(CORS_HEADERS, allowedHeaders.map(toLowerCase).join(', '));
   }
   if (exposedHeaders.length > 0) {
-    res.setHeader(CORE_EXP_HEADERS, exposedHeaders.join(', '));
+    res.setHeader(CORE_EXP_HEADERS, exposedHeaders.map(toLowerCase).join(', '));
   }
   if (useCredentials) {
     res.setHeader(CORS_CREDENTIALS, 'true');
