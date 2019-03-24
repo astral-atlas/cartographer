@@ -1,19 +1,44 @@
+const createEtagCache = () => {
+  const cache = new Map();
+
+  const getCachedResponse = (eTag) => {
+    if (eTag && cache.has(eTag)) {
+      return cache.get(eTag);
+    }
+    return null;
+  };
+
+  const updateCache = (eTag, response) => {
+    if (eTag) {
+      cache.set(eTag, response);
+    }
+  };
+
+  return {
+    getCachedResponse,
+    updateCache,
+  };
+};
+
+const cachedFetch = async (endpoint, options, cache) => {
+  const response = await fetch(endpoint, options);
+  const eTag = response.headers.get('ETag');
+  const data = cache.getCachedResponse(eTag) || await response.json();
+  cache.updateCache(eTag, data);
+  return data;
+}
+
 export const createAtlasClient = (endpoint) => {
-  let responseCache = new Map();
+  const usersCache = createEtagCache();
+  const chaptersCache = createEtagCache();
+  const chaptersByIdCache = createEtagCache();
 
   const getUsers = async () => {
     const getUsersEndpoint = new URL('/users', endpoint);
     const options = {
       cache: 'no-cache',
     };
-    const response = await fetch(getUsersEndpoint, options);
-    const eTag = response.headers.get('ETag');
-    if (eTag && responseCache.has(eTag)) {
-      return responseCache.get(eTag);
-    }
-    const users = await response.json();
-    responseCache.set(eTag, users);
-    return users;
+    return await cachedFetch(getUsersEndpoint, options, usersCache);
   }
   
   const getChapters = async (userId) => {
@@ -23,14 +48,22 @@ export const createAtlasClient = (endpoint) => {
         'user-id': userId,
       },
     };
-    const response = await fetch(getChaptersEndpoint, options);
-    const chapters = await response.json();
-  
-    return chapters;
+    return await cachedFetch(getChaptersEndpoint, options, chaptersCache);
+  }
+
+  const getChapterById = async (userId, chapterId) => {
+    const getChapterByIdEndpoint = new URL('/chapters', endpoint);
+    getChapterByIdEndpoint.searchParams.append('id', chapterId);
+    const options = {
+      headers: {
+        'user-id': userId,
+      },
+    };
+    return await cachedFetch(getChapterByIdEndpoint, options, chaptersByIdCache);
   }
 
   const putNewChapter = async (chapterName, userId) => {
-    const getChaptersEndpoint = new URL('/chapters', endpoint);
+    const chaptersEndpoint = new URL('/chapters', endpoint);
     const options = {
       method: 'POST',
       headers: {
@@ -38,12 +71,27 @@ export const createAtlasClient = (endpoint) => {
       },
       body: JSON.stringify({ chapterName }),
     };
-    await fetch(getChaptersEndpoint, options);
+    await fetch(chaptersEndpoint, options);
+  };
+
+  const putNewChapterEvent = async (chapterId, userId, event) => {
+    const chaptersEventEndpoint = new URL('/chapters/events', endpoint);
+    chaptersEventEndpoint.searchParams.append('chapterId', chapterId);
+    const options = {
+      method: 'POST',
+      headers: {
+        'user-id': userId,
+      },
+      body: JSON.stringify(event),
+    };
+    await fetch(chaptersEventEndpoint, options);
   };
 
   return {
     getUsers,
     getChapters,
+    getChapterById,
     putNewChapter,
+    putNewChapterEvent,
   };
 };
