@@ -2,10 +2,11 @@
 import type { HandlerOutput } from './routeHandler';
 import { StringStream, NullStream } from './stream';
 import { createETag } from './etag';
+import { TypedMap } from './typedMap';
 
 export const addHeaders = (out: HandlerOutput, newHeaders: Map<string, string>): HandlerOutput => ({
   ...out,
-  headers: new Map([...out.headers, ...newHeaders]),
+  headers: new TypedMap([...out.headers.entries(), ...newHeaders]),
 });
 
 export const ok = (response: mixed = null): HandlerOutput => {
@@ -15,7 +16,7 @@ export const ok = (response: mixed = null): HandlerOutput => {
   }
   const responseBody = new StringStream(stringifiedResponse);
   const status = 200;
-  const headers = new Map([
+  const headers = new TypedMap([
     ['Content-Type', 'application/json'],
     ['Content-Length', responseBody.getLength().toString(10)],
     ['ETag', createETag(stringifiedResponse)],
@@ -30,23 +31,23 @@ export const ok = (response: mixed = null): HandlerOutput => {
 export const notAuthorized = (): HandlerOutput => ({
   responseBody: new NullStream(),
   status: 401,
-  headers: new Map([['Content-Length', '0']]),
+  headers: new TypedMap([['Content-Length', '0']]),
 });
 
 export const notFound = (): HandlerOutput => ({
   responseBody: new NullStream(),
   status: 404,
-  headers: new Map([['Content-Length', '0']]),
+  headers: new TypedMap([['Content-Length', '0']]),
 });
 
 export const internalServerError = (): HandlerOutput => ({
   responseBody: new NullStream(),
   status: 500,
-  headers: new Map([['Content-Length', '0']]),
+  headers: new TypedMap([['Content-Length', '0']]),
 });
 
 export const badInput = (): HandlerOutput => ({
   responseBody: new NullStream(),
   status: 400,
-  headers: new Map([['Content-Length', '0']]),
+  headers: new TypedMap([['Content-Length', '0']]),
 });

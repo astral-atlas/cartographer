@@ -4,20 +4,21 @@ import type { IncomingMessage, ServerResponse } from 'http';
 
 import { reduceArray, toGroupsOf } from './reduce';
 import { toArity2 } from './tuple';
+import { TypedMap } from './typedMap';
 
 // routeHandler.js is a simple abstraction over
 // request/response that http.createServer() uses as its handler
 
 export type HandlerInput = {
   path: string,
-  queries: Map<string, string>,
-  headers: Map<string, string>,
+  queries: TypedMap<string, string>,
+  headers: TypedMap<string, string>,
   requestBody: Readable,
 };
 
 export type HandlerOutput = {
   status: number,
-  headers: Map<string, string>,
+  headers: TypedMap<string, string>,
   responseBody: Readable,
 };
 
@@ -28,7 +29,7 @@ export type RouteHandler = (inc: HandlerInput) => Promise<HandlerOutput>;
 export const createRouteHandlerInput = (inc: IncomingMessage): HandlerInput => {
   const { url, statusCode, rawHeaders } = inc;
   const [path = '', queryString = ''] = url.split('?');
-  const headers = new Map(
+  const headers = new TypedMap(
     // rawHeaders is an array of header name and values mixed together like:
     // ['header1Name', 'header1Value', 'header2Name', 'header2Value']
     // so we map them to:
@@ -36,7 +37,7 @@ export const createRouteHandlerInput = (inc: IncomingMessage): HandlerInput => {
     reduceArray(rawHeaders, toGroupsOf(2), [])
       .map(toArity2)
   );
-  const queries = new Map(
+  const queries = new TypedMap(
     queryString
       .split('&')
       .map(querySet => querySet.split('='))
@@ -54,7 +55,7 @@ export const createRouteHandlerInput = (inc: IncomingMessage): HandlerInput => {
 
 export const writeRouteServerResponseToHead = (res: ServerResponse, out: HandlerOutput) => {
   res.statusCode = out.status;
-  [...out.headers].forEach(([headerName, headerValue]) => {
+  [...out.headers.entries()].forEach(([headerName, headerValue]) => {
     res.setHeader(headerName, headerValue);
   });
 };
