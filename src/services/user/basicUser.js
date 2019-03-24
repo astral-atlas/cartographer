@@ -2,13 +2,32 @@
 import type { UserService } from '../user';
 import type { User } from '../../lib/user';
 
+class UserNotFoundError extends Error {
+  constructor(userId: string) {
+    super(`User with id:"${userId}" was not found`);
+  }
+}
+
 export const buildBasicUserService = (
   defaultUser: User,
+  users: Array<User>,
 ): UserService => {
-  const getUser = async () => {
-    return defaultUser;
+  const getUser = async (inc) => {
+    if (!inc.headers.has('user-id')) {
+      return defaultUser;
+    }
+    const userId = inc.headers.get('user-id');
+    const user = users.find(user => user.id === userId);
+    if (!user) {
+      throw new UserNotFoundError(userId);
+    }
+    return user;
+  };
+  const getAllUsers = async () => {
+    return users;
   };
   return {
     getUser,
+    getAllUsers,
   };
 };

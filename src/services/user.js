@@ -1,7 +1,8 @@
 // @flow
-import type { APIRouteIncomingMessage } from '../lib/apiRoute';
+import type { HandlerInput } from '../lib/routeHandler';
 import type { User } from '../lib/user';
 
 export type UserService = {
-  getUser: (inc: APIRouteIncomingMessage) => Promise<User>,
+  getUser: (inc: HandlerInput) => Promise<User>,
+  getAllUsers: () => Promise<Array<User>>,
 };

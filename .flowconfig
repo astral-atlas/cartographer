@@ -1,12 +1,13 @@
 [ignore]
 dist
-demo
+atlas-quill
 [include]
 
 [libs]
 
 [lints]
 all=error
+dynamic-export=off
 [options]
 emoji=true
 [strict]
