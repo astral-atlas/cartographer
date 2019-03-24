@@ -12,9 +12,9 @@ css`
     overflow: auto;
   }
   .meta-list-element {
-    max-width: 15em;
     min-width: 15em;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 `;
 

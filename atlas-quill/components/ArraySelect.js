@@ -21,6 +21,7 @@ css`
     margin: 0;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
   }
   .array-select-list-element {
     border: solid 1px black;
