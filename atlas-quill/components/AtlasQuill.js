@@ -1,4 +1,4 @@
-import { jsx, useState, useEffect } from '../lib/react.js';
+import { jsx, useState, useEffect, createContext } from '../lib/react.js';
 import { css } from '../lib/style.js';
 
 import { MetaList } from './MetaList.js';
@@ -48,7 +48,10 @@ const useChapterByIdStream = (streamClient, user, selectedChapter) => {
   return (selectedChapter && user && chapter) ? chapter : DEFAULT_EMPTY_CHAPTER;
 };
 
-export const AtlasQuill = ({ streamClient, client }) => {
+export const ScribeClientContext = createContext(null);
+export const ScribeStreamClientContext = createContext(null);
+
+export const AtlasQuill = ({ client, streamClient }) => {
   const users = useUserStream(streamClient);
   const [selectedUserId, selectUserId] = useState(null);
   const [selectedChapterId, selectChapterId] = useState(null);
