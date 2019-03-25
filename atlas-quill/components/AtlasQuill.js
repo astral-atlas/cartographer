@@ -1,6 +1,8 @@
 import { jsx, useState, useEffect, createContext } from '../lib/react.js';
 import { css } from '../lib/style.js';
 
+import { Row } from './Column.js';
+import { UsersColumn } from './UsersColumn.js';
 import { MetaList } from './MetaList.js';
 import { ArraySelect, ArrayHeader, ArrayInsert } from './ArraySelect.js';
 
@@ -8,9 +10,6 @@ import { Description } from './UserDescription.js';
 
 css`
   .atlas-quill {
-    width: 100%;
-    height: 100%;
-    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -52,6 +51,21 @@ export const ScribeClientContext = createContext(null);
 export const ScribeStreamClientContext = createContext(null);
 
 export const AtlasQuill = ({ client, streamClient }) => {
+  return jsx`
+    <${ScribeClientContext.Provider} value=${client}>
+      <${ScribeStreamClientContext.Provider} value=${streamClient}>
+        <main className="atlas-quill">
+          <h1 className="atlas-quill-heading">Atlas Quill<//>
+          <${Row}>
+            <${UsersColumn}/>
+          <//>
+        <//>
+      <//>
+    <//>
+  `;
+};
+
+export const AtlasQuillOld = ({ streamClient, client }) => {
   const users = useUserStream(streamClient);
   const [selectedUserId, selectUserId] = useState(null);
   const [selectedChapterId, selectChapterId] = useState(null);
