@@ -29,16 +29,14 @@ const cachedFetch = async (endpoint, options, cache) => {
 }
 
 export const createAtlasClient = (endpoint) => {
-  const usersCache = createEtagCache();
-  const chaptersCache = createEtagCache();
-  const chaptersByIdCache = createEtagCache();
+  const responseCache = createEtagCache();
 
   const getUsers = async () => {
     const getUsersEndpoint = new URL('/users', endpoint);
     const options = {
       cache: 'no-cache',
     };
-    return await cachedFetch(getUsersEndpoint, options, usersCache);
+    return await cachedFetch(getUsersEndpoint, options, responseCache);
   }
   
   const getChapters = async (userId) => {
@@ -48,7 +46,7 @@ export const createAtlasClient = (endpoint) => {
         'user-id': userId,
       },
     };
-    return await cachedFetch(getChaptersEndpoint, options, chaptersCache);
+    return await cachedFetch(getChaptersEndpoint, options, responseCache);
   }
 
   const getChapterById = async (userId, chapterId) => {
@@ -59,8 +57,19 @@ export const createAtlasClient = (endpoint) => {
         'user-id': userId,
       },
     };
-    return await cachedFetch(getChapterByIdEndpoint, options, chaptersByIdCache);
+    return await cachedFetch(getChapterByIdEndpoint, options, responseCache);
   }
+
+  const getChapterEvents = async (userId, chapterId) => {
+    const getChapterByIdEndpoint = new URL('/chapters/events', endpoint);
+    getChapterByIdEndpoint.searchParams.append('chapterId', chapterId);
+    const options = {
+      headers: {
+        'user-id': userId,
+      },
+    };
+    return await cachedFetch(getChapterByIdEndpoint, options, responseCache);
+  };
 
   const putNewChapter = async (chapterName, userId) => {
     const chaptersEndpoint = new URL('/chapters', endpoint);
@@ -91,6 +100,7 @@ export const createAtlasClient = (endpoint) => {
     getUsers,
     getChapters,
     getChapterById,
+    getChapterEvents,
     putNewChapter,
     putNewChapterEvent,
   };
