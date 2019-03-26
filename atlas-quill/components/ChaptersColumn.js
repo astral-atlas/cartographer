@@ -5,6 +5,7 @@ import { Detail } from './Detail.js';
 import { List } from './List.js';
 import { Section } from './Section.js';
 import { Form, Submit, TextInput } from './Form.js';
+import { EventsColumn } from './EventsColumn.js';
 import { ScribeStreamClientContext, ScribeClientContext } from './AtlasQuill.js';
 
 const useChapterStream = (user) => {
@@ -57,7 +58,8 @@ export const ChaptersColumn = ({ user }) => {
           <${Detail} title="Read Permission" description=${selectedChapter.readPermission} />
           <${Detail} title="Master Permission" description=${selectedChapter.masterPermission} />
         <//>
-      <//>`
-    }
+      <//>
+      <${EventsColumn} key="3" chapter=${selectedChapter} user=${user} />
+    `}
   `;
 };
