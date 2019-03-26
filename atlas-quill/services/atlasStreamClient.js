@@ -76,6 +76,7 @@ export const createAtlasStreamClient = (atlasClient) => {
   const usersEmitter = createEventEmitter();
   const chaptersEmitters = new Map();
   const chapterByIdEmitters = new Map();
+  const chapterEventsEmitters = new Map();
   const updateEndpointsInterval = pauseableInterval(onCheckUpdate, 1000);
 
   function onListenerAdd() {
@@ -88,6 +89,7 @@ export const createAtlasStreamClient = (atlasClient) => {
       usersEmitter,
       ...chaptersEmitters.values(),
       ...chapterByIdEmitters.values(),
+      ...chapterEventsEmitters.values(),
     ].map(emitter => emitter.getListenerCount())
       .reduce(sum, 0);
 
@@ -106,6 +108,14 @@ export const createAtlasStreamClient = (atlasClient) => {
           .getChapters(userId)
           .catch(() => [])
           .then(chapters => emitter.emit(chapters));
+      }
+    }
+    for (let [[userId, chapterId], emitter] of chapterEventsEmitters) {
+      if (emitter.getListenerCount() > 0) {
+        atlasClient
+          .getChapterEvents(userId, chapterId)
+          .catch(() => null)
+          .then(chapter => emitter.emit(chapter));
       }
     }
     for (let [[userId, chapterId], emitter] of chapterByIdEmitters) {
@@ -155,9 +165,26 @@ export const createAtlasStreamClient = (atlasClient) => {
     };
   };
 
+  const addChapterEventsListener = (listener, userId, chapterId) => {
+    const key = [userId, chapterId];
+    const chapterEventsEmitterKey = [...chapterEventsEmitters.keys()]
+      .find(currentKey => areTuplesEqual(currentKey, key)) || key;
+
+    const emitter = findOrInsertEmitter(chapterEventsEmitterKey, chapterEventsEmitters);
+
+    emitter.addListener(listener);
+    onListenerAdd();
+
+    return () => {
+      emitter.removeListener(listener);
+      onListenerRemove();
+    };
+  };
+
   return {
     addUsersListener,
     addChaptersListener,
     addChapterByIdListener,
+    addChapterEventsListener,
   };
 };
