@@ -14,17 +14,13 @@ import { POSTInputError, URLQueryError } from './routeErrors';
 import { InsufficientPermissionsError, ChapterNotFoundError } from '../services/atlas/chapters';
 import { toChapterId } from '../models/atlas/chapter';
 import { readStream } from '../lib/stream';
-import { toString, toObject, fromJsonString, DeserializationError } from '../lib/serialization';
+import { toString, toObject, fromJsonString } from '../lib/serialization';
+
+import { createChapterEventRoute } from './events';
 
 class ChapterPostRequestDecodeError extends POSTInputError {
   constructor(message: string) {
     super(`There was an error decoding the POST body\n${message}`);
-  }
-}
-
-class ChapterEventMissingQueryParameter extends URLQueryError {
-  constructor(parameterName: string) {
-    super(`Request was missing query parameter "${parameterName}" in URL`);
   }
 }
 
@@ -40,25 +36,6 @@ const toPostChapter = (requestBody: string) => {
     return toObject(fromJsonString(requestBody), object => ({
       chapterName: toString(object.chapterName),
     }));
-  } catch (error) {
-    throw new ChapterPostRequestDecodeError(error.message);
-  }
-};
-
-const toPostChapterEvent = (requestBody: string) => {
-  try {
-    return toObject<{ type: 'narrate', narration: string }>(fromJsonString(requestBody), object => {
-      const type = toString(object.type);
-      switch (type) {
-      case 'narrate':
-        return {
-          type,
-          narration: toString(object.narration),
-        };
-      default:
-        throw new DeserializationError('Chapter Event Type', type, type);
-      }
-    });
   } catch (error) {
     throw new ChapterPostRequestDecodeError(error.message);
   }
@@ -131,37 +108,10 @@ export const createChapterRoutes = (
       return errorHandler(error);
     }
   };
+
   const postChapterRoute = {
     path: '/chapters',
     handler: postChapterHandler,
-    method: 'POST',
-    corsOptions,
-  };
-
-  const postEventHandler = async (inc) => {
-    try {
-      if (!inc.queries.has('chapterId')) {
-        throw new ChapterEventMissingQueryParameter('chapterId');
-      }
-      const chapterId = toChapterId(inc.queries.get('chapterId'));
-      const [user, requestBody] = await Promise.all([
-        userService.getUser(inc),
-        readStream(inc.requestBody),
-      ]);
-      const chapterEvent = toPostChapterEvent(requestBody);
-      switch (chapterEvent.type) {
-      case 'narrate':
-        return ok(await chapterEventService.addNarrateEvent(user.id, chapterId, chapterEvent.narration));
-      default:
-        throw new Error('Unknown Event Type');
-      }
-    } catch (error) {
-      return errorHandler(error);
-    }
-  };
-  const postEventRoute = {
-    path: '/chapters/events',
-    handler: postEventHandler,
     method: 'POST',
     corsOptions,
   };
@@ -179,8 +129,8 @@ export const createChapterRoutes = (
   return [
     createStdRouteFromApiRoute(getChapterRoute),
     createStdRouteFromApiRoute(postChapterRoute),
-    createStdRouteFromApiRoute(postEventRoute),
     createStdRouteFromOptionsRoute(chapterOptionsRoute),
     createStdRouteFromOptionsRoute(chapterEventsOptionsRoute),
+    ...createChapterEventRoute(chapterEventService, userService),
   ];
 };
