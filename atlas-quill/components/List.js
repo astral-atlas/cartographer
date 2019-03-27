@@ -15,21 +15,18 @@ css`
   .quill-list-element {
     border: solid 1px black;
     border-bottom: none;
-    height: 3em;
   }
   .quill-list-element:last-child {
     border-bottom: solid 1px black;
   }
   .quill-list-element-button {
-    padding: 1em;
-    width: 100%;
-    height: 100%;
+    padding: 0.5em;
     background: 0;
     border: 0;
+    font-size: initial;
   }
   .quill-list-element-button-selected {
     background: #fdf1cb;
-    font-weight: bold;
     color: black;
   }
   .quill-list-element-button:focus,
@@ -40,24 +37,28 @@ css`
 `;
 
 export const List = ({
-  items,
-  selectedIndex = -1,
-  onSelect = noop,
+  children
 }) => jsx`
   <ul className="quill-list">
-    ${items.map((item, index) => jsx`
-      <li key=${index} className="quill-list-element">
-        <button
-          className=${cx(
-            'quill-list-element-button',
-            { 'quill-list-element-button-selected': selectedIndex === index }
-          )}
-          type="button"
-          onClick=${() => onSelect(index)}
-        >
-          ${item}
-        </button>
-      </li>
-    `)}
+    ${children}
   </ul>
+`;
+
+export const ListButton = ({
+  children,
+  onSelect = noop,
+  selected = false,
+}) => jsx`
+  <li className="quill-list-element">
+    <button
+    className=${cx(
+      'quill-list-element-button',
+      { 'quill-list-element-button-selected': selected }
+    )}
+    type="button"
+    onClick=${onSelect}
+    >
+    ${children}
+    </button>
+  </li>
 `;
