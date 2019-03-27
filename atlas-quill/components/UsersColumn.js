@@ -15,10 +15,17 @@ const useUserStream = () => {
   return users || [];
 };
 
+const userUserRoles = (user) => {
+  const client = useContext(ScribeStreamClientContext)
+  const [roles, setRoles] = useState(null);
+  useEffect(() => user && client.addUsersRolesListener(setRoles, user.id), [client, user]);
+  return roles || [];
+};
+
 export const UsersColumn = () => {
   const users = useUserStream();
-  const [selectedUser, selectUser] = useState(null);
-  const selectedUserIndex = selectedUser ? users.findIndex(user => user.id === selectedUser.id) : -1;
+  const [selectedUser, selectUser] = useState();
+  const roles = userUserRoles(selectedUser);
 
   return jsx`
     <${Column} key="1">
@@ -36,12 +43,20 @@ export const UsersColumn = () => {
         `)}
       <//>
     <//>
-    ${selectedUserIndex !== -1 && selectedUser && jsx`
+    ${selectedUser && jsx`
       <${Column} key="2">
         <${Header} headerText="User" />
         <${Section}>
           <${Detail} title="Name" description=${selectedUser.name} />
           <${Detail} title="ID" description=${selectedUser.id} />
+        <//>
+        <${List}>
+        <${Section}>
+          <${Header} headerText="Roles" />
+          ${roles.map((role) => jsx`
+              <${Detail} key=${role.id} title="RoleID" description=${role.id} />
+          `)}
+        <//>
         <//>
       <//>
       <${ChaptersColumn} key="3" user=${selectedUser} />
