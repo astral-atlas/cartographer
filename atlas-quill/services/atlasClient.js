@@ -38,6 +38,14 @@ export const createAtlasClient = (endpoint) => {
     };
     return await cachedFetch(getUsersEndpoint, options, responseCache);
   }
+  const getUserRoles = async (userId) => {
+    const getRolesEndpoint = new URL('/users/roles', endpoint);
+    getRolesEndpoint.searchParams.append('userId', userId);
+    const options = {
+      cache: 'no-cache',
+    };
+    return await cachedFetch(getRolesEndpoint, options, responseCache);
+  }
   
   const getChapters = async (userId) => {
     const getChaptersEndpoint = new URL('/chapters', endpoint);
@@ -103,5 +111,6 @@ export const createAtlasClient = (endpoint) => {
     getChapterEvents,
     putNewChapter,
     putNewChapterEvent,
+    getUserRoles,
   };
 };
