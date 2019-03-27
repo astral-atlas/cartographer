@@ -1,7 +1,8 @@
 import { jsx, useState, useEffect, useContext } from '../lib/react.js';
 import { Column } from './Column.js';
 import { Header } from './Header.js';
-import { List } from './List.js';
+import { Detail } from './Detail.js';
+import { List, ListButton } from './List.js';
 import { Form, Submit, TextInput } from './Form.js';
 import { ScribeStreamClientContext, ScribeClientContext } from './AtlasQuill.js';
 
@@ -33,16 +34,26 @@ const EventForm = ({ user, chapter }) => {
 
 export const EventsColumn = ({ user, chapter }) => {
   const events = userChapterEventsStream(user, chapter);
+  const [selectedEvent, selectEvent] = useState();
 
   return jsx`
     <${Column} key="1">
       <${Header} headerText="Chapter Events" />
       <${EventForm} user=${user} chapter=${chapter} />
-      <${List}
-        items=${events.map(event => event.type)}
-        selectedIndex=${-1}
-        onSelect=${() => {}}
-      />
+      <${List}>
+        ${events.map((event) => jsx`
+          <${ListButton}
+            key=${chapter.id}
+            onSelect=${() => selectEvent(events)}
+            selected=${selectedEvent && (event.id === selectedEvent.id)}
+          >
+            <${Detail} title="ID" description=${event.id} />
+            <${Detail} title="ChapterID" description=${event.chapterId} />
+            <${Detail} title="Type" description=${event.type} />
+            <${Detail} title="Narration" description=${event.narration} />
+          <//>
+        `)}
+      <//>
     <//>
   `;
 };

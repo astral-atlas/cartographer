@@ -2,7 +2,7 @@ import { jsx, useState, useEffect, useContext } from '../lib/react.js';
 import { Column } from './Column.js';
 import { Header } from './Header.js';
 import { Detail } from './Detail.js';
-import { List } from './List.js';
+import { List, ListButton } from './List.js';
 import { Section } from './Section.js';
 import { Form, Submit, TextInput } from './Form.js';
 import { EventsColumn } from './EventsColumn.js';
@@ -43,11 +43,18 @@ export const ChaptersColumn = ({ user }) => {
     <${Column} key="1">
       <${Header} headerText="Chapters by Name" />
       <${ChapterForm} user=${user} />
-      <${List}
-        items=${chapters.map(chapter => chapter.name)}
-        selectedIndex=${selectedChapterIndex}
-        onSelect=${newIndex => selectChapter(chapters[newIndex])}
-      />
+      <${List}>
+        ${chapters.map((chapter) => jsx`
+          <${ListButton}
+            key=${chapter.id}
+            onSelect=${() => selectChapter(chapter)}
+            selected=${selectedChapter && (chapter.id === selectedChapter.id)}
+          >
+            <${Detail} title="Name" description=${chapter.name} />
+            <${Detail} title="ID" description=${chapter.id} />
+          <//>
+        `)}
+      <//>
     <//>
     ${selectedChapterIndex !== -1 && selectedChapter && jsx`
       <${Column} key="2">

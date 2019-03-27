@@ -3,7 +3,7 @@ import { jsx, useState, useEffect, useContext } from '../lib/react.js';
 import { Column } from './Column.js';
 import { Header } from './Header.js';
 import { Detail } from './Detail.js';
-import { List } from './List.js';
+import { List, ListButton } from './List.js';
 import { Section } from './Section.js';
 import { ScribeStreamClientContext } from './AtlasQuill.js';
 import { ChaptersColumn } from './ChaptersColumn.js';
@@ -23,11 +23,18 @@ export const UsersColumn = () => {
   return jsx`
     <${Column} key="1">
       <${Header} headerText="Users by Name" />
-      <${List}
-        items=${users.map(user => user.name)}
-        selectedIndex=${selectedUserIndex}
-        onSelect=${newIndex => selectUser(users[newIndex])}
-      />
+      <${List}>
+        ${users.map((user) => jsx`
+          <${ListButton}
+            key=${user.id}
+            onSelect=${() => selectUser(user)}
+            selected=${selectedUser && (user.id === selectedUser.id)}
+          >
+            <${Detail} title="Name" description=${user.name} />
+            <${Detail} title="ID" description=${user.id} />
+          <//>
+        `)}
+      <//>
     <//>
     ${selectedUserIndex !== -1 && selectedUser && jsx`
       <${Column} key="2">
