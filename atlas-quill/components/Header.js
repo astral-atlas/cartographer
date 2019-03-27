@@ -18,8 +18,8 @@ export const Header = ({
   headerText = '',
 }) => jsx`
   <h3 className=${cx(
-    'array-select-heading',
-    { 'array-select-heading-selected': selected }
+    'quill-header',
+    { 'quill-header-selected': selected }
   )}>
     ${headerText}
   <//>
