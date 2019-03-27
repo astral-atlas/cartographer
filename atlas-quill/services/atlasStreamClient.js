@@ -157,6 +157,9 @@ export const createAtlasStreamClient = (atlasClient) => {
   const events = createEmitterMap(([userId, chapterId]) =>
     atlasClient.getChapterEvents(userId, chapterId)
   );
+  const roles = createEmitterMap(([userId]) =>
+    atlasClient.getUserRoles(userId)
+  );
   
   const onCheckUpdate = () => {
     if (usersEmitter.getListenerCount() > 0) {
@@ -165,6 +168,7 @@ export const createAtlasStreamClient = (atlasClient) => {
     chapters.update();
     chapterById.update();
     events.update();
+    roles.update();
   }
 
   const updateEndpointsInterval = createPauseableInterval(onCheckUpdate, 1000);
@@ -193,6 +197,15 @@ export const createAtlasStreamClient = (atlasClient) => {
     onListenerAdd();
     return () => {
       usersEmitter.removeListener(listener);
+      onListenerRemove();
+    };
+  };
+
+  const addUsersRolesListener = (listener, userId) => {
+    const removeListener = roles.addListener([userId], listener);
+    onListenerAdd();
+    return () => {
+      removeListener();
       onListenerRemove();
     };
   };
@@ -229,6 +242,7 @@ export const createAtlasStreamClient = (atlasClient) => {
 
   return {
     addUsersListener,
+    addUsersRolesListener,
     addChaptersListener,
     addChapterByIdListener,
     addChapterEventsListener,

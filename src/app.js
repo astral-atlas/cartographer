@@ -57,6 +57,6 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
 
   return [
     ...createChapterRoutes(chapterService, chapterEventService, userService, logService),
-    ...createUserRoutes(userService),
+    ...createUserRoutes(userService, roleService),
   ];
 };
