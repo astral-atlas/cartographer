@@ -1,5 +1,8 @@
 # Atlas-Scribe
 
+![alt text](https://codebuild.ap-southeast-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidStnY2daU1FFdFRDbHVFOHV2Q1k5OGpIdEJNeEFHZkt2aXBIKzFCcmlUaEZSOFVKZjdzOWxUanN4ZVE5cnJqYzZtNDVoelo5eEdKblJESWRtK05pbWRBPSIsIml2UGFyYW1ldGVyU3BlYyI6IjVyczhtS2R1VXlUNlRjc08iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master "Master Build State")
+
+
 ## Contributing
 Requires at least Node 10.
 
