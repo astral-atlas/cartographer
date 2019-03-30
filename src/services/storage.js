@@ -13,7 +13,7 @@ export class KeyAlreadyExistsError extends InternalServiceError {
   }
 }
 
-export type StorageService<TKey: string, TValue> = {
+export type StorageService<TKey, TValue> = {
   create: (key: TKey, value: TValue) => Promise<void>,
   read: (key: TKey) => Promise<TValue>,
   update: (key: TKey, updater: (value: TValue) => TValue) => Promise<void>,
