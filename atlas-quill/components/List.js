@@ -24,6 +24,7 @@ css`
     background: 0;
     border: 0;
     font-size: initial;
+    width: 100%;
   }
   .quill-list-element-button-selected {
     background: #fdf1cb;
