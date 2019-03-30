@@ -11,7 +11,7 @@ const userChapterEventsStream = (user, chapter) => {
   const [events, setEvents] = useState(null);
   useEffect(() => (
     client && user && chapter && client.addChapterEventsListener(setEvents, user.id, chapter.id)
-  ), [client, user]);
+  ), [client, chapter, user]);
   return events || [];
 };
 
@@ -43,7 +43,7 @@ export const EventsColumn = ({ user, chapter }) => {
       <${List}>
         ${events.map((event) => jsx`
           <${ListButton}
-            key=${chapter.id}
+            key=${event.id}
             onSelect=${() => selectEvent(events)}
             selected=${selectedEvent && (event.id === selectedEvent.id)}
           >
