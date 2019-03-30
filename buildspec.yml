@@ -7,7 +7,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - make
+      - make ci
   post_build:
     commands:
       - echo Build completed on `date`
@@ -16,4 +16,4 @@ artifacts:
     - dist/*
 cache:
   paths:
-    - "$HOME/.npm"
+    - ~/.npm
