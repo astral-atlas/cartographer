@@ -3,14 +3,10 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Nothing to do in the install phase...
-  pre_build:
-    commands:
-      - echo Nothing to do in the pre_build phase...
+      - npm ci
   build:
     commands:
       - echo Build started on `date`
-      - npm ci
       - make
   post_build:
     commands:
