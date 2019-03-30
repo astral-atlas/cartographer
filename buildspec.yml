@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm ci
+  build:
+    commands:
+      - echo Build started on `date`
+      - make ci
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - dist/**/*.js
+cache:
+  paths:
+    - ~/.npm
