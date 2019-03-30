@@ -1,35 +1,26 @@
 // @flow
 import type { RoleService } from '../role';
-import type { MemoryStorageService } from '../storage/memoryStorage';
+import type { StorageService } from '../storage';
 import type { RoleID, Role } from '../../lib/role';
 import type { UserID } from '../../lib/user';
 import type { PermissionID } from '../../lib/permission';
-import { buildMemoryStorageService } from '../storage/memoryStorage';
 import { generateNewRole } from '../../lib/role';
 
-type RoleMemoryStructure = {
+export type RoleMemoryStructure = {
   role: Role,
   permissionIds: Array<PermissionID>,
   userIds: Array<UserID>,
 };
 
-export const buildMemoryRoleService = (
-  roleStorageService: MemoryStorageService<RoleID, RoleMemoryStructure> = buildMemoryStorageService(),
+export const createRoleService = (
+  roles: StorageService<RoleID, RoleMemoryStructure>,
+  getRolesForUser: (userId: UserID) => Promise<Array<RoleID>>,
+  getRolesForPermission: (permissionId: PermissionID) => Promise<Array<RoleID>>,
 ): RoleService => {
   const getRole = async (roleId) => {
-    return (await roleStorageService.read(roleId)).role;
+    return (await roles.read(roleId)).role;
   };
 
-  const getRolesForUser = async (userId) => (
-    [...roleStorageService.entries()]
-      .filter(([,role]) => role.userIds.includes(userId))
-      .map(([roleId]) => roleId)
-  );
-  const getRolesForPermission = async (permissionId) => (
-    [...roleStorageService.entries()]
-      .filter(([,role]) => role.permissionIds.includes(permissionId))
-      .map(([roleId]) => roleId)
-  );
   const getIntersectingRolesForUserAndPermission = async (userId, permissionId) => {
     const [permissionRoles, userRoles] = await Promise.all([
       getRolesForPermission(permissionId),
@@ -40,14 +31,14 @@ export const buildMemoryRoleService = (
   };
 
   const addUserToRole = async (userId, roleId) => {
-    await roleStorageService.update(roleId, role => ({
+    await roles.update(roleId, role => ({
       ...role,
       userIds: [...role.userIds, userId],
     }));
   };
 
   const addPermissionToRole = async (permissionId, roleId) => {
-    await roleStorageService.update(roleId, role => ({
+    await roles.update(roleId, role => ({
       ...role,
       permissionIds: [...role.permissionIds, permissionId],
     }));
@@ -55,7 +46,7 @@ export const buildMemoryRoleService = (
 
   const addRole = async () => {
     const newRole = generateNewRole();
-    await roleStorageService.create(newRole.id, { role: newRole, permissionIds: [], userIds: [] });
+    await roles.create(newRole.id, { role: newRole, permissionIds: [], userIds: [] });
     return newRole;
   };
 

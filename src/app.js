@@ -1,44 +1,73 @@
 // @flow
 import type { Route } from './lib/http';
-import { generateUser } from './lib/user';
+import type { ChapterEvent } from './models/atlas/chapter/chapterEvent';
+import type { RoleMemoryStructure } from './services/role/basicRole';
+
+import { resolve } from 'path';
+
+import { generateUser, toUser } from './lib/user';
 import { buildMemoryIndexer } from './lib/indexer';
 
-import { buildMemoryStorageService } from './services/storage/memoryStorage';
+import { createFileStorage } from './services/storage/fileStorage';
 import { buildPermissionService } from './services/permission/basicPermission';
 import { buildChapterService } from './services/atlas/chapters';
 import { buildChapterEventService } from './services/atlas/chapterEvents';
 import { buildBasicUserService } from './services/user/basicUser';
-import { buildMemoryRoleService } from './services/role/basicRole';
+import { createRoleService } from './services/role/basicRole';
 import { buildStdLog } from './services/log/stdLog';
 
 import { createChapterRoutes } from './routes/chapters';
 import { createUserRoutes } from './routes/users';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
+  const chapterStorageFilename = resolve(__dirname, '../chapter.json');
+  const eventStorageFilename = resolve(__dirname, '../events.json');
+  const permissionStorageFilename = resolve(__dirname, '../permission.json');
+  const roleStorageFilename = resolve(__dirname, '../roles.json');
+
+  const chapterStorage = await createFileStorage(chapterStorageFilename);
+  const eventStorage = await createFileStorage(eventStorageFilename);
+  const permissionStorage = await createFileStorage(permissionStorageFilename);
+  const roleStorage = await createFileStorage(roleStorageFilename);
+
+  // Log Service
   const logService = buildStdLog();
-  const basicUser = generateUser('Luke');
 
-  const chapterStorage = buildMemoryStorageService();
-  const permissionService = buildPermissionService(buildMemoryStorageService());
-  const roleService = buildMemoryRoleService(buildMemoryStorageService());
-  const userService = buildBasicUserService(basicUser, [basicUser, generateUser('Dave'), generateUser('Morris')]);
+  // User Service
+  const basicUser = toUser({ name: 'Luke', id: '123' });
+  const users = [basicUser, generateUser('Dave'), generateUser('Morris')];
+  const userService = buildBasicUserService(basicUser, users);
 
-  const addChapterPermission = await permissionService.addNewPermission();
+  // Permission Service
+  const permissionService = buildPermissionService(permissionStorage);
+
+  // Role Service
+  const getRolesForUser = async (userId) => [...roleStorage.entries()]
+    .map<RoleMemoryStructure>(([, role]) => role)
+    .filter(role => role.userIds.includes(userId))
+    .map(role => role.role.id);
+
+  const getRolesForPermission = async (permissionId) => [...roleStorage.entries()]
+    .map<RoleMemoryStructure>(([, role]) => role)
+    .filter(role => role.permissionIds.includes(permissionId))
+    .map(role => role.role.id);
+
+  const roleService = createRoleService(
+    roleStorage,
+    getRolesForUser,
+    getRolesForPermission,
+  );
+
+  // Create admin role, and assign the basic user to it
   const adminRole = await roleService.addRole();
+  const addChapterPermission = await permissionService.addNewPermission();
   await roleService.addPermissionToRole(addChapterPermission.id, adminRole.id);
   await roleService.addUserToRole(basicUser.id, adminRole.id);
 
   const getChaptersByReadPermissions = buildMemoryIndexer(
-    chapterStorage.values,
+    () => ([...chapterStorage.entries()].map(([,value]) => value)),
     chapter => chapter.readPermission,
     async (permissionId, userId) => (await roleService.getIntersectingRolesForUserAndPermission(userId, permissionId)).length > 0,
-  );
-  
-  const chapterEventStorage = buildMemoryStorageService();
-
-  const narrateEventByChapterIdIndex = buildMemoryIndexer(
-    chapterEventStorage.values,
-    chapterEvent => chapterEvent.chapterId,
   );
 
   const chapterService = buildChapterService(
@@ -48,10 +77,15 @@ export const buildAppRoutes = async (): Promise<Array<Route>> => {
     addChapterPermission.id,
     getChaptersByReadPermissions,
   );
+
+  const narrateEventByChapterIdIndex = async (chapterId) => [...eventStorage.entries()]
+    .map<ChapterEvent>(([, event]) => event)
+    .filter(event => event.chapterId === chapterId);
+
   const chapterEventService = buildChapterEventService(
     chapterStorage,
     roleService,
-    chapterEventStorage,
+    eventStorage,
     narrateEventByChapterIdIndex
   );
 
