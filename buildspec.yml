@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    "npm_config_cache": "/tmp/npm-cache"
+
 phases:
   install:
     commands:
@@ -17,3 +21,4 @@ artifacts:
 cache:
   paths:
     - ~/.npm
+    - "/tmp/npm-cache"
