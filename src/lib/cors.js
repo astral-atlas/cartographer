@@ -28,7 +28,9 @@ export const writeCorsHeadersToHead = (
     useCredentials = false,
   }: CORSOptions
 ) => {
-  res.setHeader(CORS_ORIGIN, origin);
+  if (origin !== '') {
+    res.setHeader(CORS_ORIGIN, origin);
+  }
   res.setHeader(CORS_METHODS, allowedMethods.map(toLowerCase).join(', '));
   if (allowedHeaders.length > 0) {
     res.setHeader(CORS_HEADERS, allowedHeaders.map(toLowerCase).join(', '));
