@@ -1,7 +1,10 @@
-FROM node:10 as builder
+FROM node:10
 
 WORKDIR /app
 
-COPY . /app
+COPY dist /app/dist
+COPY node_modules /app/node_modules
 
-RUN npm ci
+EXPOSE 80
+
+RUN node dist
