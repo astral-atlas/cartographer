@@ -3,12 +3,10 @@ import type { Route } from './lib/http';
 import type { ChapterEvent } from './models/atlas/chapter/chapterEvent';
 import type { RoleMemoryStructure } from './services/role/basicRole';
 
-import { resolve } from 'path';
-
 import { generateUser, toUser } from './lib/user';
 import { buildMemoryIndexer } from './lib/indexer';
 
-import { createFileStorage } from './services/storage/fileStorage';
+import { createS3Storage } from './services/storage/s3Storage';
 import { buildPermissionService } from './services/permission/basicPermission';
 import { buildChapterService } from './services/atlas/chapters';
 import { buildChapterEventService } from './services/atlas/chapterEvents';
@@ -20,15 +18,10 @@ import { createChapterRoutes } from './routes/chapters';
 import { createUserRoutes } from './routes/users';
 
 export const buildAppRoutes = async (): Promise<Array<Route>> => {
-  const chapterStorageFilename = resolve(__dirname, '../chapter.json');
-  const eventStorageFilename = resolve(__dirname, '../events.json');
-  const permissionStorageFilename = resolve(__dirname, '../permission.json');
-  const roleStorageFilename = resolve(__dirname, '../roles.json');
-
-  const chapterStorage = await createFileStorage(chapterStorageFilename);
-  const eventStorage = await createFileStorage(eventStorageFilename);
-  const permissionStorage = await createFileStorage(permissionStorageFilename);
-  const roleStorage = await createFileStorage(roleStorageFilename);
+  const chapterStorage =      await createS3Storage('atlas-scribe-test-data', 'chapters.json');
+  const eventStorage =        await createS3Storage('atlas-scribe-test-data', 'events.json');
+  const permissionStorage =   await createS3Storage('atlas-scribe-test-data', 'permissions.json');
+  const roleStorage =         await createS3Storage('atlas-scribe-test-data', 'roles.json');
 
   // Log Service
   const logService = buildStdLog();
