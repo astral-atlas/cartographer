@@ -1,11 +1,14 @@
 // @flow
 import { createServer } from 'http';
+import { getConfig } from './config';
 import { buildListener } from './listener';
 
-const main = async () => {
+const main = async (environment: string) => {
+  const config = getConfig(environment);
   const listener = await buildListener();
   const server = createServer(listener);
-  server.listen(80);
+  server.listen(config.port);
 };
 
-main();
+// flowlint-next-line sketchy-null-string:off
+main(process.env.NODE_ENV || 'local');
