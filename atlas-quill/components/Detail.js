@@ -10,6 +10,7 @@ css`
   .quill-detail-description {
     text-align: center;
     margin: 0.2em;
+    max-width: 30em;
   }
 `;
 
