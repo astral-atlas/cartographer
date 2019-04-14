@@ -13,9 +13,10 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - dist/**/*.js
+    - dist/*
     - package.json
     - package-lock.json
+    - node_modules
     - Dockerfile
 cache:
   paths:
