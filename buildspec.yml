@@ -16,7 +16,6 @@ artifacts:
     - dist/*
     - package.json
     - package-lock.json
-    - node_modules
     - Dockerfile
 cache:
   paths:

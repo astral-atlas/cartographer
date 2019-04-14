@@ -3,8 +3,11 @@ FROM node:10
 WORKDIR /app
 
 COPY dist /app/dist
-COPY node_modules /app/node_modules
+COPY package-lock.json /app/package-lock.json
+COPY package.json /app/package.json
 
 EXPOSE 80
 
-RUN node dist
+RUN npm ci --production
+
+CMD ["node", "dist"]
