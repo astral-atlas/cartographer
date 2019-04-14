@@ -16,7 +16,7 @@ artifacts:
     - dist/**/*.js
     - package.json
     - package-lock.json
-    - dockerfile
+    - Dockerfile
 cache:
   paths:
     - ~/.npm
