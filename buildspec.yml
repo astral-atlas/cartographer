@@ -8,12 +8,13 @@ phases:
     commands:
       - echo Build started on `date`
       - make ci
+      - bash ./ci/docker-build.sh
   post_build:
     commands:
       - echo Build completed on `date`
 artifacts:
   files:
-    - dist/**/*.js
+    - docker-temp
 cache:
   paths:
     - ~/.npm
