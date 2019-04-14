@@ -8,6 +8,8 @@ COPY package.json /app/package.json
 
 EXPOSE 80
 
+ENV NODE_ENV test
+
 RUN npm ci --production
 
 CMD ["node", "dist"]

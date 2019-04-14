@@ -34,8 +34,9 @@ export const createStdRouteFromApiRoute = (apiRoute: APIRoute): STDRoute => {
   const handler = async (inc, res) => {
     const input = createRouteHandlerInput(inc);
     const output = await apiRoute.handler(input);
+    const origin = input.headers.has('Origin') ? input.headers.get('Origin') : '';
     writeRouteServerResponseToHead(res, output);
-    writeCorsHeadersToHead(res, apiRoute.corsOptions);
+    writeCorsHeadersToHead(res, { ...apiRoute.corsOptions, origin });
     writeRouteServerResponseToBody(res, output);
   };
 
@@ -58,8 +59,9 @@ export const createStdRouteFromOptionsRoute = (optionsRoute: OptionsRoute): STDR
     return pathMatch && methodMatch;
   };
   const handler = async (inc, res) => {
+    const origin = inc.headers.origin ? inc.headers.origin : '';
     res.statusCode = 200;
-    writeCorsHeadersToHead(res, optionsRoute.corsOptions);
+    writeCorsHeadersToHead(res, { ...optionsRoute.corsOptions, origin });
     res.end();
   };
 
