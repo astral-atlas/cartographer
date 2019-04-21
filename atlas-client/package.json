@@ -1,0 +1,33 @@
+{
+  "name": "@lukekaalim/atlas-client",
+  "version": "1.0.0",
+  "description": "Client library for communicating to Atlas Scribe",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/lukekaalim/atlas-scribe.git"
+  },
+  "author": "luke kaalim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukekaalim/atlas-scribe/atlas-client/issues"
+  },
+  "homepage": "https://github.com/lukekaalim/atlas-scribe/atlas-client/#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/register": "^7.4.0",
+    "eslint": "^5.16.0",
+    "flow-bin": "^0.97.0",
+    "mocha": "^6.1.4",
+    "rollup": "^1.10.1"
+  },
+  "dependencies": {
+    "rollup-plugin-babel": "^4.3.2"
+  }
+}
