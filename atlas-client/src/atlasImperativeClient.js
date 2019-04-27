@@ -2,7 +2,7 @@
 import type { User } from './user';
 import type { Response } from './serialization';
 
-import { toArray, fromJSON, succeed } from './serialization';
+import { fromJson, toArray, toPathZero } from './serialize3';
 import { toUser } from './user';
 
 export type AtlasScribeConnection = {
@@ -15,7 +15,7 @@ export type AtlasImperativeClient = {
   getUsers: () => Promise<Response<Array<User>>>,
 };
 
-const toUsersArray = fromJSON(toArray(toUser, succeed));
+const toUsersArray = fromJson(toArray(toUser, toPathZero));
 
 const mapToObject = map => [...map.entries].reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
@@ -23,7 +23,7 @@ const findGetImplementation = () => {
   if (window.fetch) {
     return (url, headers) => window.fetch(url, { headers: mapToObject(headers) });
   }
-  throw new Error('No Get Implementation Found');
+  throw new Error('No \'get()\' Implementation provided, and we couldn\'t find window.fetch');
 };
 
 export const createAtlasImperativeClient = (
