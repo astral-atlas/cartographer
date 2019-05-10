@@ -1,33 +1,24 @@
 {
-  "name": "@lukekaalim/atlas-client",
-  "version": "1.0.0",
-  "description": "Client library for communicating to Atlas Scribe",
-  "main": "dist/index.js",
+  "name": "atlas-client2",
+  "version": "0.1.0",
+  "module": "src/Index.bs.js",
   "scripts": {
-    "test": "mocha"
+    "build": "bsb -make-world",
+    "start": "bsb -make-world -w",
+    "clean": "bsb -clean-world",
+    "dev": "tap -w"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/lukekaalim/atlas-scribe.git"
-  },
-  "author": "luke kaalim",
+  "keywords": [
+    "BuckleScript"
+  ],
+  "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/lukekaalim/atlas-scribe/atlas-client/issues"
-  },
-  "homepage": "https://github.com/lukekaalim/atlas-scribe/atlas-client/#readme",
   "devDependencies": {
-    "@babel/cli": "^7.4.3",
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/register": "^7.4.0",
-    "eslint": "^5.16.0",
-    "flow-bin": "^0.97.0",
-    "mocha": "^6.1.4",
-    "rollup": "^1.10.1"
+    "bs-platform": "^5.0.3",
+    "rollup": "^1.11.3",
+    "tap": "^13.0.3"
   },
   "dependencies": {
-    "rollup-plugin-babel": "^4.3.2"
+    "rollup-plugin-node-resolve": "^4.2.3"
   }
 }
