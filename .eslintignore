@@ -1,3 +1,5 @@
 dist
 flow-typed
 *config.js
+atlas-client2
+atlas-client

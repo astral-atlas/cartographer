@@ -4,3 +4,8 @@
 npm-debug.log
 /lib/bs/
 /node_modules/
+coverage
+.nyc_output
+dist
+lib
+yarn-error.log
