@@ -1,7 +1,0 @@
-{
-  "verbose": false,
-  "delay": "500",
-  "watch": [
-    "dist"
-  ]
-}
