@@ -17,7 +17,7 @@ import { buildStdLog } from './services/log/stdLog';
 import { createChapterRoutes } from './routes/chapters';
 import { createUserRoutes } from './routes/users';
 
-export const buildAppRoutes = async (): Promise<Array<Route>> => {
+export const createRoutes = async (): Promise<Array<Route>> => {
   const chapterStorage =      await createS3Storage('atlas-scribe-test-data', 'chapters.json');
   const eventStorage =        await createS3Storage('atlas-scribe-test-data', 'events.json');
   const permissionStorage =   await createS3Storage('atlas-scribe-test-data', 'permissions.json');

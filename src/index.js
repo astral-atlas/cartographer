@@ -5,12 +5,6 @@ import { createCartographer } from './cartographer';
 
 const { readdir } = promises;
 
-class AtlasInitError extends Error {
-  constructor(reason) {
-    super(`Could not initalize Cartographer due to:\n${reason}`);
-  }
-}
-
 const init = async () => {
   try {
     // read from environment variable
@@ -23,7 +17,7 @@ const init = async () => {
     }
     const configResult = await loadConfig(configPath);
     if (configResult.type === 'failure') {
-      throw new AtlasInitError(configResult.value.message);
+      throw new Error(configResult.value.message);
     }
     const cartographer = await createCartographer(configResult.value);
     await cartographer.start()
