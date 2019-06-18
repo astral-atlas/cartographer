@@ -1,0 +1,9 @@
+{
+  "name": "local",
+  "port": 8080,
+  "logging": "stdout",
+  "storage": {
+    "type": "local-json",
+    "storageRootDir": "local-fs-root"
+  }
+}

@@ -1,15 +1,33 @@
 // @flow
-import { createServer } from 'http';
-import { getConfig } from './config';
-import { buildListener } from './listener';
+import { promises } from 'fs';
+import { loadConfig } from './lib/config';
+import { createCartographer } from './cartographer';
 
-const main = async (environment: string) => {
-  const config = getConfig(environment);
-  console.log(`Initializing Atlas Scribe in configuration ${environment}`);
-  const listener = await buildListener();
-  const server = createServer(listener);
-  server.listen(config.port, () => console.log(`Server is now listening on port ${config.port}`));
+const { readdir } = promises;
+
+const init = async () => {
+  try {
+    // read from environment variable
+    const configPathEnv = process.env['CONFIG_PATH'] || '';
+    // or the first file to end with '.cartographer.json';
+    const configLocalFile = (await readdir(process.cwd())).find(fileName => fileName.endsWith('.cartographer.json'));
+    const configPath = configPathEnv || configLocalFile;
+    if (configPath === undefined || configPath === null) {
+      throw new Error('No config path provided;Cannot start Atlas');
+    }
+    const configResult = await loadConfig(configPath);
+    if (configResult.type === 'failure') {
+      throw new Error(configResult.value.message);
+    }
+    const cartographer = await createCartographer(configResult.value);
+    await cartographer.start()
+  } catch (err) {
+    console.error(err);
+  }
 };
 
-// flowlint-next-line sketchy-null-string:off
-main(process.env.NODE_ENV || 'local');
+if (require.main === module) {
+  init();
+}
+
+export { createCartographer };
