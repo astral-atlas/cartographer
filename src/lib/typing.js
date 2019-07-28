@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 export class TypingError extends Error {
   constructor(targetType/*:: :string*/, actualType/*:: :string*/, name/*: string*/ = 'value') {

@@ -44,7 +44,7 @@ type RouteResponseEvent = {
   timestamp: number,
 };
 */
-export const createRouteResponseEvent = (
+export const respondRoute = (
   url/*: string*/,
   method/*: string*/ = 'GET',
   statusCode/*: number*/ = 200,

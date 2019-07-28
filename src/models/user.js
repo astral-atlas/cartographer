@@ -1,26 +1,28 @@
-// @flow
-import { toString, toObject } from '../lib/typing';
-import createUuid from 'uuid/v4';
+// @flow strict
 /*::
-export opaque type UserID: string = string;
+import type { UUID } from './uuid';
+*/
+const { toUUID, generateUUID } = require('./uuid');
+const { toObject, toString } = require('@lukekaalim/to');
+
+/*::
+export opaque type UserID: UUID = UUID;
 
 export type User = {
   id: UserID,
-  name: string,
-}
+};
 */
-
-export const toUserID = (value/*:mixed*/)/*:UserID*/ => toString(value);
-
-export const toUser = (value/*:mixed*/)/*: User*/ => {
-  const userObject = toObject(value);
-  return {
-    id: toUserID(toString(userObject.id)),
-    name: toString(userObject.name),
-  };
-}
-
-export const createUser = (name/*: string*/)/*: User*/ => ({
-  id: createUuid(),
-  name,
+const createUser = ()/*: User*/ => ({
+  id: generateUUID(),
 });
+
+const toUserID/*: mixed => UserID*/ = val => toUUID(val);
+const toUser/*: mixed => User*/ = toObject({
+  id: toUserID,
+})
+
+module.exports = {
+  createUser,
+  toUserID,
+  toUser,
+};

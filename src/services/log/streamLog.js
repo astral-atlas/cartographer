@@ -2,16 +2,16 @@
 import { EOL } from 'os';
 
 /*::
-import type { LogService } from '../log.2.js';
+import type { EventLogger } from '../log.2.js';
 import type { Writable } from 'stream';
 */
 
-export const createJSONStreamLog = (stream/*:Writable*/)/*: LogService*/ => {
-  const logEvent = (log) => {
-    const stringToWrite = JSON.stringify(log);
+export const createJSONStreamLog = (stream/*:Writable*/)/*: EventLogger*/ => {
+  const log = (event) => {
+    const stringToWrite = JSON.stringify(event);
     stream.write(stringToWrite + EOL);
   };
   return {
-    logEvent,
+    log,
   };
 };

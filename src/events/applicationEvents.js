@@ -35,7 +35,7 @@ type ApplicationPortBindEvent = {
   timestamp: number,
 };
 */
-export const createApplicationPortBindEvent = (
+export const boundPort = (
   port/*:number*/,
   timestamp/*: number*/ = Date.now(),
 )/*: ApplicationPortBindEvent*/  => ({
@@ -50,7 +50,7 @@ type ApplicationShutdownEvent = {
   timestamp: number,
 };
 */
-export const createApplicationShutdownEvent = (timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
+export const appShutdown = (timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
   type: 'shutdown',
   timestamp,
 });

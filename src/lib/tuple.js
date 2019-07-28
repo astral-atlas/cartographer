@@ -1,10 +1,15 @@
 // @flow
+export const toTuples = /*:: <T>*/(list/*: Array<T>*/)/*: Array<[T, T]>*/ => {
+  const tuples = [];
+  for (let i = 0; i < list.length / 2; i ++) {
+    tuples.push([list[i*2], list[(i*2) + 1]]);
+  }
+  return tuples;
+};
 
-export const getTupleSecond = <TFirst, TSecond>(tuple: [TFirst, TSecond]): TSecond => (
-  tuple[1]
-);
-export const getTupleFirst = <TFirst, TSecond>(tuple: [TFirst, TSecond]): TFirst => (
-  tuple[0]
-);
-
-export const toArity2 = <T>(array: Array<T>): [T, T] => [array[0], array[1]];
+export const toObjectFromTuples = /*:: <T>*/(
+  tuples/*: Array<[string, T]>*/
+)/*: { [string]: T }*/ => tuples.reduce((acc, [name, val]) => ({
+  ...acc,
+  [name]: val,
+}), {});

@@ -2,7 +2,7 @@
 /*::
 import type { Event } from '../events';
 
-export type LogService = {
-  logEvent: (newLog: Event) => void,
+export type EventLogger = {
+  log: (event: Event) => void,
 };
 */

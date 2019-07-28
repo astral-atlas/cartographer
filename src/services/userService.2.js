@@ -5,7 +5,7 @@ import type { User, UserID } from '../models/user';
 
 export type UserService = {
   getAllUsers: () => Promise<Array<User>>,
-  addUser: (userName: string) => Promise<User>,
+  addUser: () => Promise<User>,
   deleteUser: (userId: UserID) => Promise<void>,
 };
 */
@@ -19,8 +19,8 @@ export const createUserService = (
     const users = await Promise.all(userIds.map(id => userStorage.read(id)));
     return users;
   };
-  const addUser = async (userName) => {
-    const user = createUser(userName);
+  const addUser = async () => {
+    const user = createUser();
     await userStorage.write(user.id, user);
     const userIds = await userIdStorage.read();
     await userIdStorage.write([...userIds, user.id]);

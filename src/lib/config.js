@@ -2,7 +2,7 @@
 import { readFile } from 'fs';
 import { promisify } from 'util';
 import { toString, toNumber, toObject, TypingError } from './typing';
-import { createSuccess, createFailure } from './result';
+import { succeed, fail } from './result';
 
 /*::
 import type { Result } from './result';
@@ -84,7 +84,7 @@ const toStorageConfig = (value/*:mixed*/)/*: FSStorageConfig | S3StorageConfig*/
   }
 };
 
-const toConfig = (value/*:mixed */)/*:Result<Config, Error>*/ => {
+const toConfig = (value/*:mixed */)/*: Result<Config, Error>*/ => {
   try {
     const configObject = toObject(value);
     const config = {
@@ -93,13 +93,13 @@ const toConfig = (value/*:mixed */)/*:Result<Config, Error>*/ => {
       logging: toLoggingType(toString(configObject.logging, 'logging')),
       storage: toStorageConfig(configObject.storage),
     };
-    return createSuccess(config);
+    return succeed(config);
   } catch (error) {
-    return createFailure(new Error(`There was an error parsing the config:\n${error.message}`));
+    return fail(new Error(`There was an error parsing the config:\n${error.message}`));
   }
 };
 
-export const loadConfig = async (configPath/*:string */)/*:Promise<Result<Config, Error>> */ => {
+export const loadConfig = async (configPath/*:string */)/*: Promise<Result<Config, Error>> */ => {
   const fileContent = await pReadFile(configPath);
   const jsonFileContents = JSON.parse(fileContent);
   return toConfig(jsonFileContents);
