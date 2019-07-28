@@ -1,7 +1,6 @@
 {
   "devDependencies": {
-    "@aws-sdk/client-s3-node": "0.1.0-preview.2",
-    "lk-test": "^2.4.0"
+    "lk-test": "^3.1.0"
   },
   "engines": {
     "node": ">=10.13.0"
@@ -11,6 +10,8 @@
   "description": "A backend API for serialzing atlas datas",
   "main": "dist/index.js",
   "dependencies": {
+    "@lukekaalim/to": "^1.0.0",
+    "@aws-sdk/client-s3-node": "0.1.0-preview.2",
     "uuid": "^3.3.2"
   },
   "repository": {
