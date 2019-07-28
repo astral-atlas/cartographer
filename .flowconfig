@@ -4,7 +4,7 @@ atlas-quill
 [include]
 
 [libs]
-
+flow-typed
 [lints]
 all=error
 dynamic-export=off

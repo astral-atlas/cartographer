@@ -1,7 +1,6 @@
 {
   "devDependencies": {
-    "flow-bin": "^0.101.0",
-    "flow-typed": "^2.5.1",
+    "@aws-sdk/client-s3-node": "0.1.0-preview.2",
     "lk-test": "^2.4.0"
   },
   "engines": {
@@ -12,8 +11,6 @@
   "description": "A backend API for serialzing atlas datas",
   "main": "dist/index.js",
   "dependencies": {
-    "aws-sdk": "^2.437.0",
-    "esm": "^3.2.25",
     "uuid": "^3.3.2"
   },
   "repository": {
