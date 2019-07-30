@@ -6,7 +6,8 @@ import type { UserID, User } from '../models/user';
 const { join } = require('path');
 const { toArray } = require('@lukekaalim/to');
 const { toUser, toUserID } = require('../models/user');
-const { createDirectoryStorage, createFileStorage } = require('./fsStorage');
+const { createDirectoryStorage, createFileStorage } = require('./storage/fsStorage');
+const { createS3Storage } = require('./storage/s3Storage');
 
 const DEFAULT_FROM_VALUE = value => JSON.stringify(value, null, 2) || '';
 
@@ -48,9 +49,17 @@ const transformKey = /*:: <TKey, TNewKey, TValue>*/(
   write: (k, v) => storage.write(transKey(k), v),
 });
 
+const fixKey = /*:: <TKey, TValue>*/(
+  storage/*: Storage<TKey, TValue>*/,
+  key/*: TKey*/,
+)/*: Storage<null, TValue>*/ => ({
+  read: () => storage.read(key),
+  write: (_, v) => storage.write(key, v),
+});
+
 const createStorage = (config/*: StorageConfig*/) => {
   switch (config.type) {
-    case 'local-json':
+    case 'local-json': {
       const users = createJSONStorage/*:: <UserID, User>*/(
         transformKey(createDirectoryStorage(join(config.dir, 'users'), 'json'), toUserID), toUser
       );
@@ -61,7 +70,19 @@ const createStorage = (config/*: StorageConfig*/) => {
         users,
         userIds,
       };
-    case 's3-json':
+    }
+    case 's3-json': {
+      const users = createJSONStorage/*:: <UserID, User>*/(
+        transformKey(createS3Storage(config.creds, config.bucketName), key => `users/${key}`), toUser
+      );
+      const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(
+        fixKey(createS3Storage(config.creds, config.bucketName), 'userIds'), toArray(toUserID)
+      );
+      return {
+        users,
+        userIds,
+      };
+    }
     default:
       throw new Error('Didnt do this yet lol');
   }

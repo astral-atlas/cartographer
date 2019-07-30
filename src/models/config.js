@@ -2,8 +2,8 @@
 const { toObject, toString, toNumber } = require('@lukekaalim/to');
 
 /*::
-type AWSCreds = {
-  accessKey: string,
+export type AWSCreds = {
+  accessKeyId: string,
   secretAccessKey: string,
   region: string
 };
@@ -19,7 +19,7 @@ export type Config = {
 */
 
 const toAwsCreds = toObject({
-  accessKey: toString,
+  accessKeyId: toString,
   secretAccessKey: toString,
   region: toString,
 });

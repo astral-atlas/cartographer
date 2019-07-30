@@ -1,6 +1,6 @@
 // @flow
 /*::
-import type { Storage } from './storage.2';
+import type { Storage } from '../storage.2';
 */
 const { readFile, writeFile } = require('fs').promises;
 const { join } = require('path');
