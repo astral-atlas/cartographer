@@ -7,7 +7,7 @@ type RouteNotFoundEvent = {
   timestamp: number,
 };
 */
-export const createRouteNotFoundEvent = (
+const createRouteNotFoundEvent = (
   url/*: string*/,
   timestamp/*: number*/ = Date.now(),
 )/*: RouteNotFoundEvent*/ => ({
@@ -24,7 +24,7 @@ type RouteErrorEvent = {
   timestamp: number,
 };
 */
-export const createRouteErrorEvent = (
+const errorRoute = (
   errorMessage/*: string*/,
   errorStack/*: string*/,
   timestamp/*: number*/ = Date.now(),
@@ -44,7 +44,7 @@ type RouteResponseEvent = {
   timestamp: number,
 };
 */
-export const createRouteResponseEvent = (
+const respondRoute = (
   url/*: string*/,
   method/*: string*/ = 'GET',
   statusCode/*: number*/ = 200,
@@ -63,3 +63,9 @@ export type RouteEvent =
   | RouteErrorEvent
   | RouteNotFoundEvent;
 */
+
+module.exports = {
+  errorRoute,
+  createRouteNotFoundEvent,
+  respondRoute,
+}

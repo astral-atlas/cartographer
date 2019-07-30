@@ -1,10 +1,10 @@
-import { buildChapterService } from './chapters';
-import { buildMemoryStorageService } from '../storage/memoryStorage';
-import { buildMemoryRoleService } from '../role/basicRole';
-import { buildPermissionService } from '../permission/basicPermission';
-import { generatePermission } from '../../lib/permission';
-import { buildMemoryIndexer } from '../../lib/indexer';
-import { generateUser } from '../../lib/user';
+const { buildChapterService } = require('./chapters');
+const { buildMemoryStorageService } = require('../storage/memoryStorage');
+const { buildMemoryRoleService } = require('../role/basicRole');
+const { buildPermissionService } = require('../permission/basicPermission');
+const { generatePermission } = require('../../lib/permission');
+const { buildMemoryIndexer } = require('../../lib/indexer');
+const { generateUser } = require('../../lib/user');
 
 const generateMockUserWithRoleForPermission = async (roleService, permission) => {
   const user = generateUser();

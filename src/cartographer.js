@@ -1,46 +1,17 @@
 // @flow
-import { createServer } from 'http';
-import { join, isAbsolute } from 'path';
-import { createRoutes } from './routes.2';
-import { toArray } from './lib/typing';
-import { createJSONStreamLog } from './services/log/streamLog';
-import { createS3Service } from './services/s3Storage';
-import { createDirService, createFileService } from './services/fsStorage';
-import { createSerializedStorageService, createSerializedStorageService2 } from './services/storage.2';
-import { createUserService } from './services/userService.2';
-import { toUser, toUserID } from './models/user';
-import { createRouteResponseEvent, createRouteErrorEvent } from './events/routeEvents';
-import {
-  createApplicationPortBindEvent,
-  createApplicationStartupEvent,
-  createApplicationShutdownEvent,
-  createApplicationLoadConfigEvent,
-} from './events/applicationEvents';
 /*::
-import type { Config } from './lib/config';
+import type { Config } from './models/config';
 */
+const { createServer } = require('http');
+const { join } = require('path');
 
-class UnimplementedError extends Error {}
-
-const createStorage = (storageConfig) => {
-  switch (storageConfig.type) {
-    case 'local-json':
-      const storageRoot = isAbsolute(storageConfig.storageRootDir) ?
-        storageConfig.storageRootDir :
-        join(process.cwd(), storageConfig.storageRootDir);
-      const usersDirectory = createDirService(join(storageRoot, 'users'), '.json');
-      const usersIdFile = createFileService(join(storageRoot, 'userIds.json'));
-      const userStorage = createSerializedStorageService(usersDirectory, toUser);
-      const userIdStorage = createSerializedStorageService2(usersIdFile, toArray(toUserID));
-      return {
-        userStorage,
-        userIdStorage,
-      };
-    case 's3-json':
-    default:
-      throw new UnimplementedError('Didnt do this yet lol');
-  }
-};
+const { createRoutes } = require('./routes.2');
+const { createJSONStreamLog } = require('./services/log/streamLog');
+const { createStorage } = require('./services/storage.2');
+const { createUserService } = require('./services/userService.2');
+const { toUser, toUserID } = require('./models/user');
+const { respondRoute, errorRoute } = require('./events/routeEvents');
+const { boundPort, appShutdown } = require('./events/applicationEvents');
 
 const createLogService = (logType) => {
   switch (logType) {
@@ -51,43 +22,49 @@ const createLogService = (logType) => {
   }
 };
 
-export const createCartographer = async (config/*:: :Config*/) => {
-  const logService = createLogService(config.logging);
-  logService.logEvent(createApplicationLoadConfigEvent(config.name));
-  const { userIdStorage, userStorage } = createStorage(config.storage);
-  const userService = createUserService(userIdStorage, userStorage);
-  const routes = await createRoutes(logService, userService);
+class UnhandledRouteError extends Error {
+  constructor(url) {
+    return super(`No Route found for the url: "${url}"`);
+  }
+}
 
+const createListener = (routes, { log }) => {
   const listener = (inc, res) => {
     const route = routes.find(route => route.test(inc));
     if (!route) {
-      logService.logEvent(createRouteResponseEvent(inc.url, inc.method, 404));
+      const error = new UnhandledRouteError(inc.url);
+      log(errorRoute(error.message, error.stack));
+      log(respondRoute(inc.url, inc.method, 404));
       res.statusCode = 404;
       res.end();
       return;
     }
     route.handler(inc, res);
   };
+  return listener;
+};
 
-  const server = createServer(listener);
+const createCartographer = async (config/*: Config*/) => {
+  const logger = createLogService('stdout');
 
-  const start = async () => new Promise(res => {
-    logService.logEvent(createApplicationStartupEvent());
-    server.listen(config.port, () => {
-      logService.logEvent(createApplicationPortBindEvent(config.port));
-      res();
-    });
-  });
+  const { users, userIds } = createStorage(config.storage);
+  const userService = createUserService(userIds, users);
+  const routes = await createRoutes(logger, userService);
+
+  const server = createServer(createListener(routes, logger));
 
   const stop = async () => new Promise(res => {
-    logService.logEvent(createApplicationShutdownEvent());
-    server.close(() => {
-      res();
-    });
+    logger.log(appShutdown());
+    server.close(res);
   });
 
+  server.listen(config.port, () => logger.log(boundPort(config.port)));
+
   return {
-    start,
     stop,
   }
+};
+
+module.exports = {
+  createCartographer,
 };

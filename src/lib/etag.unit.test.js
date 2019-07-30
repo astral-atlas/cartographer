@@ -1,4 +1,4 @@
-import { createETag } from './etag';
+const { createETag } = require('./etag');
 
 describe('createETag()', () => {
   it('should return an id that is stable across identical arbitrary strings or buffers', () => {

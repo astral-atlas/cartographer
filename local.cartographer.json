@@ -4,6 +4,6 @@
   "logging": "stdout",
   "storage": {
     "type": "local-json",
-    "storageRootDir": "local-fs-root"
+    "dir": "local-fs-root"
   }
 }

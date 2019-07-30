@@ -1,17 +1,21 @@
 // @flow
 /*::
-import type { LogService } from './services/log.2';
+import type { EventLogger } from './services/log.2';
 import type { UserService } from './services/userService.2';
 */
-import { createUserRoutes } from './routes/users.2';
+const { createUserRoutes } = require('./routes/users.2');
 
-export const createRoutes = async (
-  logService/*: LogService*/,
+const createRoutes = async (
+  logger/*: EventLogger*/,
   userService/*: UserService*/,
 ) => {
-  const userRoute = createUserRoutes(logService, userService);
+  const userRoute = createUserRoutes(logger, userService);
 
   return [
     ...userRoute,
   ];
+};
+
+module.exports = {
+  createRoutes,
 };

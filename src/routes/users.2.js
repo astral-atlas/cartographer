@@ -1,54 +1,38 @@
 // @flow
-import { createRESTRoute } from '../lib/route.2';
-import { ok, internalServerError } from '../lib/response';
-import { readStream } from '../lib/stream';
-import { toString } from '../lib/typing';
-import { toUserID } from '../models/user';
-import { createRouteErrorEvent, createRouteResponseEvent } from '../events/routeEvents';
+const { createRESTRoute } = require('../lib/route.2');
+const { ok, internalServerError, notFound } = require('../lib/response');
+const { toUserID } = require('../models/user');
 /*::
 import type { UserService } from '../services/userService.2';
-import type { LogService } from '../services/log.2';
+import type { EventLogger } from '../services/log.2';
 */
 
-export const createUserRoutes = (logService/*: LogService*/, userService/*:UserService*/) => {
-  const getUsers = createRESTRoute('/users', async (query) => {
-    try {
-      const allUsers = await userService.getAllUsers();
-      logService.logEvent(createRouteResponseEvent('/users', 'GET', 200));
-      return ok(allUsers);
-    } catch (error) {
-      logService.logEvent(createRouteErrorEvent(error.message, error.stack));
-      logService.logEvent(createRouteResponseEvent('/users', 'GET', 500));
-      return internalServerError();
-    } 
+const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) => {
+  const createUserRoute = createRESTRoute(logger);
+
+  const getUsers = createUserRoute('/users', async (query) => {
+    const allUsers = await userService.getAllUsers();
+    return ok(JSON.stringify(allUsers));
   }, 'GET');
 
-  const postUser = createRESTRoute('/users', async (query, headers, body) => {
-    try {
-      const userName = toString(JSON.parse(await readStream(body)), 'userName');
-      const user = await userService.addUser(userName);
-      logService.logEvent(createRouteResponseEvent('/users', 'POST', 200));
-      return ok(user);
-    } catch (error) {
-      logService.logEvent(createRouteErrorEvent(error.message, error.stack));
-      logService.logEvent(createRouteResponseEvent('/users', 'POST', 500));
-      return internalServerError();
-    } 
+  const postUser = createUserRoute('/users', async (query, headers) => {
+    const user = await userService.addUser();
+    return ok(JSON.stringify(user));
   }, 'POST');
 
-  const deleteUser = createRESTRoute('/users', async (query) => {
-    try {
-      const [,queryUserId] = query.find(([queryName]) => queryName === 'userId') || [];
-      const userId = toUserID(queryUserId);
-      await userService.deleteUser(userId);
-      logService.logEvent(createRouteResponseEvent('/users', 'DELETE', 200));
-      return ok();
-    } catch (error) {
-      logService.logEvent(createRouteErrorEvent(error.message, error.stack));
-      logService.logEvent(createRouteResponseEvent('/users', 'DELETE', 500));
-      return internalServerError();
-    } 
+  const deleteUser = createUserRoute('/users', async (query) => {
+    const [,queryUserId] = query.find(([queryName]) => queryName === 'userId') || [, null];
+    if (queryUserId === null) {
+      return notFound();
+    }
+    const userId = toUserID(queryUserId);
+    await userService.deleteUser(userId);
+    return ok(JSON.stringify(userId));
   }, 'DELETE');
 
   return [getUsers, postUser, deleteUser];
+};
+
+module.exports = {
+  createUserRoutes,
 };

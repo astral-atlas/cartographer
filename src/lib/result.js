@@ -2,21 +2,21 @@
 /*::
   export type Success<TSuccess> = {
     type: 'success',
-    value: TSuccess
+    success: TSuccess
   };
   export type Failure<TFailure> = {
     type: 'failure',
-    value: TFailure
+    failure: TFailure
   }
   export type Result<TSuccess, TFailure> =
-    | { type: 'success', value: TSuccess }
-    | { type: 'failure', value: TFailure };
+    | Failure<TFailure>
+    | Success<TSuccess>
 */
-export const createSuccess = /*:: <TSuccess>*/(value/*:: :TSuccess*/)/*:: :Success<TSuccess> */ => ({
+export const succeed = /*:: <TSuccess>*/(success/*:: :TSuccess*/)/*:: :Success<TSuccess> */ => ({
   type: 'success',
-  value,
+  success,
 });
-export const createFailure = /*:: <TFailure>*/(value/*:: :TFailure*/)/*:: :Failure<TFailure> */ => ({
+export const fail = /*:: <TFailure>*/(failure/*:: :TFailure*/)/*:: :Failure<TFailure> */ => ({
   type: 'failure',
-  value,
+  failure,
 });

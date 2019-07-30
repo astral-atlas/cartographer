@@ -2,7 +2,7 @@
 import type { HTTPMethod } from './http';
 import type { ServerResponse } from 'http';
 
-import { toLowerCase } from './string';
+const { toLowerCase } = require('./string');
 
 export const CORS_ORIGIN = 'Access-Control-Allow-Origin';
 export const CORS_METHODS = 'Access-Control-Allow-Methods';

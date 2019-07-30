@@ -1,10 +1,12 @@
 // @flow
-import { parse as parseURL } from 'url';
-import { parse as parseQuery } from 'querystring';
+const { internalServerError } = require('./response');
+const { errorRoute, respondRoute } = require('../events/routeEvents');
 
 /*::
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Readable } from 'stream';
+import type { EventLogger } from '../services/log.2';
+
 export type Route = {
   test: (inc: IncomingMessage) => boolean,
   handler: (inc: IncomingMessage, out: ServerResponse) => Promise<void>,
@@ -32,7 +34,7 @@ const createHeaders = (rawHeaders) => {
   return headers;
 };
 
-export const createRESTRoute = (
+const createRESTRoute = ({ log }/*: EventLogger*/) => (
   path/*: string*/,
   getResponse/*: (
     query: Array<[string, string]>,
@@ -57,7 +59,10 @@ export const createRESTRoute = (
       createQuery(inc.url),
       createHeaders(inc.rawHeaders),
       inc,
-    );
+    ).catch(error => {
+      log(errorRoute(error.message, error.stack));
+      return internalServerError();
+    });
     out.statusCode = response.statusCode;
     for (let [headerName, headerValue] of response.headers) {
       out.setHeader(headerName, headerValue);
@@ -77,10 +82,15 @@ export const createRESTRoute = (
         out.end();
         break;
     }
+    log(respondRoute(inc.url, inc.method, response.statusCode));
   };
 
   return {
     test,
     handler,
   }
+};
+
+module.exports = {
+  createRESTRoute,
 };
