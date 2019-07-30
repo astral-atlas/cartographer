@@ -1,18 +1,17 @@
 // @flow
 /*::
-import type { Config } from './lib/config';
+import type { Config } from './models/config';
 */
-import { createServer } from 'http';
-import { join } from 'path';
+const { createServer } = require('http');
+const { join } = require('path');
 
-import { createRoutes } from './routes.2';
-import { toArray } from './lib/typing';
-import { createJSONStreamLog } from './services/log/streamLog';
-import { createStorage } from './services/storage.2';
-import { createUserService } from './services/userService.2';
-import { toUser, toUserID } from './models/user';
-import { respondRoute, createRouteErrorEvent } from './events/routeEvents';
-import { boundPort, appShutdown } from './events/applicationEvents';
+const { createRoutes } = require('./routes.2');
+const { createJSONStreamLog } = require('./services/log/streamLog');
+const { createStorage } = require('./services/storage.2');
+const { createUserService } = require('./services/userService.2');
+const { toUser, toUserID } = require('./models/user');
+const { respondRoute, errorRoute } = require('./events/routeEvents');
+const { boundPort, appShutdown } = require('./events/applicationEvents');
 
 const createLogService = (logType) => {
   switch (logType) {
@@ -23,10 +22,18 @@ const createLogService = (logType) => {
   }
 };
 
+class UnhandledRouteError extends Error {
+  constructor(url) {
+    return super(`No Route found for the url: "${url}"`);
+  }
+}
+
 const createListener = (routes, { log }) => {
   const listener = (inc, res) => {
     const route = routes.find(route => route.test(inc));
     if (!route) {
+      const error = new UnhandledRouteError(inc.url);
+      log(errorRoute(error.message, error.stack));
       log(respondRoute(inc.url, inc.method, 404));
       res.statusCode = 404;
       res.end();
@@ -37,11 +44,11 @@ const createListener = (routes, { log }) => {
   return listener;
 };
 
-export const createCartographer = async (config/*:: :Config*/) => {
-  const logger = createLogService(config.logging);
+const createCartographer = async (config/*: Config*/) => {
+  const logger = createLogService('stdout');
 
   const { users, userIds } = createStorage(config.storage);
-  const userService = createUserService(users, userIds);
+  const userService = createUserService(userIds, users);
   const routes = await createRoutes(logger, userService);
 
   const server = createServer(createListener(routes, logger));
@@ -56,4 +63,8 @@ export const createCartographer = async (config/*:: :Config*/) => {
   return {
     stop,
   }
+};
+
+module.exports = {
+  createCartographer,
 };

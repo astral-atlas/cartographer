@@ -67,8 +67,6 @@ const createStorage = (config/*: StorageConfig*/) => {
   }
 };
 
-createStorage({ type: 'local-json', dir: './' }).userIds.read(null);
-
 module.exports = {
   createStorage,
 };

@@ -2,21 +2,17 @@
 /*::
 import type { Storage } from './storage.2';
 */
-import { readFile, writeFile } from 'fs';
-import { join } from 'path';
-import { promisify } from 'util';
-
-const pReadFile = promisify(readFile);
-const pWriteFile = promisify(writeFile);
+const { readFile, writeFile } = require('fs').promises;
+const { join } = require('path');
  
 const createFileStorage = (
   filePath/*: string*/
 )/*: Storage<null, string> */ => {
   const write = async (key, value) => {
-    await pWriteFile(filePath, value);
+    await writeFile(filePath, value);
   };
   const read = async () => {
-    return await pReadFile(filePath);
+    return await readFile(filePath);
   };
   return {
     write,
@@ -29,10 +25,10 @@ const createDirectoryStorage = (
   fileExtension/*: string*/ = 'txt',
 )/*: Storage<string, string>*/ => {
   const write = async (key, value) => {
-    await pWriteFile(join(directoryPath, `${key}.${fileExtension}`), value);
+    await writeFile(join(directoryPath, `${key}.${fileExtension}`), value);
   };
   const read = async (key) => {
-    return await pReadFile(join(directoryPath, `${key}.${fileExtension}`));
+    return await readFile(join(directoryPath, `${key}.${fileExtension}`));
   };
 
   return {

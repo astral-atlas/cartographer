@@ -6,7 +6,7 @@ type ApplicationLoadConfigEvent = {
   timestamp: number,
 };
 */
-export const createApplicationLoadConfigEvent = (
+const loadedConfig = (
   configName/*: string*/,
   timestamp/*: number*/ = Date.now(),
 )/*: ApplicationLoadConfigEvent*/ => ({
@@ -21,7 +21,7 @@ type ApplicationStartupEvent = {
   timestamp: number,
 };
 */
-export const createApplicationStartupEvent = (
+const appStartedUp = (
   timestamp/*: number*/ = Date.now(),
 )/*: ApplicationStartupEvent*/  => ({
   type: 'startup',
@@ -35,7 +35,7 @@ type ApplicationPortBindEvent = {
   timestamp: number,
 };
 */
-export const boundPort = (
+const boundPort = (
   port/*:number*/,
   timestamp/*: number*/ = Date.now(),
 )/*: ApplicationPortBindEvent*/  => ({
@@ -50,7 +50,7 @@ type ApplicationShutdownEvent = {
   timestamp: number,
 };
 */
-export const appShutdown = (timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
+const appShutdown = (timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
   type: 'shutdown',
   timestamp,
 });
@@ -61,3 +61,10 @@ export type ApplicationEvent =
   | ApplicationPortBindEvent
   | ApplicationStartupEvent;
 */
+
+module.exports = {
+  loadedConfig,
+  boundPort,
+  appShutdown,
+  appStartedUp,
+};

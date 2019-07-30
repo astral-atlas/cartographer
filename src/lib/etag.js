@@ -1,5 +1,5 @@
 // @flow
-import { createHash } from 'crypto';
+const { createHash } = require('crypto');
 
 type ETag = string;
 

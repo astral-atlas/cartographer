@@ -1,12 +1,12 @@
 // @flow
-import { EOL } from 'os';
+const { EOL } = require('os');
 
 /*::
 import type { EventLogger } from '../log.2.js';
 import type { Writable } from 'stream';
 */
 
-export const createJSONStreamLog = (stream/*:Writable*/)/*: EventLogger*/ => {
+const createJSONStreamLog = (stream/*:Writable*/)/*: EventLogger*/ => {
   const log = (event) => {
     const stringToWrite = JSON.stringify(event);
     stream.write(stringToWrite + EOL);
@@ -14,4 +14,8 @@ export const createJSONStreamLog = (stream/*:Writable*/)/*: EventLogger*/ => {
   return {
     log,
   };
+};
+
+module.exports = {
+  createJSONStreamLog,
 };

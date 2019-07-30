@@ -1,5 +1,5 @@
 // @flow strict
-import { writeFile, readFile } from 'fs';
+const { writeFile, readFile } = require('fs');
 
 export const writeToFile = (
   path: string,

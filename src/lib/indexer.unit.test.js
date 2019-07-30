@@ -1,4 +1,4 @@
-import { buildMemoryIndexer } from './indexer';
+const { buildMemoryIndexer } = require('./indexer');
 
 describe('buildMemoryIndexer()', () => {
   it('should make a function that can retrieve a set of value by an arbitrary property', async () => {

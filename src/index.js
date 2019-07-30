@@ -1,19 +1,18 @@
 // @flow
-import { toTuples, toObjectFromTuples } from './lib/tuple';
-import { loadConfig } from './lib/config';
-import { createCartographer } from './cartographer';
+const { readFile } = require('fs').promises;
+
+const { toConfig } = require('./models/config');
+const { toTuples, toObjectFromTuples } = require('./lib/tuple');
+const { createCartographer } = require('./cartographer');
 
 const init = async (configPath) => {
-  const configResult = await loadConfig(configPath);
-  if (configResult.type === 'failure') {
-    console.error(configResult.failure.message);
+  try {
+    const config = toConfig(JSON.parse(await readFile(configPath, 'utf-8')));
+    const cartographer = await createCartographer(config);
+  } catch (error) {
+    console.log(error);
     process.exitCode = 1;
-  } else {
-    try {
-      await createCartographer(configResult.success);
-    } catch (error) {
-      console.error(error);
-    }
+    return null;
   }
 };
 

@@ -3,22 +3,39 @@
 import type { Readable } from 'stream';
 */
 
-export const createStringBody = (content/*: string*/) => ({ type: 'string', content });
-export const createBufferBody = (content/*: Buffer*/) => ({ type: 'buffer', content });
-export const createStreamBody = (stream/*: Readable*/) => ({ type: 'stream', stream });
+const createStringBody = (content/*: string*/) => ({ type: 'string', content });
+const createBufferBody = (content/*: Buffer*/) => ({ type: 'buffer', content });
+const createStreamBody = (stream/*: Readable*/) => ({ type: 'stream', stream });
 
-export const ok = (bodyObject/*: mixed*/, headers/*: Array<[string, string]>*/ = []) => {
-  const bodyBuffer = Buffer.from(JSON.stringify(bodyObject) || "");
+const createHeaders = (headers, contentLength) => [
+  ...headers,
+  ['Content-Length', contentLength.toString()],
+  ['Content-Type', 'application/json; charset=utf-8']
+];
 
-  return {
-    body: createBufferBody(bodyBuffer),
-    headers: [...headers, ['Content-Length', bodyBuffer.length.toString()], ['Content-Type', 'application/json; charset=utf-8']],
-    statusCode: 200,
-  };
-};
-
-export const internalServerError = (body/*: mixed*/, headers/*: Array<[string, string]>*/ = []) => ({
-  body: createStringBody(JSON.stringify(body) || ""),
-  headers,
-  statusCode: 500,
+const createResponse = (statusCode, body, headers) => ({
+  statusCode,
+  body: createStringBody(body),
+  headers: createHeaders(headers, body.length),
 });
+
+const ok = (
+  body/*: string*/,
+  headers/*: Array<[string, string]>*/ = [],
+) => createResponse(200, body, headers);
+
+const notFound = (
+  body/*: string*/ = '',
+  headers/*: Array<[string, string]>*/ = [],
+) => createResponse(404, body, headers);
+
+const internalServerError = (
+  body/*: string*/ = '',
+  headers/*: Array<[string, string]>*/ = [],
+) => createResponse(500, body, headers);
+
+module.exports = {
+  ok,
+  notFound,
+  internalServerError,
+};

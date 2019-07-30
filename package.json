@@ -10,8 +10,8 @@
   "description": "A backend API for serialzing atlas datas",
   "main": "dist/index.js",
   "dependencies": {
-    "@lukekaalim/to": "^1.0.0",
     "@aws-sdk/client-s3-node": "0.1.0-preview.2",
+    "@lukekaalim/to": "^1.1.0",
     "uuid": "^3.3.2"
   },
   "repository": {

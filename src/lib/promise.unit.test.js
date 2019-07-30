@@ -1,4 +1,4 @@
-import { pFilter } from './promise';
+const { pFilter } = require('./promise');
 
 describe('pfilter()', () => {
   it('should filter an array by a promise-resolving filter function', async () => {

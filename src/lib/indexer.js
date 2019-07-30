@@ -1,5 +1,5 @@
 // @flow
-import { pFilter } from './promise';
+const { pFilter } = require('./promise');
 
 export type Indexer<TItem, TSearch> = (index: TSearch) => Promise<Array<TItem>>;
 

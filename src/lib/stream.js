@@ -1,6 +1,6 @@
 // @flow
 /*::
-import { Readable } from 'stream';
+const { Readable } = require('stream');
 */
 
 /**
