@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm i
+  build:
+    commands:
+      - npm test
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - src/**/*
+    - package.json
+    - package-lock.json
+    - dockerfile
+    - config.json
+  discard-paths: no
+cache:
+  paths:
+    - '/root/.npm'

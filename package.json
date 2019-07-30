@@ -3,12 +3,15 @@
     "lk-test": "^3.1.0"
   },
   "engines": {
-    "node": ">=10.13.0"
+    "node": ">=12.5.0"
+  },
+  "scripts": {
+    "start": "node src"
   },
   "name": "atlas-scribe",
   "version": "1.0.0",
   "description": "A backend API for serialzing atlas datas",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "dependencies": {
     "@lukekaalim/to": "^1.1.0",
     "aws-sdk": "^2.502.0",
