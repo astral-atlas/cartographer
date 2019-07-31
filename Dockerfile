@@ -10,4 +10,6 @@ RUN npm i --production
 
 ADD src ./src
 
+EXPOSE 80
+
 ENTRYPOINT [ "npm start" ]
