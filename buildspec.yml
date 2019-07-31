@@ -17,7 +17,7 @@ artifacts:
     - src/**/*
     - package.json
     - package-lock.json
-    - dockerfile
+    - Dockerfile
     - config.json
   discard-paths: no
 cache:
