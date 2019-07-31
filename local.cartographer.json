@@ -3,7 +3,12 @@
   "port": 80,
   "logging": "stdout",
   "storage": {
-    "type": "local-json",
-    "dir": "local-fs-root"
+    "type": "s3-json",
+    "bucketName": "atlas-cartographer-data",
+    "creds": {
+      "accessKeyId": "",
+      "secretAccessKey": "",
+      "region": "ap-southeast-2"
+    }
   }
 }
