@@ -47,7 +47,7 @@ const createListener = (routes, { log }) => {
 const createCartographer = async (config/*: Config*/) => {
   const logger = createLogService('stdout');
 
-  const { users, userIds } = createStorage(config.storage);
+  const { users, userIds } = await createStorage(config.storage);
   const userService = createUserService(userIds, users);
   const routes = await createRoutes(logger, userService);
 

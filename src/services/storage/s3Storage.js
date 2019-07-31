@@ -27,9 +27,25 @@ const createS3Storage = (
     }).promise();
   };
 
+  const has = async (key) => {
+    try {
+      await client.headObject({
+        Bucket: bucketName,
+        Key: key,
+      }).promise();
+      return true;
+    } catch (error) {
+      if (error.code === 'NotFound') {
+        return false;
+      }
+      throw error;
+    }
+  }
+
   return {
     read,
     write,
+    has,
   };
 };
 

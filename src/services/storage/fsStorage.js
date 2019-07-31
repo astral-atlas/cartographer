@@ -2,7 +2,7 @@
 /*::
 import type { Storage } from '../storage.2';
 */
-const { readFile, writeFile } = require('fs').promises;
+const { readFile, writeFile, stat } = require('fs').promises;
 const { join } = require('path');
  
 const createFileStorage = (
@@ -14,9 +14,13 @@ const createFileStorage = (
   const read = async () => {
     return await readFile(filePath);
   };
+  const has = async () => {
+    return !!(await stat(filePath)).isFile;
+  }
   return {
     write,
     read,
+    has,
   };
 };
  
@@ -30,10 +34,14 @@ const createDirectoryStorage = (
   const read = async (key) => {
     return await readFile(join(directoryPath, `${key}.${fileExtension}`));
   };
+  const has = async (key) => {
+    return !!(await stat(join(directoryPath, `${key}.${fileExtension}`))).isFile;
+  }
 
   return {
     write,
     read,
+    has,
   };
 }
 

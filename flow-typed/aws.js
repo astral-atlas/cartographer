@@ -15,5 +15,9 @@ declare module "aws-sdk" {
       Bucket: string,
       Key: string,
     }): S3Response<{}>,
+    headObject({
+      Bucket: string,
+      Key: string,
+    }): S3Response<{}>,
   }
 }

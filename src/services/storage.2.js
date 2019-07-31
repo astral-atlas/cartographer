@@ -15,6 +15,7 @@ const DEFAULT_FROM_VALUE = value => JSON.stringify(value, null, 2) || '';
 export type Storage<TKey, TValue> = {
   read: (key: TKey) => Promise<TValue>,
   write: (key: TKey, value: TValue) => Promise<void>,
+  has: (key: TKey) => Promise<boolean>,
 };
 */
 
@@ -34,10 +35,12 @@ const createJSONStorage = /*:: <TKey, TValue>*/(
   const write = async (key, value) => {
     await backingStorage.write(key, from(value));
   };
+  const has = backingStorage.has;
 
   return {
     read,
     write,
+    has,
   };
 };
 
@@ -47,6 +50,7 @@ const transformKey = /*:: <TKey, TNewKey, TValue>*/(
 )/*: Storage<TKey, TValue>*/ => ({
   read: (k) => storage.read(transKey(k)),
   write: (k, v) => storage.write(transKey(k), v),
+  has: (k) => storage.has(transKey(k))
 });
 
 const fixKey = /*:: <TKey, TValue>*/(
@@ -55,34 +59,50 @@ const fixKey = /*:: <TKey, TValue>*/(
 )/*: Storage<null, TValue>*/ => ({
   read: () => storage.read(key),
   write: (_, v) => storage.write(key, v),
+  has: (_) => storage.has(key)
 });
 
-const createStorage = (config/*: StorageConfig*/) => {
+const createLocalJsonStorage = async config => {
+  const users = createJSONStorage/*:: <UserID, User>*/(
+    transformKey(createDirectoryStorage(join(config.dir, 'users'), 'json'), toUserID), toUser
+  );
+  const userIdsFileStorage = createFileStorage(join(config.dir, 'userIds.json'));
+  if (!await userIdsFileStorage.has(null)) {
+    await userIdsFileStorage.write(null, JSON.stringify([]));
+  }
+
+  const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(userIdsFileStorage, toArray(toUserID));
+  return {
+    users,
+    userIds,
+  };
+};
+
+
+const createS3JsonStorage = async config => {
+  const s3UsersStorage = createS3Storage(config.creds, config.bucketName);
+  if (!await s3UsersStorage.has('userIds')) {
+    await s3UsersStorage.write('userIds', JSON.stringify([]));
+  }
+  
+  const users = createJSONStorage/*:: <UserID, User>*/(
+    transformKey(s3UsersStorage, key => `users/${key}`), toUser
+  );
+  const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(
+    fixKey(s3UsersStorage, 'userIds'), toArray(toUserID)
+  );
+  return {
+    users,
+    userIds,
+  };
+};
+
+const createStorage = async (config/*: StorageConfig*/) => {
   switch (config.type) {
-    case 'local-json': {
-      const users = createJSONStorage/*:: <UserID, User>*/(
-        transformKey(createDirectoryStorage(join(config.dir, 'users'), 'json'), toUserID), toUser
-      );
-      const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(
-        createFileStorage(join(config.dir, 'userIds.json')), toArray(toUserID)
-      );
-      return {
-        users,
-        userIds,
-      };
-    }
-    case 's3-json': {
-      const users = createJSONStorage/*:: <UserID, User>*/(
-        transformKey(createS3Storage(config.creds, config.bucketName), key => `users/${key}`), toUser
-      );
-      const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(
-        fixKey(createS3Storage(config.creds, config.bucketName), 'userIds'), toArray(toUserID)
-      );
-      return {
-        users,
-        userIds,
-      };
-    }
+    case 'local-json':
+      return createLocalJsonStorage(config);
+    case 's3-json':
+      return await createS3JsonStorage(config)
     default:
       throw new Error('Didnt do this yet lol');
   }
