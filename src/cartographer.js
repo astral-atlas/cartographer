@@ -9,6 +9,8 @@ const { createRoutes } = require('./routes.2');
 const { createJSONStreamLog } = require('./services/log/streamLog');
 const { createStorage } = require('./services/storage.2');
 const { createUserService } = require('./services/userService.2');
+const { createEncounterService } = require('./services/atlas/encounter');
+
 const { toUser, toUserID } = require('./models/user');
 const { respondRoute, errorRoute } = require('./events/routeEvents');
 const { boundPort, appShutdown } = require('./events/applicationEvents');
@@ -47,9 +49,10 @@ const createListener = (routes, { log }) => {
 const createCartographer = async (config/*: Config*/) => {
   const logger = createLogService('stdout');
 
-  const { users, userIds } = await createStorage(config.storage);
+  const { users, userIds, encounters } = await createStorage(config.storage);
   const userService = createUserService(userIds, users);
-  const routes = await createRoutes(logger, userService);
+  const encounterService = createEncounterService(encounters);
+  const routes = await createRoutes(logger, userService, encounterService);
 
   const server = createServer(createListener(routes, logger));
 

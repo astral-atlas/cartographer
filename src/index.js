@@ -18,5 +18,7 @@ const init = async (configPath) => {
 
 if (require.main === module) {
   const args = toObjectFromTuples(toTuples(process.argv));
-  init(args['-c'] || args['-config'] || './local.cartographer.json');
+  setTimeout(() => {
+    init(args['-c'] || args['-config'] || './local.cartographer.json');
+  }, 100)
 }

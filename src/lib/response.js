@@ -34,8 +34,14 @@ const internalServerError = (
   headers/*: Array<[string, string]>*/ = [],
 ) => createResponse(500, body, headers);
 
+const badInput = (
+  body/*: string*/ = '',
+  headers/*: Array<[string, string]>*/ = [],
+) => createResponse(400, body, headers);
+
 module.exports = {
   ok,
   notFound,
   internalServerError,
+  badInput,
 };
