@@ -19,6 +19,7 @@ artifacts:
     - package-lock.json
     - Dockerfile
     - config.json
+    - local.cartographer.json
   discard-paths: no
 cache:
   paths:
