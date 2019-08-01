@@ -1,5 +1,5 @@
 // @flow strict
-const { toObject, toString, toNumber } = require('@lukekaalim/to');
+const { toObject, toAString, toNumber } = require('@lukekaalim/to');
 
 /*::
 export type AWSCreds = {
@@ -19,20 +19,20 @@ export type Config = {
 */
 
 const toAwsCreds = toObject({
-  accessKeyId: toString,
-  secretAccessKey: toString,
-  region: toString,
+  accessKeyId: toAString,
+  secretAccessKey: toAString,
+  region: toAString,
 });
 
 const toS3JsonStorage = toObject({
   type: ()/*: 's3-json'*/ => 's3-json',
-  bucketName: toString,
+  bucketName: toAString,
   creds: toAwsCreds,
 });
 
 const toLocalJsonStorage = toObject({
   type: ()/*: 'local-json'*/ => 'local-json',
-  dir: toString,
+  dir: toAString,
 });
 
 class UnknownStorageTypeError extends Error {
@@ -42,7 +42,7 @@ class UnknownStorageTypeError extends Error {
 }
 
 const toStorage = (value/*: mixed*/) => {
-  const { type } = toObject({ type: toString })(value);
+  const { type } = toObject({ type: toAString })(value);
   switch (type) {
     case 's3-json':
       return toS3JsonStorage(value);

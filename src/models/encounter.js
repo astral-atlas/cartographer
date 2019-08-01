@@ -5,7 +5,7 @@ import type { CreatureID } from './creature';
 import type { UserID } from './user';
 import type { DiceAmount } from './dice';
 */
-const { toObject, toString, toArray } = require('@lukekaalim/to');
+const { toObject, toAString, toArray, toDisjointUnion } = require('@lukekaalim/to');
 const { toUUID, generateUUID } = require('./uuid');
 const { toDiceAmount } = require('./dice');
 const { toCreatureId } = require('./creature');
@@ -57,10 +57,6 @@ export type Encounter = {
 
 const toEncounterID = (value/*: mixed*/)/*: EncounterID*/ => toUUID(value);
 
-const toSharedEncounterActionProperties = toObject({
-  type: toString,
-});
-
 const createDeclareAction = (
   creature/*: CreatureID*/,
   createdBy/*: UserID*/,
@@ -76,12 +72,12 @@ const toDeclareAction/*: mixed => EncounterDeclareAction*/ = toObject({
   type: () => 'action-declare',
   creature: toCreatureId,
   createdBy: toUserID,
-  actionDescription: toString,
+  actionDescription: toAString,
 });
 
 const toRollDiceAction/*: mixed => EncounterRollDiceAction*/ = toObject({
   type: () => 'action-roll-dice',
-  title: toString,
+  title: toAString,
   dice: toDiceAmount,
   creature: toCreatureId,
   createdBy: toUserID,
@@ -89,7 +85,7 @@ const toRollDiceAction/*: mixed => EncounterRollDiceAction*/ = toObject({
 
 const toSpeakAction/*: mixed => EncounterSpeakAction*/ = toObject({
   type: () => 'action-speak',
-  textSpoken: toString,
+  textSpoken: toAString,
   creature: toCreatureId,
   createdBy: toUserID,
 });
@@ -100,27 +96,12 @@ const toSetCreaturesAction/*: mixed => EncounterSetCreaturesAction*/ = toObject(
   createdBy: toUserID,
 });
 
-class UnknownEncounterAction extends Error {
-  constructor(unknownAction) {
-    super(`Unknown Encounter Action: "${unknownAction}"`);
-  }
-}
-
-const toEncounterAction = value => {
-  const { type } = toSharedEncounterActionProperties(value);
-  switch (type) {
-    case 'action-declare':
-      return toDeclareAction(value);
-    case 'action-speak':
-      return toSpeakAction(value);
-    case 'encounter-set-creatures':
-      return toSetCreaturesAction(value);
-    case 'action-roll-dice':
-      return toRollDiceAction(value);
-    default:
-      throw new UnknownEncounterAction(type);
-  }
-};
+const toEncounterAction = toDisjointUnion('type', {
+  'action-declare': toDeclareAction,
+  'action-speak': toSpeakAction,
+  'encounter-set-creatures': toSetCreaturesAction,
+  'action-roll-dice': toRollDiceAction,
+});
 
 const toEncounter/*: mixed => Encounter*/ = toObject({
   id: toEncounterID,
