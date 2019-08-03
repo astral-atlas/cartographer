@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node src"
   },
-  "name": "atlas-scribe",
+  "name": "cartographer",
   "version": "1.1.0",
   "description": "A backend API for serialzing atlas datas",
   "main": "src/index.js",
@@ -17,14 +17,17 @@
     "aws-sdk": "^2.502.0",
     "uuid": "^3.3.2"
   },
+  "author": "luke kaalim (luke@kaal.im)",
+  "license": "MIT",
+  "keywords": [
+    "atlas"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lukekaalim/Atlas-Scribe.git"
+    "url": "git+https://github.com/astral-atlas/cartographer.git"
   },
-  "author": "",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lukekaalim/Atlas-Scribe/issues"
+    "url": "https://github.com/astral-atlas/cartographer/issues"
   },
-  "homepage": "https://github.com/lukekaalim/Atlas-Scribe#readme"
+  "homepage": "https://github.com/astral-atlas/cartographer#readme"
 }
