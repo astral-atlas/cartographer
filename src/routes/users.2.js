@@ -15,7 +15,7 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
     return ok(JSON.stringify(allUsers));
   }, 'GET');
 
-  const postUser = createUserRoute('/users', async (query, headers) => {
+  const postUser = createUserRoute('/users', async (query) => {
     const user = await userService.addUser();
     return ok(JSON.stringify(user));
   }, 'POST');

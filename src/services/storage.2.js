@@ -2,10 +2,12 @@
 /*::
 import type { StorageConfig } from '../models/config';
 import type { UserID, User } from '../models/user';
+import type { EncounterID, Encounter } from '../models/encounter';
 */
 const { join } = require('path');
 const { toArray } = require('@lukekaalim/to');
 const { toUser, toUserID } = require('../models/user');
+const { toEncounter, toEncounterID } = require('../models/encounter');
 const { createDirectoryStorage, createFileStorage } = require('./storage/fsStorage');
 const { createS3Storage } = require('./storage/s3Storage');
 
@@ -22,7 +24,7 @@ export type Storage<TKey, TValue> = {
 /**
  * This function accepts a backing storage, and attempts
  * to convert (using JSON.parse and JSON.stringify) to
- * and from serialzed representations of an object
+ * and from serialized representations of an object
  */
 const createJSONStorage = /*:: <TKey, TValue>*/(
   backingStorage/*: Storage<TKey, string>*/,
@@ -43,6 +45,7 @@ const createJSONStorage = /*:: <TKey, TValue>*/(
     has,
   };
 };
+module.exports.createJSONStorage = createJSONStorage;
 
 const transformKey = /*:: <TKey, TNewKey, TValue>*/(
   storage/*: Storage<TNewKey, TValue>*/,
@@ -64,7 +67,10 @@ const fixKey = /*:: <TKey, TValue>*/(
 
 const createLocalJsonStorage = async config => {
   const users = createJSONStorage/*:: <UserID, User>*/(
-    transformKey(createDirectoryStorage(join(config.dir, 'users'), 'json'), toUserID), toUser
+    transformKey(await createDirectoryStorage(join(config.dir, 'users'), 'json'), toUserID), toUser
+  );
+  const encounters = createJSONStorage/*:: <EncounterID, Encounter>*/(
+    transformKey(await createDirectoryStorage(join(config.dir, 'encounters'), 'json'), toEncounterID), toEncounter
   );
   const userIdsFileStorage = createFileStorage(join(config.dir, 'userIds.json'));
   if (!await userIdsFileStorage.has(null)) {
@@ -73,6 +79,7 @@ const createLocalJsonStorage = async config => {
 
   const userIds = createJSONStorage/*:: <null, Array<UserID>>*/(userIdsFileStorage, toArray(toUserID));
   return {
+    encounters,
     users,
     userIds,
   };
@@ -84,7 +91,9 @@ const createS3JsonStorage = async config => {
   if (!await s3UsersStorage.has('userIds')) {
     await s3UsersStorage.write('userIds', JSON.stringify([]));
   }
-  
+  const encounters = createJSONStorage/*:: <EncounterID, Encounter>*/(
+    transformKey(s3UsersStorage, key => `encounters/${key}`), toEncounter
+  );
   const users = createJSONStorage/*:: <UserID, User>*/(
     transformKey(s3UsersStorage, key => `users/${key}`), toUser
   );
@@ -92,6 +101,7 @@ const createS3JsonStorage = async config => {
     fixKey(s3UsersStorage, 'userIds'), toArray(toUserID)
   );
   return {
+    encounters,
     users,
     userIds,
   };
@@ -108,6 +118,4 @@ const createStorage = async (config/*: StorageConfig*/) => {
   }
 };
 
-module.exports = {
-  createStorage,
-};
+module.exports.createStorage = createStorage;

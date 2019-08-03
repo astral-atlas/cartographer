@@ -1,0 +1,9 @@
+version: '3'
+services:
+  web:
+    command: ["node", "src", "-c", "/opts/cartographer/local.config.json"]
+    build: .
+    ports:
+    - "8080:80"
+    volumes:
+    - .:/opts/cartographer

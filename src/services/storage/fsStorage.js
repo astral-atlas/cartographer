@@ -4,7 +4,9 @@ import type { Storage } from '../storage.2';
 */
 const { readFile, writeFile, stat } = require('fs').promises;
 const { join } = require('path');
- 
+const storage = require('../storage.2');
+const { toArray, toString } = require('@lukekaalim/to');
+
 const createFileStorage = (
   filePath/*: string*/
 )/*: Storage<null, string> */ => {
@@ -15,7 +17,14 @@ const createFileStorage = (
     return await readFile(filePath);
   };
   const has = async () => {
-    return !!(await stat(filePath)).isFile;
+    try {
+      return !!(await stat(filePath)).isFile;
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        return false;
+      }
+      throw err;
+    }
   }
   return {
     write,
@@ -24,10 +33,10 @@ const createFileStorage = (
   };
 };
  
-const createDirectoryStorage = (
+const createDirectoryStorage = async (
   directoryPath/*: string*/,
   fileExtension/*: string*/ = 'txt',
-)/*: Storage<string, string>*/ => {
+)/*: Promise<Storage<string, string>>*/ => {
   const write = async (key, value) => {
     await writeFile(join(directoryPath, `${key}.${fileExtension}`), value);
   };
@@ -43,7 +52,7 @@ const createDirectoryStorage = (
     read,
     has,
   };
-}
+};
 
 module.exports = {
   createFileStorage,
