@@ -4,6 +4,6 @@ services:
     command: ["node", "src", "-c", "/opts/cartographer/local.config.json"]
     build: .
     ports:
-    - "80:8080"
+    - "8080:80"
     volumes:
     - .:/opts/cartographer
