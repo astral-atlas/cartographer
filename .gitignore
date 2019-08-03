@@ -1,5 +1,2 @@
 node_modules
-dist
-local-fs-root
-local.cartographer.json
-local
+local.config.json
