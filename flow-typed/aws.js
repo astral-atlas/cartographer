@@ -5,7 +5,7 @@ declare module "aws-sdk" {
     promise: () => Promise<T>,
   };
   declare export class S3 {
-    constructor({ region: string, accessKeyId: string, secretAccessKey: string }): S3;
+    constructor({ region: string, accessKeyId?: string, secretAccessKey?: string }): S3;
     getObject({
       Bucket: string,
       Key: string,

@@ -7,7 +7,6 @@ const { join } = require('path');
 const storage = require('../storage.2');
 const { toArray, toString } = require('@lukekaalim/to');
 
-
 const createFileStorage = (
   filePath/*: string*/
 )/*: Storage<null, string> */ => {
@@ -37,26 +36,18 @@ const createFileStorage = (
 const createDirectoryStorage = async (
   directoryPath/*: string*/,
   fileExtension/*: string*/ = 'txt',
-  indexPath/*: string*/ = join(directoryPath, 'index.json'),
-)/*: Promise<Storage<string, string> & { index: Storage<null, Array<string>> }>*/ => {
-
+)/*: Promise<Storage<string, string>>*/ => {
   const write = async (key, value) => {
     await writeFile(join(directoryPath, `${key}.${fileExtension}`), value);
-    await index.write(null, [ ...new Set([...await index.read(null), key])]);
   };
   const read = async (key) => {
     return await readFile(join(directoryPath, `${key}.${fileExtension}`));
   };
   const has = async (key) => {
-    return (await index.read(null)).includes(key);
-  }
-  const index = storage.createJSONStorage(createFileStorage(indexPath), toArray(toString));
-  if (!await index.has(null)) {
-    await index.write(null, []);
+    return !!(await stat(join(directoryPath, `${key}.${fileExtension}`))).isFile;
   }
 
   return {
-    index,
     write,
     read,
     has,

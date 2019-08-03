@@ -1,5 +1,5 @@
 // @flow strict
-const { toObject, toAString, toNumber } = require('@lukekaalim/to');
+const { toObject, toAString, toNumber, toDisjointUnion } = require('@lukekaalim/to');
 
 /*::
 export type AWSCreds = {
@@ -41,19 +41,12 @@ class UnknownStorageTypeError extends Error {
   }
 }
 
-const toStorage = (value/*: mixed*/) => {
-  const { type } = toObject({ type: toAString })(value);
-  switch (type) {
-    case 's3-json':
-      return toS3JsonStorage(value);
-    case 'local-json':
-      return toLocalJsonStorage(value);
-    default:
-      throw new UnknownStorageTypeError(type);
-  }
-};
+const toStorage = toDisjointUnion('type', {
+  's3-json': toS3JsonStorage,
+  'local-json': toLocalJsonStorage,
+});
 
-const toConfig = toObject({
+const toConfig/*: mixed => Config*/ = toObject({
   storage: toStorage,
   port: toNumber,
 });
