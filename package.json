@@ -9,7 +9,7 @@
     "start": "node src"
   },
   "name": "atlas-scribe",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A backend API for serialzing atlas datas",
   "main": "src/index.js",
   "dependencies": {
