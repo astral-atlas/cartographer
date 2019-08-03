@@ -1,16 +1,16 @@
-FROM node:12
+FROM node:12-alpine
 
-LABEL maintainer="Luke Kaalim"
+LABEL maintainer="Luke Kaalim (luke@kaal.im)"
+LABEL project="Astral Atlas"
 
 WORKDIR /home/cartographer
 
 ADD package.json package-lock.json ./
-ADD local.cartographer.json ./
 
-RUN npm i --production
+RUN npm ci install --production
 
 ADD src ./src
 
 EXPOSE 80
 
-ENTRYPOINT [ "npm", "start" ]
+ENTRYPOINT [ "node", "src" ]
