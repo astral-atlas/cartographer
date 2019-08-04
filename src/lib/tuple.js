@@ -9,7 +9,7 @@ const toTuples = /*:: <T>*/(list/*: Array<T>*/)/*: Array<[T, T]>*/ => {
 
 const toObjectFromTuples = /*:: <T>*/(
   tuples/*: Array<[string, T]>*/
-)/*: { [string]: T }*/ => tuples.reduce((acc, [name, val]) => ({
+)/*: { [string]: ?T }*/ => tuples.reduce((acc, [name, val]) => ({
   ...acc,
   [name]: val,
 }), {});

@@ -21,6 +21,9 @@ Alternativley, run locally with `Node`, version 12.
 node src -c local.config.json
 ```
 
+## Docs
+Documentation is available at [/documentation](/documentation/index.md)
+
 ## Contributing
 Requires at least Node 12.
 
