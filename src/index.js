@@ -5,7 +5,7 @@ const { toConfig } = require('./models/config');
 const { toTuples, toObjectFromTuples } = require('./lib/tuple');
 const { createCartographer } = require('./cartographer');
 
-const init = async (configPath) => {
+const init = async (configPath/*: string*/) => {
   try {
     const config = toConfig(JSON.parse(await readFile(configPath, 'utf-8')));
     const cartographer = await createCartographer(config);
@@ -18,5 +18,6 @@ const init = async (configPath) => {
 
 if (require.main === module) {
   const args = toObjectFromTuples(toTuples(process.argv));
-  init(args['-c'] || args['-config'] || './local.cartographer.json');
+  // $FlowFixMe
+  init(args['-c'] || args['-config'] || process.env['CONFIG_PATH'] || './local.cartographer.json');
 }
