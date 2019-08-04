@@ -19,5 +19,5 @@ const init = async (configPath/*: string*/) => {
 if (require.main === module) {
   const args = toObjectFromTuples(toTuples(process.argv));
   // $FlowFixMe
-  init(args['-c'] || args['-config'] || process.env['CONFIG_PATH'] || './local.cartographer.json');
+  init(args['-c'] || args['-config'] || process.env['CARTOGRAPHER_CONFIG_PATH'] || './local.cartographer.json');
 }
