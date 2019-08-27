@@ -8,6 +8,7 @@ flow-typed
 [lints]
 all=error
 dynamic-export=off
+sketchy-null-string=off
 [options]
 emoji=true
 [strict]
