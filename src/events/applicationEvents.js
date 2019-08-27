@@ -47,11 +47,13 @@ const boundPort = (
 /*::
 type ApplicationShutdownEvent = {
   type: 'shutdown',
+  reason: string,
   timestamp: number,
 };
 */
-const appShutdown = (timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
+const appShutdown = (reason/*: string*/, timestamp/*: number*/ = Date.now())/*: ApplicationShutdownEvent*/ => ({
   type: 'shutdown',
+  reason,
   timestamp,
 });
 /*::

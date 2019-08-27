@@ -65,9 +65,9 @@ const createCartographer = async (config/*: Config*/) => {
 
   const server = createServer(createListener(routes, onNotFound(logger), onError(logger)));
 
-  const stop = async () => new Promise((res, rej) => {
+  const stop = async (reason/*: string*/ = '(Reason for shutdown not provided)') => new Promise((res, rej) => {
     heart.stop();
-    logger.log(appShutdown());
+    logger.log(appShutdown(reason));
     server.close(err => err ? rej(err) : res());
   });
 

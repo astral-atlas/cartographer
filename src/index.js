@@ -11,7 +11,7 @@ const init = async (configPath/*: string*/) => {
     const config = toConfig(JSON.parse(await readFile(configPath, 'utf-8')));
     const cartographer = await createCartographer(config);
     const shutdown = (signal) => {
-      cartographer.stop();
+      cartographer.stop('Signal Interrupt Detected (Typically casued by Control-C)');
     };
     process.on('SIGINT', shutdown);
   } catch (error) {
