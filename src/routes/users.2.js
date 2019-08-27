@@ -3,6 +3,7 @@ const { createRESTRoute, createRESTResponse } = require('@lukekaalim/server');
 const { toUserID } = require('../models/user');
 const { enhanceRouteWithMiddleware } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
+const { handleResult } = require('../lib/result');
 /*::
 import type { UserService } from '../services/userService.2';
 import type { EventLogger } from '../services/log.2';
@@ -15,29 +16,48 @@ const internalServerError = body => createRESTResponse(500, body);
 
 const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) => {
   const createRouteWithMiddleware = enhanceRouteWithMiddleware(logger, createRESTRoute);
+  const defaultErrorResponse = (error) => {
+    logger.log(errorRoute(error));
+    return internalServerError(JSON.stringify({ message: 'There was an issue with the User Service' }));
+  };
 
   const getUsers = createRouteWithMiddleware('GET', '/users', async (query) => {
-    const allUsersResult = await userService.getAllUsers();
-    if (allUsersResult.type === 'failure') {
-      logger.log(errorRoute(allUsersResult.failure.internalError));
-      return internalServerError(JSON.stringify({ message: 'There was an issue with the User Service' }));
+    // Depending on if you present the ?userId=${userid} query, we show all of the users, or just one in detail
+    if (query.has('userId')) {
+      const userId = toUserID(query.get('userId'));
+      const getUserResult = await userService.getUser(userId);
+      return handleResult(getUserResult,
+        user => ok(JSON.stringify(user)),
+        error => defaultErrorResponse(error)
+      );
+    } else {
+      const allUsersResult = await userService.getAllUsers();
+      return handleResult(allUsersResult,
+        allUsers => ok(JSON.stringify(allUsers.map(user => user.id))),
+        error => defaultErrorResponse(error)
+      );
     }
-    return ok(JSON.stringify(allUsersResult.success));
   });
 
   const postUser = createRouteWithMiddleware('POST', '/users', async (query) => {
-    const user = await userService.addUser();
-    return ok(JSON.stringify(user));
+    const userResult = await userService.addUser();
+    return handleResult(userResult,
+      user => ok(JSON.stringify(user)),
+      error => defaultErrorResponse(error)
+    );
   });
 
   const deleteUser = createRouteWithMiddleware('DELETE', '/users', async (query) => {
-    const queryUserId = query.get('userID')
+    const queryUserId = query.get('userId')
     if (!queryUserId) {
       return invalidRequest();
     }
     const userId = toUserID(queryUserId);
-    await userService.deleteUser(userId);
-    return ok(JSON.stringify(userId));
+    const deletionResult = await userService.deleteUser(userId);
+    return handleResult(deletionResult,
+      () => ok(JSON.stringify(userId)),
+      error => defaultErrorResponse(error)
+    );
   });
 
   return [getUsers, postUser, deleteUser];
