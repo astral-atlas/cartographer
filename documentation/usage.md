@@ -15,11 +15,14 @@ The prority of the sources is listed below:
 3. `CARTOGRAPHER_CONFIG_PATH`
 4. `local.cartographer.json`
 
-If a config cannot be loaded for whatever reason, the application will terminate with an error code of `1`, and log the resulting error to `STDOUT`.
+If a config cannot be loaded for whatever reason, the application will terminate with an error code of `1`, and log the resulting error to `STDERR`.
 
 ### Example 1
 ```bash
-docker run -v $(pwd):./opt/cartographer astralatlas/cartographer -c ./opt/cartographer/config.json
+docker run \
+  -v $(pwd):./opt/cartographer \
+  astralatlas/cartographer \
+    -c ./opt/cartographer/config.json
 ```
 This example runs the application as a docker container, mounting the current working directory to the container
 at the location `./opt/cartographer`, which we then pass to the program itself via the `-c` argument, with the
@@ -33,14 +36,14 @@ services:
     command: ["node", "src"]
     build: .
     environment:
-      CONFIG_PATH: /opts/cartographer/local.config.json
+      CARTOGRAPHER_CONFIG_PATH: /opts/cartographer/local.config.json
     ports:
     - "8080:80"
     volumes:
     - .:/opts/cartographer
 ```
 
-This example is the default **docker-compose** file included with the repository, and much like the other example, mounts the local directroy to `/opts/cartographer` in the container. However, we define an environment variable to pass the location of our config file to the application called `CONFIG_PATH`.
+This example is the default **docker-compose** file included with the repository, and much like the other example, mounts the local directroy to `/opts/cartographer` in the container. However, we define an environment variable to pass the location of our config file to the application called `CARTOGRAPHER_CONFIG_PATH`.
 
 ### Example 3
 ```bash
