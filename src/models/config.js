@@ -35,12 +35,6 @@ const toLocalJsonStorage = toObject({
   dir: toAString,
 });
 
-class UnknownStorageTypeError extends Error {
-  constructor(storageType) {
-    super(`Did not understand storage type: "${storageType}"`);
-  }
-}
-
 const toStorage = toDisjointUnion('type', {
   's3-json': toS3JsonStorage,
   'local-json': toLocalJsonStorage,
