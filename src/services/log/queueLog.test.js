@@ -45,7 +45,7 @@ const expectForwardsToLogger = expect(() => {
 const expectToBufferLogs = expect(() => {
   const queueLog = createQueueLogger();
   const mockLog = createMockLogger();
-  const testEvents = [appStartedUp(), boundPort(100), appShutdown()];
+  const testEvents = [appStartedUp(), boundPort(100), appShutdown('just cos')];
 
   for (const event of testEvents) {
     queueLog.log(event);
