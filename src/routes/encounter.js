@@ -20,7 +20,7 @@ const toDeclareActionPostBody = toObject({
   creatureId: toString,
 });
 
-const createEncounterRoutes = (logger/*: EventLogger*/, service/*: EncounterService*/) => {
+const createEncounterRoutes = (logger/*: EventLogger*/, encounters/*: EncounterService*/) => {
   const createLoggedRESTRoute = createRESTRoute(logger);
 
   const getEncounter = createLoggedRESTRoute('/encounters', async (queries) => {
@@ -29,16 +29,16 @@ const createEncounterRoutes = (logger/*: EventLogger*/, service/*: EncounterServ
       return badInput('Missing ?encounterID query');
     }
     const encounterId = toEncounterID(encounterIdQuery);
-    if (!await service.exists(encounterId)) {
+    if (!await encounters.exists(encounterId)) {
       return notFound('Encounter not found');
     }
-    const encounter = await service.get(encounterId);
+    const encounter = await encounters.get(encounterId);
     return ok(JSON.stringify(encounter));
   });
 
   const createEncounter = createLoggedRESTRoute('/encounters', async (queries, _, body) => {
     const encounterPost = toEncounterPostBody(JSON.parse(await readStream(body)));
-    const encounter = await service.create(encounterPost.title, toUserID(''));
+    const encounter = await encounters.create(encounterPost.title, toUserID(''));
     return ok(JSON.stringify(encounter));
   }, 'POST');
 
@@ -49,7 +49,7 @@ const createEncounterRoutes = (logger/*: EventLogger*/, service/*: EncounterServ
     }
     const encounterId = toEncounterID(encounterIdQuery);
     const { description, creatureId } = toDeclareActionPostBody(JSON.parse(await readStream(body)));
-    await service.declareAction(encounterId, description, toCreatureId(creatureId), toUserID(''));
+    await encounters.declareAction(encounterId, description, toCreatureId(creatureId), toUserID(''));
     return ok('');
   }, 'POST');
 
