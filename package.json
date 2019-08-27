@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@lukekaalim/test": "^4.5.2",
+    "@lukekaalim/test": "^4.6.0",
     "lk-test": "^3.1.0"
   },
   "engines": {
