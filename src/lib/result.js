@@ -21,7 +21,21 @@ const fail = /*:: <TFailure>*/(failure/*:: :TFailure*/)/*:: :Failure<TFailure> *
   failure,
 });
 
+// Simple handler function: if the result is successful, goto the second argument, it fails, goto the third
+const handleResult = /*:: <TSuccess, TFailure, TOnSuccessResult, TOnFailureResult> */(
+  result/*: Result<TSuccess, TFailure>*/,
+  onSuccess/*: (success: TSuccess) => TOnSuccessResult*/,
+  onFailure/*: (failure: TFailure) => TOnFailureResult*/
+)/*: TOnSuccessResult | TOnFailureResult*/ => {
+  if (result.type === 'success') {
+    return onSuccess(result.success);
+  } else {
+    return onFailure(result.failure);
+  }
+};
+
 module.exports = {
   succeed,
   fail,
+  handleResult,
 };
