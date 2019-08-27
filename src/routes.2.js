@@ -13,11 +13,11 @@ const createRoutes = async (
   encounterService/*: EncounterService*/,
 ) => {
   const userRoute = createUserRoutes(logger, userService);
-  const encounterRoutes = createEncounterRoutes(logger, encounterService);
+  //const encounterRoutes = createEncounterRoutes(logger, encounterService);
 
   return [
     ...userRoute,
-    ...encounterRoutes,
+    //...encounterRoutes,
   ];
 };
 
