@@ -12,11 +12,16 @@
     | Failure<TFailure>
     | Success<TSuccess>
 */
-export const succeed = /*:: <TSuccess>*/(success/*:: :TSuccess*/)/*:: :Success<TSuccess> */ => ({
+const succeed = /*:: <TSuccess>*/(success/*:: :TSuccess*/)/*:: :Success<TSuccess> */ => ({
   type: 'success',
   success,
 });
-export const fail = /*:: <TFailure>*/(failure/*:: :TFailure*/)/*:: :Failure<TFailure> */ => ({
+const fail = /*:: <TFailure>*/(failure/*:: :TFailure*/)/*:: :Failure<TFailure> */ => ({
   type: 'failure',
   failure,
 });
+
+module.exports = {
+  succeed,
+  fail,
+};
