@@ -19,7 +19,7 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
   const getUsers = createRouteWithMiddleware('GET', '/users', async (query) => {
     const allUsersResult = await userService.getAllUsers();
     if (allUsersResult.type === 'failure') {
-      logger.log(errorRoute(allUsersResult.failure.internalError.message, allUsersResult.failure.internalError.stack));
+      logger.log(errorRoute(allUsersResult.failure.internalError));
       return internalServerError(JSON.stringify({ message: 'There was an issue with the User Service' }));
     }
     return ok(JSON.stringify(allUsersResult.success));

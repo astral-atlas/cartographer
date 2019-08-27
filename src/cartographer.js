@@ -40,7 +40,7 @@ class UnknownRouteError extends Error {
 
 const onNotFound = (logger) => (inc, res) => {
   const error = new UnhandledRouteError(inc.url);
-  logger.log(errorRoute(error.message, error.stack));
+  logger.log(errorRoute(error));
   logger.log(respondRoute(inc.url, inc.method, 404));
   res.writeHead(404);
   res.end();
@@ -48,7 +48,7 @@ const onNotFound = (logger) => (inc, res) => {
 
 const onError = (logger) => (inc, res) => {
   const error = new UnknownRouteError(inc.url);
-  logger.log(errorRoute(error.message, error.stack));
+  logger.log(errorRoute(error));
   logger.log(respondRoute(inc.url, inc.method, 500));
   res.writeHead(500);
   res.end();
