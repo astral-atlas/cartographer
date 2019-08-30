@@ -1,7 +1,8 @@
 {
   "devDependencies": {
     "@lukekaalim/test": "^4.6.0",
-    "lk-test": "^3.1.0"
+    "lk-test": "^3.1.0",
+    "nyc": "^14.1.1"
   },
   "engines": {
     "node": ">=12.5.0"
