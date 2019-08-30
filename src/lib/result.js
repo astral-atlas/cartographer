@@ -1,4 +1,12 @@
-// @flow
+// @flow strict
+
+/*
+  Result is a data type that represents a single branch in execution,
+  where one branch performs the expected operation, and another handles
+  a case where something unexpected happened.
+  This is slightly more useful to use because it forces the developer to
+  handle the error cases before accessing the value.
+*/
 /*::
   export type Success<TSuccess> = {
     type: 'success',

@@ -4,6 +4,7 @@ const { toUserID } = require('../models/user');
 const { enhanceRouteWithMiddleware } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
 const { handleResult } = require('../lib/result');
+const { createOPTIONSRoute } = require('../lib/route');
 /*::
 import type { UserService } from '../services/userService.2';
 import type { EventLogger } from '../services/log.2';
@@ -14,21 +15,34 @@ const invalidRequest =      body => createRESTResponse(400, body);
 const notFound =            body => createRESTResponse(404, body);
 const internalServerError = body => createRESTResponse(500, body);
 
+const corsSettingsMap = new Map([
+  ['localhost', {
+    originAllowed: true,
+    allowCredentials: false,
+    exposedHeadersAllowed: [],
+    headersAllowed: [],
+    maxAgeSeconds: 60,
+    methodsAllowed: ['GET', 'POST', 'DELETE', 'OPTIONS']
+  }],
+]);
+
 const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) => {
-  const createRouteWithMiddleware = enhanceRouteWithMiddleware(logger, createRESTRoute);
+  const createRoute = enhanceRouteWithMiddleware(logger, createRESTRoute, corsSettingsMap);
   const defaultErrorResponse = (error) => {
     logger.log(errorRoute(error));
     return internalServerError(JSON.stringify({ message: 'There was an issue with the User Service' }));
   };
 
-  const getUsers = createRouteWithMiddleware('GET', '/users', async (query) => {
+  const headUsers = createOPTIONSRoute('/users', corsSettingsMap);
+
+  const getUsers = createRoute('GET', '/users', async (query) => {
     // Depending on if you present the ?userId=${userid} query, we show all of the users, or just one in detail
     if (query.has('userId')) {
       const userId = toUserID(query.get('userId'));
       const getUserResult = await userService.getUser(userId);
       return handleResult(getUserResult,
         user => ok(JSON.stringify(user)),
-        error => defaultErrorResponse(error)
+        error => notFound(JSON.stringify({ message: `User ${userId} does not exist` })),
       );
     } else {
       const allUsersResult = await userService.getAllUsers();
@@ -39,7 +53,7 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
     }
   });
 
-  const postUser = createRouteWithMiddleware('POST', '/users', async (query) => {
+  const postUser = createRoute('POST', '/users', async (query) => {
     const userResult = await userService.addUser();
     return handleResult(userResult,
       user => ok(JSON.stringify(user)),
@@ -47,7 +61,7 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
     );
   });
 
-  const deleteUser = createRouteWithMiddleware('DELETE', '/users', async (query) => {
+  const deleteUser = createRoute('DELETE', '/users', async (query) => {
     const queryUserId = query.get('userId')
     if (!queryUserId) {
       return invalidRequest();

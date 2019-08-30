@@ -1,15 +1,17 @@
 // @flow
 const { receiveRoute, respondRoute } = require('../events/routeEvents');
+const { corsMiddleware } = require('../lib/route');
 /*::
 import typeof { createRESTRoute as CreateRESTRouteFunction } from '@lukekaalim/server';
 import type { EventLogger } from '../services/log.2';
+import type { CORSSettings } from '../lib/route';
 */
 
 /*::
-type Middleware = CreateRESTRouteFunction => CreateRESTRouteFunction;
+export type RouteMiddleware = CreateRESTRouteFunction => CreateRESTRouteFunction;
 */
 
-const composeMiddleware = (middlewares/*: Array<Middleware>*/, createRestRoute) => {
+const composeMiddleware = (middlewares/*: Array<RouteMiddleware>*/, createRestRoute) => {
   return middlewares.reduce((acc, curr) => curr(acc), createRestRoute);
 };
 
@@ -48,11 +50,13 @@ const contentTypeMiddleware = (contentType = 'application/json') => (createRestR
 const enhanceRouteWithMiddleware = (
   logger/*: EventLogger*/,
   createRESTRoute/*: CreateRESTRouteFunction*/,
+  originCORSMap/*: Map<string, CORSSettings>*/,
 )/*: CreateRESTRouteFunction*/ => (
   method, path, handler
 ) => {
   const middleware = [
     loggerMiddleware(logger),
+    corsMiddleware(logger, originCORSMap),
     contentLengthMiddleware(),
     contentTypeMiddleware('application/json'),
   ];

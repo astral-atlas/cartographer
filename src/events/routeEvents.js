@@ -19,7 +19,7 @@ const createRouteNotFoundEvent = (
 /*::
 type RouteErrorEvent = {
   type: 'route-error',
-  error: Error,
+  error: string,
   timestamp: number,
 };
 */
@@ -28,7 +28,7 @@ const errorRoute = (
   timestamp/*: number*/ = Date.now(),
 )/*: RouteErrorEvent*/ => ({
   type: 'route-error',
-  error,
+  error: error.stack,
   timestamp,
 });
 
@@ -74,10 +74,52 @@ const respondRoute = (
 });
 
 /*::
+type RouteNoOriginEvent = {
+  type: 'route-no-origin',
+  url: string,
+  method: string,
+  timestamp: number,
+};
+*/
+
+const noOrigin = (
+  url/*: string*/,
+  method/*: string*/,
+  timestamp/*: number*/ = Date.now(),
+) => ({
+  type: 'route-no-origin',
+  url,
+  method,
+  timestamp,
+});
+
+/*::
+type RouteUnknownOriginEvent = {
+  type: 'route-unknown-origin',
+  url: string,
+  method: string,
+  timestamp: number,
+};
+*/
+
+const unknownOrigin = (
+  url/*: string*/,
+  method/*: string*/,
+  timestamp/*: number*/ = Date.now(),
+) => ({
+  type: 'route-unknown-origin',
+  url,
+  method,
+  timestamp,
+});
+
+/*::
 export type RouteEvent =
   | RouteReceiveEvent
   | RouteResponseEvent
   | RouteErrorEvent
+  | RouteUnknownOriginEvent
+  | RouteNoOriginEvent
   | RouteNotFoundEvent;
 */
 
@@ -86,4 +128,6 @@ module.exports = {
   createRouteNotFoundEvent,
   respondRoute,
   receiveRoute,
+  noOrigin,
+  unknownOrigin,
 }
