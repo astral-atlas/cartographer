@@ -37,11 +37,11 @@ export type FileStore = {
 }
 */
 
-const createDirStore = async (
+const createDirStore = (
   baseDirectory/*: string*/,
   logger/*: EventLogger*/,
   extension /*: string*/ = '.txt',
-)/*: Promise<DirStore>*/ => {
+)/*: DirStore*/ => {
   const list = async () => {
     try {
       const filenames = await readdir(baseDirectory, { encoding: 'utf8' });

@@ -25,7 +25,7 @@ const withDirectory = async (handleDirectory) => {
 };
 
 const expectCRUDStorage = expect(() => withDirectory(async (tempdir) => {
-  const store = await createDirStore(tempdir, createMockLogger());
+  const store = createDirStore(tempdir, createMockLogger());
 
   const key = 'example';
   const createdValue = '123456789';
@@ -66,7 +66,7 @@ const expectCRUDStorage = expect(() => withDirectory(async (tempdir) => {
 }));
 
 const expectListKeys = expect(() => withDirectory(async (tempdir) => {
-  const store = await createDirStore(tempdir, createMockLogger());
+  const store = createDirStore(tempdir, createMockLogger());
 
   [
     await store.create('a', 'content'),
@@ -90,10 +90,11 @@ const expectListKeys = expect(() => withDirectory(async (tempdir) => {
 }));
 
 const expectPersistance = expect(() => withDirectory(async (tempdir) => {
-  const store1 = await createDirStore(tempdir, createMockLogger());
+  const store1 = createDirStore(tempdir, createMockLogger());
 
   await store1.create('alpha', 'value');
   const store2 = await createDirStore(tempdir, createMockLogger());
+
   return handleResult(await store2.read('alpha'),
     readValue => assert('Can retain state over instances if directory matches', readValue === 'value'),
     error => assert('Cant retrieve value', false)
@@ -101,7 +102,7 @@ const expectPersistance = expect(() => withDirectory(async (tempdir) => {
 }));
 
 const expectDoubleKeyCreateFailure = expect(() => withDirectory(async tempdir => {
-  const store = await createDirStore(tempdir, createMockLogger());
+  const store = createDirStore(tempdir, createMockLogger());
 
   await store.create('key', 'value');
   return handleResult(await store.create('key', 'value'),
