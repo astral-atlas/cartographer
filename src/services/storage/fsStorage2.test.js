@@ -4,7 +4,7 @@ const { handleResult } = require('../../lib/result');
 const { rmdir, mkdtemp, readdir, unlink } = require('fs').promises;
 const { tmpdir } = require('os');
 const { join } = require('path');
-const { expect, expectAll, assert, booleanReporter } = require('@lukekaalim/test');
+const { expect, expectAll, assert } = require('@lukekaalim/test');
 
 const createMockLogger = () => {
   const logs = [];
@@ -55,14 +55,12 @@ const expectCRUDStorage = expect(() => withDirectory(async (tempdir) => {
     () => assert('Cant delete key @ value without failing', false),
   );
 
-  const assertions = [
+  return assert('Can perform CRUD operations', [
     createAssertion,
     readAssertion,
     updateAssertion,
     deleteAssertion,
-  ];
-
-  return assert('Can perform CRUD operations', assertions.every(booleanReporter), assertions);
+  ]);
 }));
 
 const expectListKeys = expect(() => withDirectory(async (tempdir) => {
@@ -76,15 +74,12 @@ const expectListKeys = expect(() => withDirectory(async (tempdir) => {
   .map(result => handleResult(result, () => {}, (error) => { throw error; }));
 
   return handleResult(await store.list(), 
-    list => {
-      const assertions = [
-        assert('Has "a" key', list.includes('a')),
-        assert('Has "b" key', list.includes('b')),
-        assert('Has "c" key', list.includes('c')),
-        assert('List is 3 elements long', list.length === 3),
-      ];
-      return assert('Can correctly list an array with only the inserted keys', assertions.every(booleanReporter), assertions);
-    },
+    list => assert('Can correctly list an array with only the inserted keys', [
+      assert('Has "a" key', list.includes('a')),
+      assert('Has "b" key', list.includes('b')),
+      assert('Has "c" key', list.includes('c')),
+      assert('List is 3 elements long', list.length === 3),
+    ]),
     error => assert('Cant list without throwing', false),
   );
 }));
@@ -123,11 +118,10 @@ const expectNonExistentReadFailure = expect(() => withDirectory(async tempdir =>
     failure => assert('Can fail when trying to update a key that doesn\'t exists', failure.type === 'not-created'),
   );
 
-  const assertions = [
+  return assert('Can properly return failures when performing incorrect operations', [
     nonExistentReadFailAssertion,
     nonExistentUpdateAssertion,
-  ];
-  return assert('Can properly return failures when performing incorrect operations', assertions.every(booleanReporter), assertions);
+  ]);
 }));
 
 const expectDirStorage = expectAll('Dir Storage', [

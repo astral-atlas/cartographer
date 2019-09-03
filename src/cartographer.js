@@ -7,6 +7,8 @@ const { join } = require('path');
 const { createListener } = require('@lukekaalim/server');
 
 const { createRoutes } = require('./routes.2');
+
+const { createAuthService } = require('./services/authentication');
 const { createJSONStreamLog } = require('./services/log/streamLog');
 const { createStorage } = require('./services/storage.2');
 const { createUserService } = require('./services/userService.2');
@@ -59,11 +61,19 @@ const createCartographer = async (config/*: Config*/) => {
   const heart = createHeartbeat(logger, 10000);
 
   const { users, userIds, encounters } = await createStorage(config.storage);
+  const authService = createAuthService(config);
   const userService = createUserService(userIds, users);
   const encounterService = createEncounterService(encounters);
   const routes = await createRoutes(logger, userService, encounterService);
 
   const server = createServer(createListener(routes, onNotFound(logger), onError(logger)));
+
+  const open = async () => new Promise(res => {
+    server.listen(config.port, () => {
+      logger.log(boundPort(config.port));
+      res();
+    });
+  });
 
   const stop = async (reason/*: string*/ = '(Reason for shutdown not provided)') => new Promise((res, rej) => {
     heart.stop();
@@ -71,9 +81,9 @@ const createCartographer = async (config/*: Config*/) => {
     server.close(err => err ? rej(err) : res());
   });
 
-  server.listen(config.port, () => logger.log(boundPort(config.port)));
 
   return {
+    open,
     stop,
   }
 };
