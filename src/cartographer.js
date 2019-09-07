@@ -4,12 +4,16 @@ import type { Config } from './models/config';
 */
 const { createServer } = require('http');
 const { join } = require('path');
+const { createListener } = require('@lukekaalim/server');
 
 const { createRoutes } = require('./routes.2');
+
+const { createAuthService } = require('./services/authentication');
 const { createJSONStreamLog } = require('./services/log/streamLog');
 const { createStorage } = require('./services/storage.2');
-const { createUserService } = require('./services/userService.2');
+const { createUserService } = require('./services/userService.3');
 const { createEncounterService } = require('./services/atlas/encounter');
+const { createHeartbeat } = require('./services/heartbeat');
 
 const { toUser, toUserID } = require('./models/user');
 const { respondRoute, errorRoute } = require('./events/routeEvents');
@@ -26,44 +30,60 @@ const createLogService = (logType) => {
 
 class UnhandledRouteError extends Error {
   constructor(url) {
-    return super(`No Route found for the url: "${url}"`);
+    return super(`No route found @ "${url}"`);
   }
 }
 
-const createListener = (routes, { log }) => {
-  const listener = (inc, res) => {
-    const route = routes.find(route => route.test(inc));
-    if (!route) {
-      const error = new UnhandledRouteError(inc.url);
-      log(errorRoute(error.message, error.stack));
-      log(respondRoute(inc.url, inc.method, 404));
-      res.statusCode = 404;
-      res.end();
-      return;
-    }
-    route.handler(inc, res);
-  };
-  return listener;
+class UnknownRouteError extends Error {
+  constructor(url) {
+    return super(`An uncaught error was throw by a route @ "${url}"`);
+  }
+}
+
+const onNotFound = (logger) => (inc, res) => {
+  const error = new UnhandledRouteError(inc.url);
+  logger.log(errorRoute(error));
+  logger.log(respondRoute(inc.url, inc.method, 404));
+  res.writeHead(404);
+  res.end();
+};
+
+const onError = (logger) => (inc, res) => {
+  const error = new UnknownRouteError(inc.url);
+  logger.log(errorRoute(error));
+  logger.log(respondRoute(inc.url, inc.method, 500));
+  res.writeHead(500);
+  res.end();
 };
 
 const createCartographer = async (config/*: Config*/) => {
   const logger = createLogService('stdout');
+  const heart = createHeartbeat(logger, 10000);
 
-  const { users, userIds, encounters } = await createStorage(config.storage);
-  const userService = createUserService(userIds, users);
-  const encounterService = createEncounterService(encounters);
-  const routes = await createRoutes(logger, userService, encounterService);
+  //const { users, userIds, encounters } = await createStorage(config.storage);
+  const authService = createAuthService(config);
+  const userService = await createUserService(logger, config);
+  //const encounterService = createEncounterService(encounters);
+  const routes = await createRoutes(logger, userService);
 
-  const server = createServer(createListener(routes, logger));
+  const server = createServer(createListener(routes, onNotFound(logger), onError(logger)));
 
-  const stop = async () => new Promise(res => {
-    logger.log(appShutdown());
-    server.close(res);
+  const open = async () => new Promise(res => {
+    server.listen(config.port, () => {
+      logger.log(boundPort(config.port));
+      res();
+    });
   });
 
-  server.listen(config.port, () => logger.log(boundPort(config.port)));
+  const stop = async (reason/*: string*/ = '(Reason for shutdown not provided)') => new Promise((res, rej) => {
+    heart.stop();
+    logger.log(appShutdown(reason));
+    server.close(err => err ? rej(err) : res());
+  });
+
 
   return {
+    open,
     stop,
   }
 };

@@ -8,8 +8,9 @@ import type { Writable } from 'stream';
 
 const createJSONStreamLog = (stream/*:Writable*/)/*: EventLogger*/ => {
   const log = (event) => {
-    const stringToWrite = JSON.stringify(event);
-    stream.write(stringToWrite + EOL);
+    //const stringToWrite = JSON.stringify(event, null, 3);
+    console.log(event);
+    //stream.write(stringToWrite + EOL);
   };
   return {
     log,

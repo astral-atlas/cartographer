@@ -1,6 +1,8 @@
 [ignore]
-dist
-atlas-quill
+.*/dist/.*
+.*/\.nyc_output/.*
+.*/coverage/.*
+.*/node_modules/*.test.js
 [include]
 
 [libs]
@@ -8,6 +10,7 @@ flow-typed
 [lints]
 all=error
 dynamic-export=off
+sketchy-null-string=off
 [options]
 emoji=true
 [strict]
