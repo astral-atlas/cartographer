@@ -12,8 +12,8 @@ type AuthenticationService = {
 };
 */
 
-const createFixedAuth = ({ name, password, userId }) => {
-  const successfulToken = name + password;
+const createFixedAuth = ({ name, pass, userId }) => {
+  const successfulToken = name + pass;
   const getUserId = async (token) => {
     if (token === successfulToken) {
       return succeed(userId);
