@@ -6,7 +6,7 @@ const { errorRoute } = require('../events/routeEvents');
 const { handleResult } = require('../lib/result');
 const { createOPTIONSRoute } = require('../lib/route');
 /*::
-import type { UserService } from '../services/userService.2';
+import type { UserService } from '../services/userService.3';
 import type { EventLogger } from '../services/log.2';
 */
 
@@ -62,6 +62,7 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
   });
 
   const deleteUser = createRoute('DELETE', '/users', async (query) => {
+    return notFound();
     const queryUserId = query.get('userId')
     if (!queryUserId) {
       return invalidRequest();
