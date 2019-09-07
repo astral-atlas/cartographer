@@ -30,7 +30,7 @@ const withFile = async (path, handle) => {
 const withExampleFile = (handle) => withDirectory(dir => withFile(join(dir, 'example.txt'), handle));
 
 const expectPersistance = expect(() => withExampleFile(async (filepath) => {
-  const store = createFileStore(filepath);
+  const store = await createFileStore(filepath);
 
   const writeAssertion = handleResult(await store.write('Example Text'),
     () => assert('Should write string without failure', true),
@@ -47,16 +47,17 @@ const expectPersistance = expect(() => withExampleFile(async (filepath) => {
   ]);
 }));
 
-const expectReadFailureOnNoFile = expect(() => withDirectory(async (dir) => {
-  const store = createFileStore(join(dir, 'this-file-does-not-exist.txt'));
+const expectDefaultOnNoFile = expect(() => withDirectory(async (dir) => {
+  const store = await createFileStore(join(dir, 'this-file-does-not-exist.txt'), 'default-value');
 
-  return assert('Should return a failure if the file does not exist when trying to read it',
-    (await store.read()).type === 'failure'
+  return handleResult(await store.read(),
+    value => assert('Should return the default value if the file does not exist when trying to read it', value === 'default-value'),
+    error => assert('Should not return failure', false),
   );
 }));
 
 const fileStorageExpectation = expectAll('File Storage Service', [
-  expectReadFailureOnNoFile,
+  expectDefaultOnNoFile,
   expectPersistance,
 ]);
 

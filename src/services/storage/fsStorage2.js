@@ -2,8 +2,10 @@
 /*::
 import type { Result } from '../../lib/result';
 import type { EventLogger } from '../log.2';
+declare function mkdir(path: string, options: { recursive: boolean }): Promise<void>;
 */
-const { readFile, writeFile, readdir, open, unlink } = require('fs').promises;
+// $FlowFixMe
+const { readFile, writeFile, readdir, open, unlink, mkdir } = require('fs').promises;
 const { succeed, fail, handleResult } = require('../../lib/result');
 const { join, extname } = require('path');
 
@@ -37,11 +39,13 @@ export type FileStore = {
 }
 */
 
-const createDirStore = (
+const createDirStore = async (
   baseDirectory/*: string*/,
   logger/*: EventLogger*/,
-  extension /*: string*/ = '.txt',
-)/*: DirStore*/ => {
+  extension /*: string*/ = 'txt',
+)/*: Promise<DirStore>*/ => {
+  await mkdir(baseDirectory, { recursive: true });
+
   const list = async () => {
     try {
       const filenames = await readdir(baseDirectory, { encoding: 'utf8' });
@@ -53,7 +57,7 @@ const createDirStore = (
   };
   const create = async (key, value) => {
     try {
-      const path = join(baseDirectory, key + extension);
+      const path = join(baseDirectory, key + '.' + extension);
       await writeFile(path, value, { encoding: 'utf8', flag: 'wx' });
       return succeed();
     } catch (error) {
@@ -65,7 +69,7 @@ const createDirStore = (
   };
   const read = async (key) => {
     try {
-      const path = join(baseDirectory, key + extension);
+      const path = join(baseDirectory, key + '.' +  extension);
       const value = await readFile(path, 'utf8');
       return succeed(value);
     } catch (error) {
@@ -77,7 +81,7 @@ const createDirStore = (
   };
   const update = async (key, value) => {
     try {
-      const path = join(baseDirectory, key + extension);
+      const path = join(baseDirectory, key + '.' +  extension);
       const fileHandler = await open(path, 'r+');
       try {
         await fileHandler.writeFile(value, { encoding: 'utf8' });
@@ -94,7 +98,7 @@ const createDirStore = (
   };
   const destroy = async (key) => {
     try {
-      const path = join(baseDirectory, key + extension);
+      const path = join(baseDirectory, key + '.' +  extension);
       await unlink(path)
       return succeed();
     } catch (error) {
