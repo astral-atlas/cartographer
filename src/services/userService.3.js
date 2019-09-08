@@ -16,10 +16,8 @@ export type UserService = {
   getAllUsers: () => Promise<Result<Array<User>, Error>>,
   addUser: () => Promise<Result<User, Error>>,
   getUser: (userId: UserID) => Promise<Result<User, Error>>,
+  deleteUser: (userId: UserID) => Promise<Result<void, Error>>,
 };
-*/
-/*
-  deleteUser: (userId: UserID) => Promise<Result<User, Error>>,
 */
 
 const createUserServiceFromLocalJson = async (
@@ -49,12 +47,15 @@ const createUserServiceFromLocalJson = async (
       () => fail(new Error()),
     );
   };
-  const deleteUser = () => {
-
-  };
-  const getUser = async (id) => {
-    return handleResult(await store.read(id), user => succeed(toUser(JSON.parse(user))), () => fail(new Error()));
-  };
+  const deleteUser = async (id) => handleResult(
+    await store.destroy(id),
+    () => succeed(),
+    () => fail(new Error()),
+  );
+  const getUser = async (id) => handleResult(await store.read(id),
+    user => succeed(toUser(JSON.parse(user))),
+    () => fail(new Error())
+  );
 
   return {
     getAllUsers,

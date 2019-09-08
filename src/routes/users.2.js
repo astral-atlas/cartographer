@@ -62,7 +62,6 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
   });
 
   const deleteUser = createRoute('DELETE', '/users', async (query) => {
-    return notFound();
     const queryUserId = query.get('userId')
     if (!queryUserId) {
       return invalidRequest();
