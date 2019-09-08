@@ -1,0 +1,20 @@
+version: '2.1'
+jobs:
+  build:
+    environment:
+      IMAGE_NAME: astralatlas/cartogreapher:latest
+    docker:
+      - image: circleci/buildpack-deps
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.06.0-ce
+      - run:
+          name: Build Dev Image
+          command: docker build --target builder -t dev-container .
+      - run:
+          name: Test Application
+          command: docker run dev-container npm run test
+      - run:
+          name: Build Prod image
+          command: docker build -t $IMAGE_NAME:$CIRCLE_TAG -t $IMAGE_NAME:latest .
