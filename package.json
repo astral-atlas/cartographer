@@ -17,7 +17,7 @@
   },
   "bin": "src/index.js",
   "name": "cartographer",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A backend API for serialzing atlas datas",
   "main": "src/index.js",
   "dependencies": {
