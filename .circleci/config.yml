@@ -41,12 +41,15 @@ workflows:
   version: 2
   build-and-publish:
     jobs:
-      - test
+      - test:
+          filters:  # Tags are disabled by default; This filter re-enables them since test is a dependancy of publish
+            tags:
+              only: /.*/
       - publish:
+          requires:
+            - test
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-          requires:
-            - test
