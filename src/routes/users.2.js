@@ -67,10 +67,12 @@ const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) 
       return invalidRequest();
     }
     const userId = toUserID(queryUserId);
-    const deletionResult = await userService.deleteUser(userId);
-    return handleResult(deletionResult,
-      () => ok(JSON.stringify(userId)),
-      error => defaultErrorResponse(error)
+    return handleResult(await userService.getUser(userId),
+      async (user) => handleResult(await userService.deleteUser(userId),
+        () => ok(JSON.stringify(userId)),
+        error => defaultErrorResponse(error)
+      ),
+      error => notFound(JSON.stringify({ message: `User ${userId} does not exist` })),
     );
   });
 
