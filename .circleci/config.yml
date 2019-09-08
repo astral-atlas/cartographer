@@ -2,7 +2,7 @@ version: '2.1'
 jobs:
   build:
     environment:
-      IMAGE_NAME: astralatlas/cartogreapher:latest
+      IMAGE_NAME: astralatlas/cartographer
     docker:
       - image: circleci/buildpack-deps
     steps:
@@ -16,5 +16,8 @@ jobs:
           name: Test Application
           command: docker run dev-container npm run test
       - run:
-          name: Build Prod image
-          command: docker build -t $IMAGE_NAME:$CIRCLE_TAG -t $IMAGE_NAME:latest .
+          name: Lint Application
+          command: docker run dev-container npm run lint
+      - run:
+          name: Type Application
+          command: docker run dev-container npm run type
