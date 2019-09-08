@@ -16,8 +16,5 @@ jobs:
           name: Test Application
           command: docker run dev-container npm run test
       - run:
-          name: Lint Application
-          command: docker run dev-container npm run lint
-      - run:
           name: Type Application
           command: docker run dev-container npm run type

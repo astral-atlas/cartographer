@@ -13,7 +13,6 @@
     "start": "node src",
     "test": "node test",
     "postversion": "git push && git push --tags",
-    "lint": "eslint src",
     "type": "flow"
   },
   "bin": "src/index.js",
