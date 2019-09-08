@@ -6,7 +6,7 @@ build: $(sourcefiles) package.json package-lock.json
 	cp -r --parents $(sourcefiles) package.json package-lock.json build
 	(cd build; npm ci install --production)
 
-clean: build
+clean:
 	rm -rf build
 
 .PHONY: clean test
