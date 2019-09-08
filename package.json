@@ -2,15 +2,19 @@
   "devDependencies": {
     "@lukekaalim/test": "^5.0.0",
     "c8": "^5.0.1",
-    "lk-test": "^3.1.0"
+    "eslint": "^6.3.0",
+    "flow-bin": "^0.107.0"
   },
   "engines": {
     "node": ">=12.5.0"
   },
   "scripts": {
+    "preversion": "circleci config validate && npm test",
     "start": "node src",
     "test": "node test",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "lint": "eslint src",
+    "type": "flow"
   },
   "bin": "src/index.js",
   "name": "cartographer",

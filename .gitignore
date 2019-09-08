@@ -3,3 +3,4 @@ local.cartographer.json
 local
 coverage
 .nyc_output
+build
