@@ -9,4 +9,4 @@ build: $(sourcefiles) package.json package-lock.json
 clean:
 	rm -rf build
 
-.PHONY: clean test
+.PHONY: clean
