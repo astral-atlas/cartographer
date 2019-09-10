@@ -6,7 +6,7 @@ const { errorRoute } = require('../events/routeEvents');
 const { handleResult } = require('../lib/result');
 const { createOPTIONSRoute } = require('../lib/route');
 /*::
-import type { UserService } from '../services/userService.3';
+import type { UserService } from '../services/userService';
 import type { EventLogger } from '../services/log.2';
 */
 
@@ -26,7 +26,7 @@ const corsSettingsMap = new Map([
   }],
 ]);
 
-const createUserRoutes = (logger/*: EventLogger*/, userService/*:UserService*/) => {
+const createUserRoutes = (logger/*: EventLogger*/, userService/*: UserService*/) => {
   const createRoute = enhanceRouteWithMiddleware(logger, createRESTRoute, corsSettingsMap);
   const defaultErrorResponse = (error) => {
     logger.log(errorRoute(error));

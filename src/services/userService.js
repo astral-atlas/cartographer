@@ -9,7 +9,7 @@ import type { EventLogger } from './log.2';
 const { join } = require('path');
 const { toUser, createUser } = require('../models/user');
 const { succeed, fail, handleResult } = require('../lib/result');
-const { createDirStore } = require('./storage/fsStorage2');
+const { createDirectoryMapStore } = require('./storage');
 
 /*::
 export type UserService = {
@@ -24,7 +24,7 @@ const createUserServiceFromLocalJson = async (
   logger,
   baseStorageDir,
 )/*: Promise<UserService>*/ => {
-  const store = await createDirStore(join(baseStorageDir, 'users'), logger, 'json');
+  const store = createDirectoryMapStore(join(baseStorageDir, 'users'));
 
   const getAllUsers = async () => {
     const withIds = async userIds => {
@@ -42,7 +42,7 @@ const createUserServiceFromLocalJson = async (
   };
   const addUser = async () => {
     const newUser = createUser();
-    return handleResult(await store.create(newUser.id, JSON.stringify(newUser)),
+    return handleResult(await store.write(newUser.id, JSON.stringify(newUser)),
       () => succeed(newUser),
       () => fail(new Error()),
     );
