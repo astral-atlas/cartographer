@@ -1,17 +1,20 @@
 // @flow
 /*::
-import type { Storage } from '../storage.2';
+import type { STDMapStore } from '../storage';
 import type { AWSCreds } from '../../models/config';
 */
 const { S3Client } = require('@aws-sdk/client-s3-node');
 const { PutObjectCommand } = require('@aws-sdk/client-s3-node/commands/PutObjectCommand');
 const { GetObjectCommand } = require('@aws-sdk/client-s3-node/commands/GetObjectCommand');
-const { HeadObjectCommand } = require('@aws-sdk/client-s3-node/commands/HeadObjectCommand');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3-node/commands/DeleteObjectCommand');
+const { ListObjectCommand } = require('@aws-sdk/client-s3-node/commands/ListObjectCommand');
+const { succeed } = require('@lukekaalim/result');
 
 const createS3Storage = (
   { accessKeyId, secretAccessKey, region } /*: AWSCreds*/,
   bucketName/*: string*/,
-)/*: Storage<string, string>*/ => {
+  keyPrefix/*: string*/,
+)/*: STDMapStore<string, string>*/ => {
   const client = new S3Client({ region, accessKeyId, secretAccessKey });
 
   const read = async (key) => {
@@ -20,7 +23,7 @@ const createS3Storage = (
       Key: key,
     });
     const data = await client.send(command);
-    return data.Body.toString('utf-8');
+    return succeed(data.Body.toString('utf-8'));
   };
 
   const write = async (key, value) => {
@@ -29,29 +32,30 @@ const createS3Storage = (
       Bucket: bucketName,
       Key: key,
     });
-    await client.send(command);
+    return succeed(await client.send(command));
   };
 
-  const has = async (key) => {
-    const command = new HeadObjectCommand({
+  const destroy = async (key) => {
+    const command = new DeleteObjectCommand({
       Bucket: bucketName,
       Key: key,
     });
-    try {
-      await client.send(command);
-      return true;
-    } catch (error) {
-      if (error.code === 'NotFound') {
-        return false;
-      }
-      throw error;
-    }
+    return succeed(await client.send(command));
   }
+
+  const list = async (key) => {
+    const command = new ListObjectCommand({
+      Bucket: bucketName,
+    });
+    const response = await client.send(command);
+    return succeed(response.Contents.map(content => content.Key));
+  };
 
   return {
     read,
     write,
-    has,
+    destroy,
+    list,
   };
 };
 

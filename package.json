@@ -22,6 +22,8 @@
   "main": "src/index.js",
   "dependencies": {
     "@aws-sdk/client-s3-node": "0.1.0-preview.2",
+    "@lukekaalim/model": "^1.1.1",
+    "@lukekaalim/result": "^1.1.1",
     "@lukekaalim/server": "^3.0.1",
     "@lukekaalim/to": "^1.2.0",
     "uuid": "^3.3.2"

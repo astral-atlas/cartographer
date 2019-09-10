@@ -10,9 +10,9 @@ const { createRoutes } = require('./routes.2');
 
 const { createAuthService } = require('./services/authentication');
 const { createJSONStreamLog } = require('./services/log/streamLog');
-const { createStorage } = require('./services/storage.2');
-const { createUserService } = require('./services/userService.3');
-const { createEncounterService } = require('./services/atlas/encounter');
+//const { createStorage } = require('./services/storage');
+const { createUserService } = require('./services/userService');
+//const { createEncounterService } = require('./services/atlas/encounter');
 const { createHeartbeat } = require('./services/heartbeat');
 
 const { toUser, toUserID } = require('./models/user');

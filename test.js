@@ -3,8 +3,8 @@ const { performance } = require('perf_hooks');
 const { expectAll, emojiReporter } = require('@lukekaalim/test');
 
 const { queueLogExpectations } = require('./src/services/log/queueLog.test');
-const { expectDirStorage } = require('./src/services/storage/fsStorage2.test');
-const { fileStorageExpectation } = require('./src/services/storage/fileStorage.test');
+//const { expectDirStorage } = require('./src/services/storage/fsStorage2.test');
+//const { fileStorageExpectation } = require('./src/services/storage/fileStorage.test');
 const { expectMiddleware } = require('./src/routes/routeMiddleware.test');
 
 const strMult = (multiplier, string) => {
@@ -41,8 +41,8 @@ const test = async () => {
   const expectation = expectAll('Cartographer', [
     queueLogExpectations,
     expectMiddleware,
-    expectDirStorage,
-    fileStorageExpectation,
+    //expectDirStorage,
+    //fileStorageExpectation,
   ]);
   const assertion = await expectation.test();
   const endTime = performance.now();

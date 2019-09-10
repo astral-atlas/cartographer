@@ -1,8 +1,8 @@
 // @flow
 /*::
 import type { EventLogger } from './services/log.2';
-import type { UserService } from './services/userService.3';
-import type { EncounterService } from './services/atlas/encounter';
+import type { UserService } from './services/userService';
+//import type { EncounterService } from './services/atlas/encounter';
 */
 const { createUserRoutes } = require('./routes/users.2');
 //const { createEncounterRoutes } = require('./routes/encounter');
