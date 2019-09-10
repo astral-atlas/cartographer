@@ -2,7 +2,7 @@
 <PROJECT_ROOT>/build/.*
 .*/\.nyc_output/.*
 .*/coverage/.*
-.*/node_modules/*.test.js
+.*/node_modules/.*\.test.js
 [include]
 
 [libs]
