@@ -11,7 +11,7 @@ const { createSession } = require('../../models/session');
 export type SessionService = {
   addNewSession: (title: string, startTime: number) => Promise<Result<Session, Error>>,
   deleteSession: (sessionId: SessionID) => Promise<Result<void, Error>>,
-  getNextSession: (currentTime: number) => Promise<Result<Session, Error>>,
+  getNextSession: (currentTime: number) => Promise<Result<null | Session, Error>>,
   listSessions: () => Promise<Result<Array<Session>, Error>>,
 };
 */
@@ -38,11 +38,14 @@ const createSessionService = (
         if (currentSession.startTime < currentTime) {
           return closestSessionSoFar;
         }
+        if (!closestSessionSoFar) {
+          return currentSession;
+        }
         if (closestSessionSoFar.startTime - currentTime > currentSession.startTime - currentTime) {
           return currentSession;
         }
         return closestSessionSoFar;
-      })))
+      }, null)))
       .result();
   };
   const listSessions = async () => {
