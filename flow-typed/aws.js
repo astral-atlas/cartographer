@@ -1,30 +1,11 @@
 // @flow strict
 
-declare module "aws-sdk" {
-  declare type S3Response<T> = {
-    promise: () => Promise<T>,
-  };
-  declare export class S3 {
-    constructor({ region: string, accessKeyId?: string, secretAccessKey?: string }): S3;
-    getObject({
-      Bucket: string,
-      Key: string,
-    }): S3Response<{ Body: Buffer }>,
-    putObject({
-      Body: string,
-      Bucket: string,
-      Key: string,
-    }): S3Response<{}>,
-    headObject({
-      Bucket: string,
-      Key: string,
-    }): S3Response<{}>,
-  }
-};
-
 declare module "@aws-sdk/client-s3-node" {
   import type { PutObjectCommand }  from '@aws-sdk/client-s3-node/commands/PutObjectCommand';
+  import type { HeadObjectCommand }  from '@aws-sdk/client-s3-node/commands/HeadObjectCommand';
   import type { GetObjectCommand }  from '@aws-sdk/client-s3-node/commands/GetObjectCommand';
+  import type { DeleteObjectCommand }  from '@aws-sdk/client-s3-node/commands/DeleteObjectCommand';
+  import type { ListObjectCommand }  from '@aws-sdk/client-s3-node/commands/ListObjectCommand';
   declare type ClientParams = {
     region?: string,
     accessKeyId?: string,
@@ -35,6 +16,8 @@ declare module "@aws-sdk/client-s3-node" {
     send(PutObjectCommand): Promise<void>;
     send(GetObjectCommand): Promise<{ Body: Buffer }>;
     send(HeadObjectCommand): Promise<void>;
+    send(DeleteObjectCommand): Promise<void>;
+    send(ListObjectCommand): Promise<{ Contents: Array<{ Key: string }>, NextMarker: string, IsTruncated: boolean }>
   }
 }
 
@@ -64,5 +47,25 @@ declare module "@aws-sdk/client-s3-node/commands/HeadObjectCommand" {
   }
   declare export class HeadObjectCommand {
     constructor(Params): HeadObjectCommand;
+  }
+}
+declare module "@aws-sdk/client-s3-node/commands/DeleteObjectCommand" {
+  declare type Params = {
+    Bucket: string,
+    Key: string,
+  }
+  declare export class DeleteObjectCommand {
+    constructor(Params): DeleteObjectCommand;
+  }
+}
+declare module "@aws-sdk/client-s3-node/commands/ListObjectCommand" {
+  declare type Params = {
+    Bucket: string,
+    Prefix?: string,
+    MaxKeys?: number,
+    Marker?: string,
+  }
+  declare export class ListObjectCommand {
+    constructor(Params): ListObjectCommand;
   }
 }
