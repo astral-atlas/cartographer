@@ -15,4 +15,4 @@ WORKDIR /home/cartographer/build
 COPY --from=builder /home/cartographer/build .
 
 EXPOSE 80
-ENTRYPOINT [ "node", "src" ]
+ENTRYPOINT [ "node", "server" ]
