@@ -2,9 +2,9 @@
 // @flow
 const { readFile } = require('fs').promises;
 
-const { toConfig } = require('./models/config');
-const { toTuples, toObjectFromTuples } = require('./lib/tuple');
-const { createCartographer } = require('./cartographer');
+const { toConfig } = require('./src/models/config');
+const { toTuples, toObjectFromTuples } = require('./src/lib/tuple');
+const { createCartographer } = require('./src/cartographer');
 
 const init = async () => {
   try {
