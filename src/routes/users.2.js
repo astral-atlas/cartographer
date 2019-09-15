@@ -1,82 +1,59 @@
 // @flow
-const { createRESTRoute, createRESTResponse } = require('@lukekaalim/server');
+const { ok, createRoute, internalServerError, badRequest } = require('@lukekaalim/server');
 const { toUserID } = require('../models/user');
-const { enhanceRouteWithMiddleware } = require('./routeMiddleware');
+const { createSTDMiddlewareEnhancer } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
 const { handleResult } = require('../lib/result');
 const { createOPTIONSRoute } = require('../lib/route');
 /*::
 import type { UserService } from '../services/userService';
 import type { EventLogger } from '../services/log.2';
+import type { Config } from '../models/config';
+import type { Route } from '@lukekaalim/server';
 */
 
-const ok =                  body => createRESTResponse(200, body);
-const invalidRequest =      body => createRESTResponse(400, body);
-const notFound =            body => createRESTResponse(404, body);
-const internalServerError = body => createRESTResponse(500, body);
+const createUserRoutes = (
+  logger/*: EventLogger*/,
+  config/*: Config*/,
+  userService/*: UserService*/
+)/*: Array<Route>*/ => {
+  const enhanceRoute = createSTDMiddlewareEnhancer(logger, config);
 
-const corsSettingsMap = new Map([
-  ['localhost', {
-    originAllowed: true,
-    allowCredentials: false,
-    exposedHeadersAllowed: [],
-    headersAllowed: [],
-    maxAgeSeconds: 60,
-    methodsAllowed: ['GET', 'POST', 'DELETE', 'OPTIONS']
-  }],
-]);
-
-const createUserRoutes = (logger/*: EventLogger*/, userService/*: UserService*/) => {
-  const createRoute = enhanceRouteWithMiddleware(logger, createRESTRoute, corsSettingsMap);
-  const defaultErrorResponse = (error) => {
-    logger.log(errorRoute(error));
-    return internalServerError(JSON.stringify({ message: 'There was an issue with the User Service' }));
-  };
-
-  const headUsers = createOPTIONSRoute('/users', corsSettingsMap);
-
-  const getUsers = createRoute('GET', '/users', async (query) => {
-    // Depending on if you present the ?userId=${userid} query, we show all of the users, or just one in detail
-    if (query.has('userId')) {
-      const userId = toUserID(query.get('userId'));
-      const getUserResult = await userService.getUser(userId);
-      return handleResult(getUserResult,
-        user => ok(JSON.stringify(user)),
-        error => notFound(JSON.stringify({ message: `User ${userId} does not exist` })),
-      );
-    } else {
-      const allUsersResult = await userService.getAllUsers();
-      return handleResult(allUsersResult,
-        allUsers => ok(JSON.stringify(allUsers.map(user => user.id))),
-        error => defaultErrorResponse(error)
-      );
-    }
+  const listUsersRoute = createRoute('/users', 'GET', async (request) => {
+    const allUsersResult = await userService.getAllUsers();
+    if (allUsersResult.type === 'failure')
+      return internalServerError('There was an error in the User Service');
+    return ok(JSON.stringify(allUsersResult.success));
   });
 
-  const postUser = createRoute('POST', '/users', async (query) => {
-    const userResult = await userService.addUser();
-    return handleResult(userResult,
-      user => ok(JSON.stringify(user)),
-      error => defaultErrorResponse(error)
-    );
+  const addUserRoute = createRoute('/users', 'POST', async (request) => {
+    const addUserResult = await userService.addUser();
+    if (addUserResult.type === 'failure')
+      return internalServerError('There was an error in the User Service');
+    return ok(JSON.stringify(addUserResult.success));
   });
 
-  const deleteUser = createRoute('DELETE', '/users', async (query) => {
-    const queryUserId = query.get('userId')
+  const deleteUserRoute = createRoute('/users', 'DELETE', async (request) => {
+    const queryUserId = request.query.get('userId')
     if (!queryUserId) {
-      return invalidRequest();
+      return badRequest('Missing ?userId=${UserID}');
     }
     const userId = toUserID(queryUserId);
-    return handleResult(await userService.getUser(userId),
-      async (user) => handleResult(await userService.deleteUser(userId),
-        () => ok(JSON.stringify(userId)),
-        error => defaultErrorResponse(error)
-      ),
-      error => notFound(JSON.stringify({ message: `User ${userId} does not exist` })),
-    );
+    const getUserResult = await userService.getUser(userId);
+    if (getUserResult.type === 'failure') {
+      return internalServerError(`There was an error in the User Service, could not retrieve user "${userId}"`);
+    }
+    const deleteUserResult = await userService.deleteUser(userId);
+    if (deleteUserResult.type === 'failure')
+      return internalServerError(`There was an error in the User Service, could not delete user "${userId}"`);
+    return ok();
   });
 
-  return [getUsers, postUser, deleteUser];
+  return [
+    listUsersRoute,
+    addUserRoute,
+    deleteUserRoute
+  ].map(enhanceRoute);
 };
 
 module.exports = {
