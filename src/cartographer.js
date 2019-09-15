@@ -4,7 +4,7 @@ import type { Config } from './models/config';
 */
 const { createServer } = require('http');
 const { join } = require('path');
-const { createListener } = require('@lukekaalim/server');
+const { createListener, notFound } = require('@lukekaalim/server');
 
 const { createRoutes } = require('./routes.2');
 
@@ -30,34 +30,6 @@ const createLogService = (logType) => {
   }
 };
 
-class UnhandledRouteError extends Error {
-  constructor(url) {
-    return super(`No route found @ "${url}"`);
-  }
-}
-
-class UnknownRouteError extends Error {
-  constructor(url) {
-    return super(`An uncaught error was throw by a route @ "${url}"`);
-  }
-}
-
-const onNotFound = (logger) => (inc, res) => {
-  const error = new UnhandledRouteError(inc.url);
-  logger.log(errorRoute(error));
-  logger.log(respondRoute(inc.url, inc.method, 404));
-  res.writeHead(404);
-  res.end();
-};
-
-const onError = (logger) => (inc, res) => {
-  const error = new UnknownRouteError(inc.url);
-  logger.log(errorRoute(error));
-  logger.log(respondRoute(inc.url, inc.method, 500));
-  res.writeHead(500);
-  res.end();
-};
-
 const createCartographer = async (config/*: Config*/) => {
   const logger = createLogService('stdout');
   const heart = createHeartbeat(logger, 10000);
@@ -67,9 +39,9 @@ const createCartographer = async (config/*: Config*/) => {
   const userService = await createUserService(logger, config);
   const sessionService = createSessionService(createMemoryMapStore());
   //const encounterService = createEncounterService(encounters);
-  const routes = await createRoutes(logger, userService, sessionService);
+  const routes = await createRoutes(logger, userService, sessionService, config);
 
-  const server = createServer(createListener(routes, onNotFound(logger), onError(logger)));
+  const server = createServer(createListener(routes, () => notFound()));
 
   const open = async () => new Promise(res => {
     server.listen(config.port, () => {

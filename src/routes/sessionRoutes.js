@@ -1,21 +1,17 @@
 // @flow
-const { createRESTRoute, createRESTResponse } = require('@lukekaalim/server');
+const { ok, createRoute, internalServerError, badRequest } = require('@lukekaalim/server');
 const { handle } = require('@lukekaalim/result');
 const { nameModel, modelObject, stringModel, numberModel } = require('@lukekaalim/model');
 
 const { sessionIdModel } = require('../models/session');
-const { enhanceRouteWithMiddleware } = require('./routeMiddleware');
+const { createSTDMiddlewareEnhancer } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
-const { createOPTIONSRoute } = require('../lib/route');
 /*::
 import type { SessionService } from '../services/atlas/sessionService';
 import type { EventLogger } from '../services/log.2';
+import type { Config } from '../models/config';
+import type { Route } from '@lukekaalim/server';
 */
-
-const ok =                  body => createRESTResponse(200, body);
-const invalidRequest =      body => createRESTResponse(400, body);
-const notFound =            body => createRESTResponse(404, body);
-const internalServerError = body => createRESTResponse(500, body);
 
 const corsSettings = {
   originAllowed: true,
@@ -31,62 +27,64 @@ const addSessionBody = nameModel('Add Session Body', modelObject({
   startTime: numberModel,
 }));
 
-const createSessionRoutes = (logger/*: EventLogger*/, service/*: SessionService*/) => {
-  const createEnhancedRoute = enhanceRouteWithMiddleware(logger, createRESTRoute, new Map([['localhost', corsSettings]]));
+const createSessionRoutes = (
+  logger/*: EventLogger*/,
+  config/*: Config*/,
+  service/*: SessionService*/
+)/*: Array<Route>*/ => {
+  const enhanceRoute = createSTDMiddlewareEnhancer(logger, config);
 
-  const headSessions = createOPTIONSRoute('/sessions', new Map([['localhost', corsSettings]]));
-
-  const listRoute = createEnhancedRoute('GET', '/sessions', async () => {
-    return handle(await service.listSessions(),
-      sessions => ok(JSON.stringify(sessions)),
-      failure => internalServerError(failure.message),
-    );
+  const listSessionsRoute = createRoute('/sessions', 'GET', async () => {
+    const listResult = await service.listSessions();
+    if (listResult.type === 'failure')
+      return internalServerError('There was an issue with the Session Service');
+    return ok(JSON.stringify(listResult.success));
   });
 
-  const addRoute = createRESTRoute('POST', '/sessions', async (q, h, rawBody) => {
-    if (!rawBody) {
-      return invalidRequest('Missing Body');
-    }
-    return handle(addSessionBody.from(JSON.parse(rawBody)),
-      async (body) => handle(await service.addNewSession(body.title, body.startTime),
-        session => ok(JSON.stringify(session)),
-        failure => internalServerError(failure.message),
-      ),
-      failure => invalidRequest(failure.message)
-    );
+  const addSessionRoute = createRoute('/sessions', 'POST', async (request) => {
+    if (!request.body)
+      return badRequest('Missing request BODY, must be JSON formatted input');
+    const bodyParseResult = addSessionBody.from(JSON.parse(request.body));
+    if (bodyParseResult.type === 'failure')
+      return badRequest(bodyParseResult.failure.message);
+    const body = bodyParseResult.success;
+    const addSessionResult = await service.addNewSession(body.title, body.startTime);
+    if (addSessionResult.type === 'failure')
+      return internalServerError('There was an issue with the Session Service');
+    const session = addSessionResult.success;
+    return ok(JSON.stringify(session));
   });
 
-  const removeRoute = createRESTRoute('DELETE', '/sessions', async (query) => {
-    const sessionId = query.get('sessionId');
-    if (!sessionId) {
-      return invalidRequest('Missing ?sessionId=${sessionID}');
-    }
-    return handle(sessionIdModel.from(sessionId),
-      async sessionId => handle(await service.deleteSession(sessionId),
-        () => ok(),
-        failure => invalidRequest(failure.message),
-      ),
-      failure => invalidRequest(failure.message),
-    );
+  const deleteSessionRoute = createRoute('/sessions', 'DELETE', async (request) => {
+    const sessionIdQuery = request.query.get('sessionId');
+    if (!sessionIdQuery)
+      return badRequest('Missing ?sessionId=${sessionID}');
+    const sessionIdResult = sessionIdModel.from(sessionIdQuery);
+    if (sessionIdResult.type === 'failure')
+      return badRequest(sessionIdResult.failure.message);
+    const deleteSessionResult = await service.deleteSession(sessionIdResult.success);
+    if (deleteSessionResult.type === 'failure')
+      return internalServerError('There was an issue with the Session Service');
+    return ok();
   });
 
-  const getLatest = createRESTRoute('GET', '/sessions/latest', async (query) => {
-    const currentTime = parseInt(query.get('currentTime'));
+  const getLatestSessionRoute = createRoute('/sessions/latest', 'GET', async (request) => {
+    const currentTime = parseInt(request.query.get('currentTime'));
     if (!currentTime) {
-      return invalidRequest('Missing ?currentTime=${number}');
+      return badRequest('Missing ?currentTime=${number}');
     }
-    return handle(await service.getNextSession(currentTime),
-      session => ok(JSON.stringify(session)),
-      failure => invalidRequest(failure.message), 
-    );
+    const getNextSessionResult = await service.getNextSession(currentTime);
+    if (getNextSessionResult.type === 'failure')
+      return internalServerError('There was an issue with the Session Service');
+    return ok(JSON.stringify(getNextSessionResult.success));
   });
 
   return [
-    addRoute,
-    listRoute,
-    getLatest,
-    removeRoute,
-  ];
+    listSessionsRoute,
+    addSessionRoute,
+    deleteSessionRoute,
+    getLatestSessionRoute,
+  ].map(route => enhanceRoute(route));
 };
 
 module.exports = {

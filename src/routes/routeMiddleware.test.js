@@ -1,6 +1,5 @@
 // @flow
 const { expect, assert, expectAll } = require('@lukekaalim/test');
-const { enhanceRouteWithMiddleware } = require('./routeMiddleware');
 
 const expectEachRouteMiddlewareToBeCalled = expect(() => {
   return assert('It works', true);
