@@ -1,5 +1,5 @@
 // @flow strict
-const { toObject, toAString, toNumber, toDisjointUnion } = require('@lukekaalim/to');
+const { toObject, toAString, toNumber, toDisjointUnion, toArray } = require('@lukekaalim/to');
 const { toUserID } = require('./user');
 
 /*::
@@ -15,6 +15,10 @@ export type StorageConfig =
   | { type: 'local-json', dir: string }
   | { type: 's3-json', bucketName: string, creds: AWSCreds }
 
+export type CorsConfig = {
+  origins: Array<string>,
+};
+
 export type FixedAuthenticationConfig = {
   type: 'fixed',
   name: string,
@@ -29,6 +33,7 @@ export type Config = {
   storage: StorageConfig,
   authentication: AuthenticationConfig,
   port: number,
+  cors: CorsConfig,
 };
 */
 
@@ -65,8 +70,13 @@ const toStorage = toDisjointUnion('type', {
   'local-json': toLocalJsonStorage,
 });
 
+const toCors = toObject({
+  origins: toArray(toAString),
+});
+
 const toConfig/*: mixed => Config*/ = toObject({
   authentication: toAuthentication,
+  cors: toCors,
   storage: toStorage,
   port: toNumber,
 });
