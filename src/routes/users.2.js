@@ -4,7 +4,6 @@ const { toUserID } = require('../models/user');
 const { createSTDMiddlewareEnhancer } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
 const { handleResult } = require('../lib/result');
-const { createOPTIONSRoute } = require('../lib/route');
 /*::
 import type { UserService } from '../services/userService';
 import type { EventLogger } from '../services/log.2';

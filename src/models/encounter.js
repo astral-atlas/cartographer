@@ -105,7 +105,7 @@ const toEncounterAction = toDisjointUnion('type', {
 
 const toEncounter/*: mixed => Encounter*/ = toObject({
   id: toEncounterID,
-  title: toString,
+  title: toAString,
   actions: toArray(toEncounterAction)
 });
 

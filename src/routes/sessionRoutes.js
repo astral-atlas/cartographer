@@ -6,7 +6,6 @@ const { nameModel, modelObject, stringModel, numberModel } = require('@lukekaali
 const { sessionIdModel } = require('../models/session');
 const { createSTDMiddlewareEnhancer } = require('./routeMiddleware');
 const { errorRoute } = require('../events/routeEvents');
-const { createOPTIONSRoute } = require('../lib/route');
 /*::
 import type { SessionService } from '../services/atlas/sessionService';
 import type { EventLogger } from '../services/log.2';

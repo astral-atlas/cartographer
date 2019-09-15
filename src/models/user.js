@@ -3,7 +3,7 @@
 import type { UUID } from './uuid';
 */
 const { toUUID, generateUUID } = require('./uuid');
-const { toObject, toString } = require('@lukekaalim/to');
+const { toObject, toAString } = require('@lukekaalim/to');
 
 /*::
 export opaque type UserID: UUID = UUID;
