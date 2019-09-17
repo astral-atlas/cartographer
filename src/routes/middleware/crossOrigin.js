@@ -6,7 +6,7 @@ import type { Config } from '../../models/config';
 
 const crossOriginMiddleware = (config/*: Config*/) => (route/*: Route*/)/*: Route*/ => {
   const handlerWithContentType = async (req) => {
-    const origin = req.headers.get('Origin')
+    const origin = req.headers.get('origin')
     const response = await route.handler(req);
     if (config.cors.origins.includes(origin)) {
       return {
