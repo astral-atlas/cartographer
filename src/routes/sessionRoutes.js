@@ -56,9 +56,9 @@ const createSessionRoutes = (
   });
 
   const deleteSessionRoute = createRoute('/sessions', 'DELETE', async (request) => {
-    const sessionIdQuery = request.query.get('sessionId');
+    const sessionIdQuery = request.query.get('id');
     if (!sessionIdQuery)
-      return badRequest('Missing ?sessionId=${sessionID}');
+      return badRequest('Missing ?id=${sessionID}');
     const sessionIdResult = sessionIdModel.from(sessionIdQuery);
     if (sessionIdResult.type === 'failure')
       return badRequest(sessionIdResult.failure.message);

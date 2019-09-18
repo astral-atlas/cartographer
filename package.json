@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@lukekaalim/contract": "^2.0.0",
     "@lukekaalim/test": "^5.0.0",
     "c8": "^5.0.1",
     "eslint": "^6.3.0",
