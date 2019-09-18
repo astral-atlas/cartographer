@@ -79,11 +79,18 @@ const createSessionRoutes = (
     return ok(JSON.stringify(getNextSessionResult.success));
   });
 
+  const optionsSessionRoute = createRoute('/sessions', 'OPTIONS', () => {
+    return ok('', {
+      'Access-Control-Allow-Methods': 'POST, DELETE, GET, OPTIONS'
+    });
+  })
+
   return [
     listSessionsRoute,
     addSessionRoute,
     deleteSessionRoute,
     getLatestSessionRoute,
+    optionsSessionRoute
   ].map(route => enhanceRoute(route));
 };
 
