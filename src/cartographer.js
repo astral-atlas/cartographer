@@ -45,7 +45,7 @@ const createCartographer = async (config/*: Config*/) => {
 
   const open = async () => new Promise(res => {
     server.listen(config.port, () => {
-      logger.log(boundPort(config.port));
+      logger.log(boundPort(server.address().port));
       res();
     });
   });
