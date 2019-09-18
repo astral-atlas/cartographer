@@ -9,7 +9,7 @@ import type { EventLogger } from './log.2';
 const { join } = require('path');
 const { toUser, createUser } = require('../models/user');
 const { succeed, fail, handleResult } = require('../lib/result');
-const { createDirectoryMapStore } = require('./storage');
+const { createDirectoryMapStore, createMemoryMapStore } = require('./storage');
 
 /*::
 export type UserService = {
@@ -22,10 +22,8 @@ export type UserService = {
 
 const createUserServiceFromLocalJson = async (
   logger,
-  baseStorageDir,
+  store,
 )/*: Promise<UserService>*/ => {
-  const store = createDirectoryMapStore(join(baseStorageDir, 'users'));
-
   const getAllUsers = async () => {
     const withIds = async userIds => {
       const users/*: Array<User>*/ = [];
@@ -74,7 +72,9 @@ class UnimplmenementedError extends Error {
 const createUserService = (logger/*: EventLogger*/, config/*: Config*/) => {
   switch (config.storage.type) {
     case 'local-json':
-      return createUserServiceFromLocalJson(logger, config.storage.dir);
+      return createUserServiceFromLocalJson(logger, createDirectoryMapStore(join(config.storage.dir, 'users')));
+    case 'memory':
+        return createUserServiceFromLocalJson(logger, createMemoryMapStore());
     default:
       throw new UnimplmenementedError(`"${config.storage.type}" storage type for the user service`);
   }

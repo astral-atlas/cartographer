@@ -14,6 +14,7 @@ export type AWSCreds = {
 export type StorageConfig =
   | { type: 'local-json', dir: string }
   | { type: 's3-json', bucketName: string, creds: AWSCreds }
+  | { type: 'memory' }
 
 export type CorsConfig = {
   origins: Array<string>,
@@ -65,9 +66,14 @@ const toLocalJsonStorage = toObject({
   dir: toAString,
 });
 
+const toMemoryStorage = toObject({
+  type: ()/*: 'memory'*/ => 'memory',
+})
+
 const toStorage = toDisjointUnion('type', {
   's3-json': toS3JsonStorage,
   'local-json': toLocalJsonStorage,
+  'memory': toMemoryStorage,
 });
 
 const toCors = toObject({
