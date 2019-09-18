@@ -10,7 +10,7 @@
     "node": ">=12.5.0"
   },
   "scripts": {
-    "preversion": "circleci config validate && npm test",
+    "preversion": "npm test",
     "start": "node src",
     "test": "node test",
     "postversion": "git push && git push --tags",
