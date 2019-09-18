@@ -5,6 +5,7 @@ import type { Result } from '../lib/result';
 import type { UserID } from '../models/user';
 */
 const { succeed, fail } = require('../lib/result');
+const { createUser } = require('../models/user');
 
 /*::
 type AuthenticationService = {
@@ -24,9 +25,16 @@ const createFixedAuth = ({ name, pass, userId }) => {
   return { getUserId };
 };
 
+const createBypassAuth = () => {
+  const getUserId = async () => succeed(createUser().id);
+  return { getUserId };
+};
+
 
 const createAuthService = (config/*: Config*/)/*: AuthenticationService*/ => {
   switch (config.authentication.type) {
+    case 'none':
+      return createBypassAuth();
     default:
       return createFixedAuth(config.authentication);
   }

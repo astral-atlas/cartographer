@@ -28,7 +28,8 @@ export type FixedAuthenticationConfig = {
 };
 
 type AuthenticationConfig =
-  | FixedAuthenticationConfig;
+  | FixedAuthenticationConfig
+  | { type: 'none' };
 
 export type Config = {
   storage: StorageConfig,
@@ -47,6 +48,7 @@ const toFixedAuth = toObject({
 
 const toAuthentication = toDisjointUnion('type', {
   'fixed': toFixedAuth,
+  'none': toObject({ type: () => 'fixed' }),
 });
 
 const toAwsCreds = toObject({
