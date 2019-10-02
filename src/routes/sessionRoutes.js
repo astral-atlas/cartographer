@@ -13,15 +13,6 @@ import type { Config } from '../models/config';
 import type { Route } from '@lukekaalim/server';
 */
 
-const corsSettings = {
-  originAllowed: true,
-  allowCredentials: false,
-  exposedHeadersAllowed: [],
-  headersAllowed: [],
-  maxAgeSeconds: 60,
-  methodsAllowed: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-};
-
 const addSessionBody = nameModel('Add Session Body', modelObject({
   title: stringModel,
   startTime: numberModel,
