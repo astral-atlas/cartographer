@@ -1,7 +1,6 @@
 # Cartographer
 **Mapping your way through the _Astral Atlas_**
 
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/astralatlas/cartographer)](https://hub.docker.com/r/astralatlas/cartographer)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/astral-atlas/cartographer)
 
 ## Usage
