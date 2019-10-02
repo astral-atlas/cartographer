@@ -69,10 +69,10 @@ class UnimplmenementedError extends Error {
   }
 }
 
-const createUserService = (logger/*: EventLogger*/, config/*: Config*/) => {
+const createUserService = async (logger/*: EventLogger*/, config/*: Config*/) => {
   switch (config.storage.type) {
     case 'local-json':
-      return createUserServiceFromLocalJson(logger, createDirectoryMapStore(join(config.storage.dir, 'users')));
+      return createUserServiceFromLocalJson(logger, await createDirectoryMapStore(join(config.storage.dir, 'users')));
     case 'memory':
         return createUserServiceFromLocalJson(logger, createMemoryMapStore());
     default:
