@@ -14,6 +14,7 @@ const { createJSONStreamLog } = require('./services/log/streamLog');
 const { createMemoryMapStore } = require('./services/storage');
 const { createUserService } = require('./services/userService');
 const { createSessionService } = require('./services/atlas/sessionService');
+const { createSpellService } = require('./services/atlas/spellService');
 //const { createEncounterService } = require('./services/atlas/encounter');
 const { createHeartbeat } = require('./services/heartbeat');
 
@@ -38,8 +39,9 @@ const createCartographer = async (config/*: Config*/) => {
   const authService = createAuthService(config);
   const userService = await createUserService(logger, config);
   const sessionService = createSessionService(createMemoryMapStore());
+  const spellSevice = await createSpellService(config);
   //const encounterService = createEncounterService(encounters);
-  const routes = await createRoutes(logger, userService, sessionService, config);
+  const routes = await createRoutes(logger, userService, sessionService, spellSevice, config);
 
   const server = createServer(createListener(routes, () => notFound()));
 

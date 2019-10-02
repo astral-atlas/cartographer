@@ -46,10 +46,24 @@ const createMemoryMapStore = /*:: <K, V>*/()/*: STDMapStore<K, V>*/ => {
   return { read, write, list, destroy };
 };
 
-const { readFile, writeFile, readdir, unlink } = require('fs').promises;
+const { readFile, writeFile, readdir, unlink, stat, mkdir } = require('fs').promises;
 const { join } = require('path');
 
-const createDirectoryMapStore = (path/*: string*/)/*: STDMapStore<string, string>*/ => {
+const directoryExists = async (path) => {
+  try {
+    return (await stat(path, {})).isDirectory();
+  } catch (error) {
+    if (error.code === 'EEXIST' || error.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+};
+
+const createDirectoryMapStore = async (path/*: string*/)/*: Promise<STDMapStore<string, string>>*/ => {
+  if (!await directoryExists(path)) {
+    await mkdir(path, { recursive: true });
+  }
   const list = async () => {
     try {
       return succeed(await readdir(path));

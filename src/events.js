@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { RouteEvent } from './events/routeEvents';
 import type { ApplicationEvent } from './events/applicationEvents';
