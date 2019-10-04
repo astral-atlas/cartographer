@@ -1,6 +1,7 @@
 // @flow strict
 /*::
 import type { Result } from '../lib/result';
+import type { Config } from '../models/config';
 */
 const { createMap2 } = require('../lib/map2');
 const { succeed, fail, handleResult } = require('../lib/result');
@@ -37,7 +38,7 @@ const createMemoryMapStore = /*:: <K, V>*/()/*: STDMapStore<K, V>*/ => {
   );
   const write = async (key, value) => handleResult(internalMap.set(key, value),
     () => succeed(),
-    empt => empt,
+    empty => empty,
   );
   const destroy = async (key) => handleResult(internalMap.delete(key),
     value => succeed(),
@@ -74,7 +75,7 @@ const createDirectoryMapStore = async (path/*: string*/)/*: Promise<STDMapStore<
   const read = async (key) => {
     const filename = join(path, key);
     try {
-      return succeed(await readFile(filename));
+      return succeed(await readFile(filename, 'utf-8'));
     } catch (error) {
       if (error.code === 'EEXIST' || error.code === 'ENOENT') {
         return fail({ type: 'not-found' });
@@ -85,7 +86,7 @@ const createDirectoryMapStore = async (path/*: string*/)/*: Promise<STDMapStore<
   const write = async (key, value) => {
     const filename = join(path, key);
     try {
-      return succeed(await writeFile(filename, value));
+      return succeed(await writeFile(filename, value, 'utf-8'));
     } catch (error) {
       return fail({ type: 'internal-failure', error });
     }
@@ -155,8 +156,73 @@ const createJSONModeledStorage = /*:: <Key: string, Value>*/(
   }
 };
 
+const transformKey = /*:: <K: string, TK: string, V>*/(
+  transformKey/*: K => TK*/,
+  untransformKey/*: TK => K*/,
+  mapStore/*: STDMapStore<TK, V>*/,
+)/*: STDMapStore<K, V>*/ => {
+  const list = async () => handleResult(await mapStore.list(),
+    keys => succeed(keys.map(untransformKey)),
+    failure => fail(failure),
+  );
+  const read = async (key) => mapStore.read(transformKey(key));
+  const write = async (key, value) => mapStore.write(transformKey(key), value);
+  const destroy = async (key) => mapStore.destroy(transformKey(key));
+
+  return { read, write, list, destroy };
+};
+
+const { createS3Storage } = require('./storage/s3Storage');
+
+const transformKeyWithFileExtension = (fileExtension, storage) => {
+  return transformKey(key => `${key}.${fileExtension}`, key => key.slice(0, 0 - (fileExtension.length + 1)), storage)
+}
+
+const transformKeyWithNamespace = (namespace, storage) => {
+  return transformKey(key => `${namespace}/${key}`, key => key.slice(namespace.length + 1), storage);
+}
+
+const createModelMapStore = async function /*::<K: string, V>*/(
+  config/*: Config*/,
+  valueModel/*: Model<V>*/,
+  keyModel/*: Model<K>*/,
+  namespace/*: string*/,
+)/*: Promise<STDMapStore<K, V>>*/ {
+  switch(config.storage.type) {
+    case 's3-json':
+      return createJSONModeledStorage(
+        transformKeyWithNamespace(
+          namespace,
+          transformKeyWithFileExtension(
+            '.json',
+            await createS3Storage(config.storage.creds, config.storage.bucketName),
+          )
+        ),
+        valueModel,
+        keyModel,
+      );
+    case 'local-json':
+      return (
+        createJSONModeledStorage(
+          transformKeyWithFileExtension(
+            '.json',
+            await createDirectoryMapStore(join(config.storage.dir, namespace))
+          ),
+          valueModel,
+          keyModel,
+        )
+      );
+    case 'memory':
+        return createMemoryMapStore();
+    default:
+      throw new Error(`Unknown storage type: ${config.storage.type}`);
+  }
+};
+
 module.exports = {
   createMemoryMapStore,
   createDirectoryMapStore,
   createJSONModeledStorage,
+
+  createModelMapStore,
 };

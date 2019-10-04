@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { EventLogger } from './services/log.2';
 import type { UserService } from './services/userService';

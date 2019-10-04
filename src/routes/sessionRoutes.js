@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 const { ok, createRoute, internalServerError, badRequest } = require('@lukekaalim/server');
 const { handle } = require('@lukekaalim/result');
 const { nameModel, modelObject, stringModel, numberModel } = require('@lukekaalim/model');
@@ -33,7 +33,7 @@ const createSessionRoutes = (
   });
 
   const addSessionRoute = createRoute('/sessions', 'POST', async (request) => {
-    if (!request.body)
+    if (request.body === undefined)
       return badRequest('Missing request BODY, must be JSON formatted input');
     const bodyParseResult = addSessionBody.from(JSON.parse(request.body));
     if (bodyParseResult.type === 'failure')
@@ -48,7 +48,7 @@ const createSessionRoutes = (
 
   const deleteSessionRoute = createRoute('/sessions', 'DELETE', async (request) => {
     const sessionIdQuery = request.query.get('id');
-    if (!sessionIdQuery)
+    if (sessionIdQuery === undefined)
       return badRequest('Missing ?id=${sessionID}');
     const sessionIdResult = sessionIdModel.from(sessionIdQuery);
     if (sessionIdResult.type === 'failure')

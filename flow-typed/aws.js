@@ -5,7 +5,7 @@ declare module "@aws-sdk/client-s3-node" {
   import type { HeadObjectCommand }  from '@aws-sdk/client-s3-node/commands/HeadObjectCommand';
   import type { GetObjectCommand }  from '@aws-sdk/client-s3-node/commands/GetObjectCommand';
   import type { DeleteObjectCommand }  from '@aws-sdk/client-s3-node/commands/DeleteObjectCommand';
-  import type { ListObjectCommand }  from '@aws-sdk/client-s3-node/commands/ListObjectCommand';
+  import type { ListObjectsCommand }  from '@aws-sdk/client-s3-node/commands/ListObjectsCommand';
   declare type ClientParams = {
     region?: string,
     accessKeyId?: string,
@@ -17,7 +17,7 @@ declare module "@aws-sdk/client-s3-node" {
     send(GetObjectCommand): Promise<{ Body: Buffer }>;
     send(HeadObjectCommand): Promise<void>;
     send(DeleteObjectCommand): Promise<void>;
-    send(ListObjectCommand): Promise<{ Contents: Array<{ Key: string }>, NextMarker: string, IsTruncated: boolean }>
+    send(ListObjectsCommand): Promise<{ Contents: Array<{ Key: string }>, NextMarker: string, IsTruncated: boolean }>
   }
 }
 
@@ -58,14 +58,14 @@ declare module "@aws-sdk/client-s3-node/commands/DeleteObjectCommand" {
     constructor(Params): DeleteObjectCommand;
   }
 }
-declare module "@aws-sdk/client-s3-node/commands/ListObjectCommand" {
+declare module "@aws-sdk/client-s3-node/commands/ListObjectsCommand" {
   declare type Params = {
     Bucket: string,
     Prefix?: string,
     MaxKeys?: number,
     Marker?: string,
   }
-  declare export class ListObjectCommand {
-    constructor(Params): ListObjectCommand;
+  declare export class ListObjectsCommand {
+    constructor(Params): ListObjectsCommand;
   }
 }

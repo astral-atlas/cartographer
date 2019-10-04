@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { SpellService } from '../services/atlas/spellService';
 import type { EventLogger } from '../services/log.2';
@@ -44,7 +44,7 @@ const createSpellRoutes = (
   });
 
   const editSpell = createRoute('/spells', 'PUT', async ({ body }) => {
-    if (!body)
+    if (body === undefined)
       return badRequest('Please include a JSON spell in the request body');
     const spellParseResult = spellModel.from(JSON.parse(body));
     if (spellParseResult.type === 'failure')

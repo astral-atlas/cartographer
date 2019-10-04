@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { STDMapStore } from '../storage';
 import type { AWSCreds } from '../../models/config';
@@ -7,13 +7,12 @@ const { S3Client } = require('@aws-sdk/client-s3-node');
 const { PutObjectCommand } = require('@aws-sdk/client-s3-node/commands/PutObjectCommand');
 const { GetObjectCommand } = require('@aws-sdk/client-s3-node/commands/GetObjectCommand');
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3-node/commands/DeleteObjectCommand');
-const { ListObjectCommand } = require('@aws-sdk/client-s3-node/commands/ListObjectCommand');
+const { ListObjectsCommand } = require('@aws-sdk/client-s3-node/commands/ListObjectsCommand');
 const { succeed } = require('@lukekaalim/result');
 
 const createS3Storage = (
   { accessKeyId, secretAccessKey, region } /*: AWSCreds*/,
   bucketName/*: string*/,
-  keyPrefix/*: string*/,
 )/*: STDMapStore<string, string>*/ => {
   const client = new S3Client({ region, accessKeyId, secretAccessKey });
 
@@ -43,8 +42,8 @@ const createS3Storage = (
     return succeed(await client.send(command));
   }
 
-  const list = async (key) => {
-    const command = new ListObjectCommand({
+  const list = async () => {
+    const command = new ListObjectsCommand({
       Bucket: bucketName,
     });
     const response = await client.send(command);

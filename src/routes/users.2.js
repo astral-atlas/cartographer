@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 const { ok, createRoute, internalServerError, badRequest } = require('@lukekaalim/server');
 const { toUserID } = require('../models/user');
 const { createSTDMiddlewareEnhancer } = require('./routeMiddleware');
@@ -34,7 +34,7 @@ const createUserRoutes = (
 
   const deleteUserRoute = createRoute('/users', 'DELETE', async (request) => {
     const queryUserId = request.query.get('userId')
-    if (!queryUserId) {
+    if (queryUserId === undefined) {
       return badRequest('Missing ?userId=${UserID}');
     }
     const userId = toUserID(queryUserId);

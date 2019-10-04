@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { Config } from '../models/config';
 import type { Result } from '../lib/result';
@@ -32,6 +32,7 @@ const createUserServiceFromLocalJson = async (
         if (userResult.type === 'failure') {
           return fail(new Error());
         }
+        console.log(userResult.success);
         users.push(toUser(JSON.parse(userResult.success)));
       };
       return succeed(users);

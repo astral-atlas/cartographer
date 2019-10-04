@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { Route } from '@lukekaalim/server';
 import type { EventLogger } from '../../services/log.2';

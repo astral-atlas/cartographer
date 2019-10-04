@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 const { contentLengthMiddleware } = require('./middleware/contentLength');
 const { crossOriginMiddleware } = require('./middleware/crossOrigin');
 const { contentTypeMiddleware } = require('./middleware/contentType');

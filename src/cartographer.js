@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 /*::
 import type { Config } from './models/config';
 */
@@ -39,11 +39,11 @@ const createCartographer = async (config/*: Config*/) => {
   const authService = createAuthService(config);
   const userService = await createUserService(logger, config);
   const sessionService = createSessionService(createMemoryMapStore());
-  const spellSevice = await createSpellService(config);
+  const spellService = await createSpellService(config);
   //const encounterService = createEncounterService(encounters);
-  const routes = await createRoutes(logger, userService, sessionService, spellSevice, config);
+  const routes = await createRoutes(logger, userService, sessionService, spellService, config);
 
-  const server = createServer(createListener(routes, () => notFound()));
+  const server = createServer(createListener(routes, (res) => notFound()));
 
   const open = async () => new Promise(res => {
     server.listen(config.port, () => {
